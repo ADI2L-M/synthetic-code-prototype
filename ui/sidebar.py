@@ -11,12 +11,29 @@ class SidebarControls:
     batch_size: int
     tolerance: float
     generate_requested: bool
+    provider_mode: str
+    ollama_model: str
+    ollama_base_url: str
 
 
 def render_sidebar(tasks: tuple[ProgrammingTask, ...]) -> SidebarControls:
     with st.sidebar:
         st.header(":material/science: Prototype controls")
-        st.caption("Deterministic Demo/Mock mode")
+        provider_mode = st.selectbox(
+            "Generation provider",
+            ["Demo", "Local Ollama"],
+            key="provider_mode",
+        )
+        ollama_model = "qwen2.5-coder:7b"
+        ollama_base_url = "http://localhost:11434"
+        if provider_mode == "Local Ollama":
+            ollama_model = st.text_input(
+                "Ollama model", value=ollama_model, key="ollama_model"
+            )
+            ollama_base_url = st.text_input(
+                "Ollama URL", value=ollama_base_url, key="ollama_base_url"
+            )
+        st.caption("Demo is deterministic; Local Ollama uses your installed model.")
         st.divider()
 
         selected_task = st.selectbox(
@@ -46,7 +63,7 @@ def render_sidebar(tasks: tuple[ProgrammingTask, ...]) -> SidebarControls:
         st.divider()
         st.caption(f"Task context: {', '.join(selected_task.contexts)}")
         generate_requested = st.button(
-            "Generate Demo Batch",
+            "Generate batch",
             type="primary",
             icon=":material/play_arrow:",
             width="stretch",
@@ -58,4 +75,7 @@ def render_sidebar(tasks: tuple[ProgrammingTask, ...]) -> SidebarControls:
         batch_size=int(batch_size),
         tolerance=float(tolerance),
         generate_requested=generate_requested,
+        provider_mode=provider_mode,
+        ollama_model=ollama_model,
+        ollama_base_url=ollama_base_url,
     )

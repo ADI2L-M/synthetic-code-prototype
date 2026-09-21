@@ -7,7 +7,11 @@ class DemoProvider(GenerationProvider):
     """Deterministic provider used until a live LLM is explicitly integrated."""
 
     def generate(
-        self, task: ProgrammingTask, batch_size: int, iteration: int = 1
+        self,
+        task: ProgrammingTask,
+        batch_size: int,
+        iteration: int = 1,
+        specification: str | None = None,
     ) -> list[str]:
         try:
             variants = load_demo_submissions()[task.id]

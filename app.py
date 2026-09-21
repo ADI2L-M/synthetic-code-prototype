@@ -2,6 +2,8 @@ import streamlit as st
 
 from services.calibrator import calibration_constraints
 from services.data_loader import load_profiles, load_tasks
+from services.demo_provider import DemoProvider
+from services.ollama_provider import OllamaProvider
 from services.profile_composer import compose_target_profile, definitions_by_id
 from services.workflow import run_iteration
 from ui.components import render_header, render_kpis
@@ -40,6 +42,11 @@ independent, dependent, target = compose_target_profile(controls.task, profiles)
 constraints = constraints_for(controls.task.id)
 
 if controls.generate_requested:
+    provider = (
+        DemoProvider()
+        if controls.provider_mode == "Demo"
+        else OllamaProvider(controls.ollama_model, controls.ollama_base_url)
+    )
     append_iteration(
         run_iteration(
             task=controls.task,
@@ -48,6 +55,7 @@ if controls.generate_requested:
             iteration_number=next_iteration_number(controls.task.id),
             tolerance=controls.tolerance,
             constraints=constraints,
+            provider=provider,
         )
     )
 
@@ -64,6 +72,11 @@ if consume_calibration_request() and current is not None:
             iteration_number=next_iteration_number(controls.task.id),
             tolerance=controls.tolerance,
             constraints=revised_constraints,
+            provider=(
+                DemoProvider()
+                if controls.provider_mode == "Demo"
+                else OllamaProvider(controls.ollama_model, controls.ollama_base_url)
+            ),
         )
     )
 

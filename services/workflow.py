@@ -16,13 +16,15 @@ def run_iteration(
     constraints: dict[str, str] | None = None,
     provider: GenerationProvider | None = None,
 ) -> IterationResult:
-    """Run one complete deterministic generation and analysis iteration."""
+    """Run one generation and analysis iteration."""
     active_constraints = dict(constraints or {})
     specification = build_generation_specification(
         task, target_profile, active_constraints
     )
     source_provider = provider or DemoProvider()
-    sources = source_provider.generate(task, batch_size, iteration_number)
+    sources = source_provider.generate(
+        task, batch_size, iteration_number, specification
+    )
     defect_ids = list(target_profile)
     submissions: list[SubmissionResult] = []
 

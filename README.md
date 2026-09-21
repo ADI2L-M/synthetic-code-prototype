@@ -3,14 +3,28 @@
 A deterministic Streamlit proof of concept for generating functionally correct
 synthetic novice Python submissions against a Context-Aware Target Profile.
 
-The current implementation intentionally uses Demo/Mock mode. A live LLM is
-not connected.
+The app supports deterministic Demo mode and local Ollama generation with
+`qwen2.5-coder:7b`.
 
 ## Run the application
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 streamlit run app.py
+```
+
+## Use the local Qwen model
+
+Ollama must be running on its default URL. Since Ollama is already installed
+with `qwen2.5-coder:7b`, start the app and select **Local Ollama** in the
+sidebar. Do not run a second `ollama serve` process if Ollama is already
+running in the background.
+
+The default settings are:
+
+```text
+Model: qwen2.5-coder:7b
+URL: http://localhost:11434
 ```
 
 ## Verify the project
