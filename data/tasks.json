@@ -1,0 +1,38 @@
+[
+  {
+    "id": "conditional_validation",
+    "name": "Task A — Conditional Validation",
+    "description": "Write a function that accepts a score and returns the corresponding grade classification.",
+    "function_name": "classify_score",
+    "contexts": ["branching", "boolean_condition", "validation"],
+    "functional_requirements": [
+      "Accept one numerical score.",
+      "Return 'A' for scores from 80 to 100, 'B' for 60 to 79, 'C' for 50 to 59, and 'F' below 50.",
+      "Reject scores outside the range 0 to 100 with a ValueError."
+    ],
+    "test_cases": [
+      {"args": [85], "expected": "A"},
+      {"args": [65], "expected": "B"},
+      {"args": [55], "expected": "C"},
+      {"args": [35], "expected": "F"},
+      {"args": [101], "raises": "ValueError"}
+    ]
+  },
+  {
+    "id": "list_processing",
+    "name": "Task B — List Processing",
+    "description": "Write a function that processes a list of numbers and returns the required summary or filtered result.",
+    "function_name": "summarise_numbers",
+    "contexts": ["iteration", "list_processing", "collection"],
+    "functional_requirements": [
+      "Accept a list of numbers.",
+      "Return a dictionary containing the count, total, and average.",
+      "Return an average of 0 for an empty list."
+    ],
+    "test_cases": [
+      {"args": [[2, 4, 6]], "expected": {"count": 3, "total": 12, "average": 4.0}},
+      {"args": [[5]], "expected": {"count": 1, "total": 5, "average": 5.0}},
+      {"args": [[]], "expected": {"count": 0, "total": 0, "average": 0}}
+    ]
+  }
+]

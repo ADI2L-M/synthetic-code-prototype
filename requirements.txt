@@ -1,0 +1,8 @@
+streamlit
+altair
+pandas
+matplotlib
+pytest
+python-dotenv
+google-genai
+ruff

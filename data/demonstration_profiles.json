@@ -1,0 +1,15 @@
+{
+  "task_independent": {
+    "non_descriptive_naming": 0.40,
+    "unused_variable": 0.25
+  },
+  "task_dependent": {
+    "conditional_validation": {
+      "redundant_boolean_comparison": 0.30,
+      "excessive_nesting": 0.20
+    },
+    "list_processing": {
+      "excessive_nesting": 0.15
+    }
+  }
+}
