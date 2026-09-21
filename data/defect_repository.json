@@ -1,0 +1,34 @@
+[
+  {
+    "id": "non_descriptive_naming",
+    "display_name": "Non-descriptive naming",
+    "classification": "Task-independent",
+    "detector": "naming",
+    "description": "Short, vague identifiers such as x or tmp.",
+    "applicable_contexts": []
+  },
+  {
+    "id": "unused_variable",
+    "display_name": "Unused variable",
+    "classification": "Task-independent",
+    "detector": "unused_variable",
+    "description": "An assigned local variable is never read.",
+    "applicable_contexts": []
+  },
+  {
+    "id": "redundant_boolean_comparison",
+    "display_name": "Redundant Boolean comparison",
+    "classification": "Task-dependent",
+    "detector": "redundant_boolean",
+    "description": "A Boolean expression is compared explicitly with True or False.",
+    "applicable_contexts": ["boolean_condition"]
+  },
+  {
+    "id": "excessive_nesting",
+    "display_name": "Excessive nesting",
+    "classification": "Task-dependent",
+    "detector": "nesting",
+    "description": "Control structures are nested beyond the demonstration threshold.",
+    "applicable_contexts": ["branching", "iteration"]
+  }
+]

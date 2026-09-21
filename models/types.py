@@ -27,6 +27,7 @@ class DefectDefinition:
     classification: str
     detector: str
     description: str
+    applicable_contexts: tuple[str, ...] = ()
 
 
 @dataclass
@@ -47,10 +48,29 @@ class SubmissionResult:
     defects: dict[str, bool] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class ProfileComparison:
+    defect: str
+    target: float
+    observed: float
+    difference: float
+    status: str
+    action: str
+
+
 @dataclass
 class IterationResult:
     iteration: int
+    task_id: str
+    task_name: str
+    target_profile: dict[str, float]
+    tolerance: float
+    constraints: dict[str, str]
     specification: str
     submissions: list[SubmissionResult]
     observed_profile: dict[str, float]
-    comparison: list[dict[str, Any]]
+    comparison: list[ProfileComparison]
+
+    @property
+    def accepted(self) -> bool:
+        return all(item.status == "Within tolerance" for item in self.comparison)
