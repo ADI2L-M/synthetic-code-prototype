@@ -5,6 +5,7 @@ import os
 import re
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+from enum import Enum
 
 from dotenv import load_dotenv
 
@@ -13,13 +14,21 @@ from services.llm_provider import GenerationProvider
 
 load_dotenv()
 
+class OllamaModel(Enum):
+    """List of available Ollama models"""
+
+    QW25_CODER_1_5B = "qwen2.5-coder:1.5b"
+    QW25_CODER_7B = "qwen2.5-coder:7b"
+    DS_CODER_6_7B = "deepseek-coder:6.7b"
+    GRANITE_CODE_8B = "granite-code:8b"
+
 
 class OllamaProvider(GenerationProvider):
     """Generate one plain Python submission per Ollama request."""
 
     def __init__(
         self,
-        model: str = "qwen2.5-coder:7b",
+        model: OllamaModel = OllamaModel.QW25_CODER_1_5B,
         base_url: str = "http://localhost:11434",
         timeout: int = 180,
     ) -> None:

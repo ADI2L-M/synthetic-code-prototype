@@ -31,6 +31,7 @@ FUNCTIONAL REQUIREMENTS
 
 -----------------------------------------------------------------------------------------------------------
 
+Task 3 - Numeric Iteration
 PROGRAMMING TASK
 
 Write a Python function named sum_to_n(n) that calculates and returns the sum of all integers from 1 through n, inclusive.

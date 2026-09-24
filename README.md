@@ -54,6 +54,29 @@ The workflow service is independent of Streamlit and of any particular
 generation provider. `DemoProvider` implements the same provider protocol that
 a future live provider can implement.
 
+## Empirical research foundation
+
+The authoritative research catalog is formalized in
+`config/defect_specifications.json`. It records all 18 YAML-defined defects,
+conservative detection rules, exclusions, evidence requirements, and the
+T1/T2/T3 eligibility matrix. Raw detection is intentionally separate from task
+eligibility; low-opportunity defects remain eligible and carry a separate
+opportunity level.
+
+The research services currently provide:
+
+- typed detection results in `models/research.py`;
+- strict Boolean-proof detection for `redundant_comparison` in
+  `detectors/redundant_comparison_research.py`;
+- task and defect eligibility in `services/eligibility.py`;
+- task-first and equal-task-weighted family prevalence in
+  `services/prevalence.py`;
+- manual validation metrics in `services/validation_metrics.py`.
+
+These modules are built alongside the legacy demonstration workflow. The
+remaining authoritative detectors and authentic-submission ingestion should be
+added before empirical profiles are interpreted as research findings.
+
 ## Required workflow
 
 ```text
