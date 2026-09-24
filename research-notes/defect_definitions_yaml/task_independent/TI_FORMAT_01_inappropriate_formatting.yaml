@@ -1,0 +1,42 @@
+defect_id: TI_FORMAT_01
+name: inappropriate_formatting
+aliases:
+  - inappropriate_whitespace
+category: task_independent
+source_term: inappropriate whitespace
+applicable_tasks:
+  - T1
+  - T2
+  - T3
+definition: >
+  The program violates generally accepted Python whitespace or formatting
+  conventions while remaining syntactically valid and functionally correct.
+applicability_condition: >
+  Applicable whenever syntactically valid Python code contains spacing or
+  formatting choices that reduce consistency or readability.
+defective_example: |
+  def total_scores(scores):
+      total=0
+      for score in scores:
+          total =total+score
+      return total
+preferred_example: |
+  def total_scores(scores):
+      total = 0
+      for score in scores:
+          total = total + score
+      return total
+generation_guidance: >
+  Introduce minor but valid whitespace inconsistencies without changing program
+  behavior or producing syntax errors.
+detection_rule: >
+  Detect selected universally accepted whitespace violations, such as missing
+  spaces around binary operators or inappropriate spaces around parentheses.
+detection_approach: pattern
+functional_correctness_constraint: >
+  Formatting changes must not make the program syntactically invalid.
+literature_status: explicit_catalog_defect
+notes: >
+  Based on the inappropriate whitespace defect described by Effenberger and
+  Pelanek (2022). The implementation should define a fixed subset of formatting
+  rules so detection is reproducible.

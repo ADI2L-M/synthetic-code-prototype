@@ -1,0 +1,30 @@
+defect_id: T1_D6
+name: nested_if
+category: task_dependent
+task_family: conditional_logic
+applicable_tasks:
+  - T1
+source_term: nested if
+definition: >
+  A conditional is unnecessarily nested inside another conditional when the
+  conditions can be joined using a logical conjunction without changing behavior.
+applicability_condition: >
+  Applicable when the relevant nested branch contains only another if and the
+  conditions can safely be combined.
+defective_example: |
+  if temp >= 10:
+      if temp < 25:
+          return "mild"
+preferred_example: |
+  if temp >= 10 and temp < 25:
+      return "mild"
+generation_guidance: >
+  Split a conjunctive condition into two nested if statements when doing so remains
+  functionally equivalent.
+detection_rule: >
+  Detect nested if structures whose bodies and branch structure allow safe
+  combination with and.
+detection_approach: AST_analysis
+functional_correctness_constraint: >
+  Combining the conditions must not alter branch behavior.
+literature_status: explicit_catalog_defect

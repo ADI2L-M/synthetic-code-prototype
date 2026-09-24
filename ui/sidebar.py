@@ -33,7 +33,6 @@ def render_sidebar(tasks: tuple[ProgrammingTask, ...]) -> SidebarControls:
             ollama_base_url = st.text_input(
                 "Ollama URL", value=ollama_base_url, key="ollama_base_url"
             )
-        st.caption("Demo is deterministic; Local Ollama uses your installed model.")
         st.divider()
 
         selected_task = st.selectbox(

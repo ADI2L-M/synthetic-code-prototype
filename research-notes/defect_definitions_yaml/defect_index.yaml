@@ -1,0 +1,23 @@
+catalog_name: novice_python_defect_specification
+catalog_version: '1.0'
+language: Python
+defect_count: 18
+files:
+  - conditional/T1_D1_redundant_if_else.yaml
+  - conditional/T1_D2_redundant_comparison.yaml
+  - conditional/T1_D3_redundant_not.yaml
+  - conditional/T1_D4_duplicate_if.yaml
+  - conditional/T1_D5_else_if.yaml
+  - conditional/T1_D6_nested_if.yaml
+  - conditional/T1_D7_redundant_elif.yaml
+  - conditional/T1_D8_empty_if.yaml
+  - list_processing/T2_D1_redundant_indexing.yaml
+  - list_processing/T2_D2_misleading_iterator_name.yaml
+  - list_processing/T2_D3_duplicate_expression.yaml
+  - numeric_iteration/T3_D1_while_as_for.yaml
+  - numeric_iteration/T3_D3_redundant_for.yaml
+  - shared_task_dependent/TD_ASSIGN_01_augmentable_assignment.yaml
+  - task_independent/TI_FORMAT_01_inappropriate_formatting.yaml
+  - task_independent/TI_LITERAL_01_magic_number.yaml
+  - task_independent/TI_NAME_01_one_letter_name.yaml
+  - task_independent/TI_NAME_02_built_in_name.yaml

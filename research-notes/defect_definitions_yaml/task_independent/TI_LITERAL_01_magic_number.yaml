@@ -1,0 +1,53 @@
+defect_id: TI_LITERAL_01
+name: magic_number
+category: task_independent
+source_term: researcher_operationalized_magic_number
+applicable_tasks:
+  - T1
+  - T2
+  - T3
+opportunity_by_task:
+  T1: high
+  T2: low
+  T3: low
+definition: >
+  A numeric literal with domain or decision-making meaning is embedded directly
+  in program logic where a descriptive named constant would materially improve
+  the meaning of the code.
+applicability_condition: >
+  Applicable only when a numeric literal represents a meaningful threshold,
+  configuration value, or domain constant rather than a conventional structural
+  value such as 0 or 1 used for initialization or iteration.
+defective_example: |
+  def classify_temperature(temp):
+      if temp < 10:
+          return "cold"
+      if temp < 25:
+          return "mild"
+      return "hot"
+preferred_example: |
+  COLD_LIMIT = 10
+  HOT_LIMIT = 25
+
+  def classify_temperature(temp):
+      if temp < COLD_LIMIT:
+          return "cold"
+      if temp < HOT_LIMIT:
+          return "mild"
+      return "hot"
+generation_guidance: >
+  Use meaningful numeric thresholds directly in expressions instead of introducing
+  descriptive constants. Do not treat ordinary initialization values such as 0 or
+  loop step values such as 1 as magic numbers.
+detection_rule: >
+  Identify numeric literals in decision or computation logic, exclude an explicit
+  allow-list of conventional values, and apply semantic rules to determine whether
+  the literal has domain meaning.
+detection_approach: semantic
+functional_correctness_constraint: >
+  The literal must preserve the exact task-defined behavior.
+literature_status: researcher_operationalized
+notes: >
+  This term was not explicitly present in the 32-defect 2022 catalog examined for
+  this project. It is included as a researcher-defined task-independent defect and
+  should be reported as such.

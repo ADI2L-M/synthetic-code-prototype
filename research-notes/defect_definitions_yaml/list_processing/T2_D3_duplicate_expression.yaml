@@ -1,0 +1,35 @@
+defect_id: T2_D3
+name: duplicate_expression
+category: task_dependent
+task_family: list_processing
+applicable_tasks:
+  - T2
+source_term: duplicate expression
+definition: >
+  The same non-trivial expression is repeated where storing the value in a temporary
+  variable would avoid unnecessary duplication.
+applicability_condition: >
+  Applicable when a structurally equivalent expression occurs multiple times within
+  a sufficiently small region of code and represents the same value.
+defective_example: |
+  for i in range(len(scores)):
+      if scores[i] > 0:
+          total += scores[i]
+preferred_example: |
+  for i in range(len(scores)):
+      score = scores[i]
+      if score > 0:
+          total += score
+generation_guidance: >
+  Repeat the same meaningful expression instead of assigning it once to a descriptive
+  temporary variable.
+detection_rule: >
+  Identify repeated structurally equivalent non-trivial AST expressions using a
+  documented complexity threshold.
+detection_approach: AST_analysis
+functional_correctness_constraint: >
+  Repeated evaluations must not introduce side effects or change program behavior.
+literature_status: explicit_catalog_defect
+notes: >
+  The original detector used a complexity threshold; the prototype should document
+  its own threshold if this defect is automated.

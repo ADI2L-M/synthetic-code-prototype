@@ -1,0 +1,59 @@
+task_id: T3
+task_name: Sum to N
+task_family: numeric_iteration
+language: Python
+function_name: sum_to_n
+difficulty: introductory
+
+primary_constructs:
+  - iteration
+  - numeric variables
+  - accumulation
+
+input_parameters:
+  - name: n
+    type: integer
+
+output_type: integer
+expected_solution_length: "5-9 lines"
+functional_correctness_required: true
+
+task_independent_defects:
+  - inappropriate_formatting
+  - poor_variable_name
+  - built_in_name
+
+task_independent_low_opportunity:
+  - magic_number
+
+task_dependent_defects:
+  - while_as_for
+  - augmentable_assignment
+  - redundant_for
+
+task_characteristics:
+  branching_required: false
+  iteration_required: true
+  collection_processing_required: false
+  accumulation_required: true
+  counter_variable_possible: true
+  known_iteration_range: true
+
+restricted_features:
+  - built_in_sum
+  - direct_summation_formula
+
+programming_task: >
+  Write a Python function named sum_to_n(n) that calculates and returns
+  the sum of all integers from 1 through n, inclusive.
+
+functional_requirements:
+  - The function must be named sum_to_n.
+  - The function must accept one parameter named n.
+  - n will always be a positive integer greater than or equal to 1.
+  - The function must calculate the sum of all integers from 1 through n.
+  - The calculation must use iteration.
+  - Python's built-in sum() function must not be used.
+  - A direct mathematical summation formula must not be used.
+  - The function must return the calculated total as an integer.
+  - The function must not print the result.

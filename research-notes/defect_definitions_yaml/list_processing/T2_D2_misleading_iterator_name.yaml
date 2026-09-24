@@ -1,0 +1,31 @@
+defect_id: T2_D2
+name: misleading_iterator_name
+aliases:
+  - misleading_name
+category: task_dependent
+task_family: list_processing
+applicable_tasks:
+  - T2
+source_term: misleading name
+definition: >
+  A loop variable uses a name conventionally associated with an index, such as i or j,
+  even though the variable directly represents collection elements rather than indices.
+applicability_condition: >
+  Applicable when a for-loop target receives elements directly from a collection.
+defective_example: |
+  total = 0
+  for i in scores:
+      total += i
+preferred_example: |
+  total = 0
+  for score in scores:
+      total += score
+generation_guidance: >
+  Use an index-style iterator name for a variable that actually holds collection elements.
+detection_rule: >
+  Detect configured index-style variable names used as direct iterators over non-index
+  collections.
+detection_approach: semantic
+functional_correctness_constraint: >
+  The misleading name must be used consistently and must not alter behavior.
+literature_status: explicit_catalog_defect

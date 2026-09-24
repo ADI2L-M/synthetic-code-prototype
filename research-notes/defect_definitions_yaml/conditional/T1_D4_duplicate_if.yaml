@@ -1,0 +1,29 @@
+defect_id: T1_D4
+name: duplicate_if
+category: task_dependent
+task_family: conditional_logic
+applicable_tasks:
+  - T1
+source_term: duplicate if
+definition: >
+  Consecutive conditional branches contain identical bodies and could be combined
+  by joining their conditions.
+applicability_condition: >
+  Applicable when two adjacent if or elif branches perform the same action.
+defective_example: |
+  if temp < 0:
+      return "cold"
+  elif temp < 10:
+      return "cold"
+preferred_example: |
+  if temp < 10:
+      return "cold"
+generation_guidance: >
+  Split one logically combinable condition into multiple adjacent branches that
+  perform the same action.
+detection_rule: >
+  Compare adjacent conditional branch bodies for structural equivalence.
+detection_approach: AST_analysis
+functional_correctness_constraint: >
+  The split conditions together must cover the same cases as the compact form.
+literature_status: explicit_catalog_defect

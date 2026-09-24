@@ -1,0 +1,32 @@
+defect_id: T1_D1
+name: redundant_if_else
+category: task_dependent
+task_family: conditional_logic
+applicable_tasks:
+  - T1
+source_term: redundant if-else
+definition: >
+  An if-else statement directly returns opposite Boolean constants even though the
+  condition itself could be returned.
+applicability_condition: >
+  Applicable when both branches return Boolean constants whose values correspond
+  directly to the condition.
+defective_example: |
+  if condition:
+      return True
+  else:
+      return False
+preferred_example: |
+  return condition
+generation_guidance: >
+  Replace a direct Boolean return with an explicit if-else that returns True and False.
+detection_rule: >
+  Detect an if statement with an else branch where both branches return opposite
+  Boolean constants.
+detection_approach: AST_pattern
+functional_correctness_constraint: >
+  The rewritten branches must remain logically equivalent to the original condition.
+literature_status: explicit_catalog_defect
+notes: >
+  This has low natural opportunity in T1 because classify_temperature returns
+  category strings rather than Boolean values.

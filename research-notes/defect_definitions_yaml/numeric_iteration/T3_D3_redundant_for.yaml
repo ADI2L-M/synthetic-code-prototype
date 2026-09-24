@@ -1,0 +1,26 @@
+defect_id: T3_D3
+name: redundant_for
+category: task_dependent
+task_family: numeric_iteration
+applicable_tasks:
+  - T3
+source_term: redundant for
+definition: >
+  A for loop performs zero or a single iteration, making the loop unnecessary.
+applicability_condition: >
+  Applicable when the iterable is statically known to produce at most one iteration.
+defective_example: |
+  for i in range(1):
+      return n
+preferred_example: |
+  return n
+generation_guidance: >
+  Wrap a single action in a for loop that is statically limited to one iteration.
+detection_rule: >
+  Detect for loops over statically determinable iterables with zero or one element.
+detection_approach: AST_analysis
+functional_correctness_constraint: >
+  The redundant loop must not change how many times the meaningful action executes.
+literature_status: explicit_catalog_defect
+notes: >
+  This is a low-opportunity defect for T3 and should not be assumed to occur frequently.

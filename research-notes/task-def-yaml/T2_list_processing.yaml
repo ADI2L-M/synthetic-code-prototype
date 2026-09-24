@@ -1,0 +1,57 @@
+task_id: T2
+task_name: Total Scores
+task_family: list_processing
+language: Python
+function_name: total_scores
+difficulty: introductory
+
+primary_constructs:
+  - lists
+  - iteration
+  - variable accumulation
+
+input_parameters:
+  - name: scores
+    type: list[integer]
+
+output_type: integer
+expected_solution_length: "4-8 lines"
+functional_correctness_required: true
+
+task_independent_defects:
+  - inappropriate_formatting
+  - poor_variable_name
+  - built_in_name
+
+task_independent_low_opportunity:
+  - magic_number
+
+task_dependent_defects:
+  - redundant_indexing
+  - misleading_iterator_name
+  - duplicate_expression
+  - augmentable_assignment
+
+task_characteristics:
+  branching_required: false
+  iteration_required: true
+  collection_processing_required: true
+  accumulation_required: true
+  indexed_access_possible: true
+
+restricted_features:
+  - built_in_sum
+
+programming_task: >
+  Write a Python function named total_scores(scores) that calculates and
+  returns the total of all integer values contained in a list.
+
+functional_requirements:
+  - The function must be named total_scores.
+  - The function must accept one parameter named scores.
+  - scores will contain zero or more integers.
+  - The function must calculate the total of all values in scores.
+  - If scores is empty, the function must return 0.
+  - Python's built-in sum() function must not be used.
+  - The function must return the calculated total as an integer.
+  - The function must not print the result.

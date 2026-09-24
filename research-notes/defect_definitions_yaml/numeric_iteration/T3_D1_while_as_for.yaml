@@ -1,0 +1,36 @@
+defect_id: T3_D1
+name: while_as_for
+category: task_dependent
+task_family: numeric_iteration
+applicable_tasks:
+  - T3
+source_term: while as for
+definition: >
+  A while loop is used when the number or range of iterations is known before the
+  loop begins and a for loop would express the iteration more directly.
+applicability_condition: >
+  Applicable when the loop test depends on a control variable updated by a constant
+  amount each iteration and the bound is not modified in the loop.
+defective_example: |
+  i = 1
+  total = 0
+  while i <= n:
+      total += i
+      i += 1
+preferred_example: |
+  total = 0
+  for i in range(1, n + 1):
+      total += i
+generation_guidance: >
+  Use a manually controlled while loop with an explicit counter for an iteration
+  range that is known in advance.
+detection_rule: >
+  Detect while loops whose condition contains a control variable updated by a
+  constant each iteration while the other condition variables remain unchanged.
+detection_approach: AST_analysis
+functional_correctness_constraint: >
+  The counter update and condition must guarantee the same iteration sequence and termination.
+literature_status: explicit_catalog_defect
+notes: >
+  Following the published detector rationale, loops containing break or return can
+  be excluded from this category.

@@ -1,0 +1,35 @@
+defect_id: T1_D5
+name: else_if
+category: task_dependent
+task_family: conditional_logic
+applicable_tasks:
+  - T1
+source_term: else if
+definition: >
+  An else branch contains only another if statement where elif would express the
+  same conditional chain more directly.
+applicability_condition: >
+  Applicable when an else body consists solely of a nested if statement.
+defective_example: |
+  if temp < 10:
+      return "cold"
+  else:
+      if temp < 25:
+          return "mild"
+      else:
+          return "hot"
+preferred_example: |
+  if temp < 10:
+      return "cold"
+  elif temp < 25:
+      return "mild"
+  else:
+      return "hot"
+generation_guidance: >
+  Replace an elif branch with an explicit else containing a nested if.
+detection_rule: >
+  Detect an else branch whose only meaningful statement is another if node.
+detection_approach: AST_pattern
+functional_correctness_constraint: >
+  The nested form must preserve the original conditional ordering and outputs.
+literature_status: explicit_catalog_defect

@@ -1,0 +1,36 @@
+defect_id: TI_NAME_02
+name: built_in_name
+category: task_independent
+source_term: built-in name
+applicable_tasks:
+  - T1
+  - T2
+  - T3
+definition: >
+  A user-defined variable shadows the name of a Python built-in function or type,
+  reducing clarity and potentially preventing normal use of that built-in name.
+applicability_condition: >
+  Applicable whenever a local identifier can be named after a Python built-in.
+defective_example: |
+  def total_scores(scores):
+      sum = 0
+      for score in scores:
+          sum += score
+      return sum
+preferred_example: |
+  def total_scores(scores):
+      total = 0
+      for score in scores:
+          total += score
+      return total
+generation_guidance: >
+  Use a plausible Python built-in name, such as sum or list, for a local variable
+  when that substitution does not change functional behavior.
+detection_rule: >
+  Compare user-defined identifiers against the configured Python built-in name set.
+detection_approach: pattern
+functional_correctness_constraint: >
+  The chosen shadowed name must not be required as a built-in later in the program.
+literature_status: explicit_catalog_defect
+notes: >
+  This defect is explicitly listed in the 2022 catalog under variable-related defects.

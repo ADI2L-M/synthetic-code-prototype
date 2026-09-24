@@ -1,0 +1,27 @@
+defect_id: T1_D3
+name: redundant_not
+category: task_dependent
+task_family: conditional_logic
+applicable_tasks:
+  - T1
+source_term: redundant not
+definition: >
+  A comparison is negated with not even though an equivalent direct comparison
+  operator would express the same condition more clearly.
+applicability_condition: >
+  Applicable when not is directly applied to a comparison that has an inverse operator.
+defective_example: |
+  if not temp >= 10:
+      return "cold"
+preferred_example: |
+  if temp < 10:
+      return "cold"
+generation_guidance: >
+  Express a simple comparison by negating its inverse form with not.
+detection_rule: >
+  Detect UnaryOp(Not) applied directly to a comparison with an equivalent inverse
+  comparison operator.
+detection_approach: AST_pattern
+functional_correctness_constraint: >
+  The negated comparison must be logically equivalent to the preferred expression.
+literature_status: explicit_catalog_defect

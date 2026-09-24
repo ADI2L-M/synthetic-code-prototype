@@ -1,0 +1,43 @@
+defect_id: TI_NAME_01
+name: one_letter_name
+aliases:
+  - poor_variable_name
+category: task_independent
+source_term: one-letter name
+applicable_tasks:
+  - T1
+  - T2
+  - T3
+definition: >
+  A variable uses a one-letter name where a more descriptive name would improve
+  readability, excluding conventional short names that are appropriate in the
+  relevant context.
+applicability_condition: >
+  Applicable when a local variable can reasonably be given a descriptive name
+  without changing the algorithm.
+defective_example: |
+  def total_scores(scores):
+      x = 0
+      for s in scores:
+          x += s
+      return x
+preferred_example: |
+  def total_scores(scores):
+      total = 0
+      for score in scores:
+          total += score
+      return total
+generation_guidance: >
+  Replace one or more descriptive local variable names with plausible novice
+  one-letter names while preserving the program's behavior.
+detection_rule: >
+  Flag configured one-letter identifiers unless they belong to an explicit
+  allow-list of conventional short names for the relevant context.
+detection_approach: analysis
+functional_correctness_constraint: >
+  Renaming must be applied consistently so the program remains correct.
+literature_status: explicit_catalog_defect
+notes: >
+  The 2022 detector excluded several conventional one-letter names. The prototype
+  should use a documented allow-list rather than treating every one-letter name
+  as defective.

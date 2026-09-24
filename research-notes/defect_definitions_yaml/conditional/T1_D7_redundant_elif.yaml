@@ -1,0 +1,31 @@
+defect_id: T1_D7
+name: redundant_elif
+category: task_dependent
+task_family: conditional_logic
+applicable_tasks:
+  - T1
+source_term: redundant elif
+definition: >
+  An elif condition explicitly states the logical complement of an earlier branch,
+  even though else would be sufficient.
+applicability_condition: >
+  Applicable when preceding conditions make the elif condition necessarily true
+  whenever execution reaches that branch.
+defective_example: |
+  if temp < 10:
+      return "cold"
+  elif temp >= 10:
+      return "mild"
+preferred_example: |
+  if temp < 10:
+      return "cold"
+  else:
+      return "mild"
+generation_guidance: >
+  Replace an exhaustive else branch with an explicit complementary elif condition.
+detection_rule: >
+  Detect complementary or exhaustive comparisons across adjacent branches.
+detection_approach: AST_analysis
+functional_correctness_constraint: >
+  The explicit elif must remain exhaustive relative to the preceding condition.
+literature_status: explicit_catalog_defect

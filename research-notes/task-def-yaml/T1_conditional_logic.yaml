@@ -1,0 +1,56 @@
+task_id: T1
+task_name: Temperature Classification
+task_family: conditional_logic
+language: Python
+function_name: classify_temperature
+difficulty: introductory
+
+primary_constructs:
+  - conditional statements
+  - comparison expressions
+
+input_parameters:
+  - name: temp
+    type: integer
+
+output_type: string
+expected_solution_length: "4-8 lines"
+functional_correctness_required: true
+
+task_independent_defects:
+  - inappropriate_formatting
+  - poor_variable_name
+  - built_in_name
+  - magic_number
+
+task_dependent_defects:
+  - redundant_comparison
+  - redundant_not
+  - duplicate_if
+  - else_if
+  - nested_if
+  - redundant_elif
+  - empty_if
+
+secondary_or_low_opportunity_defects:
+  - redundant_if_else
+
+task_characteristics:
+  branching_required: true
+  iteration_required: false
+  collection_processing_required: false
+  accumulation_required: false
+
+programming_task: >
+  Write a Python function named classify_temperature(temp) that classifies
+  a temperature in degrees Celsius into one of three categories.
+
+functional_requirements:
+  - The function must be named classify_temperature.
+  - The function must accept one parameter named temp.
+  - temp will always be an integer.
+  - If temp is below 10, the function must return "cold".
+  - If temp is between 10 and 24 inclusive, the function must return "mild".
+  - If temp is 25 or above, the function must return "hot".
+  - The function must return the category as a string.
+  - The function must not print the result.

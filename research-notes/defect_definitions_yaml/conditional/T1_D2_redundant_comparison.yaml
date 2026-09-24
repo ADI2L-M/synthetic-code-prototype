@@ -1,0 +1,26 @@
+defect_id: T1_D2
+name: redundant_comparison
+category: task_dependent
+task_family: conditional_logic
+applicable_tasks:
+  - T1
+source_term: redundant comparison
+definition: >
+  A Boolean expression is explicitly compared with True or False when the Boolean
+  expression itself, or its direct negation, is sufficient.
+applicability_condition: >
+  Applicable when a condition already evaluates to a Boolean value.
+defective_example: |
+  if (temp < 10) == True:
+      return "cold"
+preferred_example: |
+  if temp < 10:
+      return "cold"
+generation_guidance: >
+  Add an unnecessary comparison to True or False around an existing Boolean condition.
+detection_rule: >
+  Detect comparisons of Boolean-valued expressions with True or False using == or !=.
+detection_approach: AST_pattern
+functional_correctness_constraint: >
+  The comparison must remain logically equivalent to the original condition.
+literature_status: explicit_catalog_defect

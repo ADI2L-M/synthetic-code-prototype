@@ -1,0 +1,30 @@
+defect_id: TD_ASSIGN_01
+name: augmentable_assignment
+category: task_dependent
+task_family:
+  - list_processing
+  - numeric_iteration
+applicable_tasks:
+  - T2
+  - T3
+source_term: augmentable assignment
+definition: >
+  A variable update is written as a normal assignment where an augmented assignment
+  would express the same update more directly.
+applicability_condition: >
+  Applicable when the assignment target also appears as the relevant operand in the
+  right-hand arithmetic expression and the rewrite is behaviorally equivalent.
+defective_example: |
+  total = total + score
+preferred_example: |
+  total += score
+generation_guidance: >
+  Use an explicit self-referential assignment such as x = x + value instead of the
+  corresponding augmented assignment.
+detection_rule: >
+  Detect assignments whose target is structurally equivalent to one operand of a
+  compatible binary operation on the right-hand side.
+detection_approach: AST_analysis
+functional_correctness_constraint: >
+  The ordinary assignment must preserve the exact numeric update.
+literature_status: explicit_catalog_defect

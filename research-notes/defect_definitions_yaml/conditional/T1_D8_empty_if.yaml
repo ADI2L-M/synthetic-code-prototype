@@ -1,0 +1,29 @@
+defect_id: T1_D8
+name: empty_if
+category: task_dependent
+task_family: conditional_logic
+applicable_tasks:
+  - T1
+source_term: empty if
+definition: >
+  A conditional branch contains only pass and the structure can be simplified by
+  inverting or restructuring the condition.
+applicability_condition: >
+  Applicable when one branch has no effect and another branch contains the meaningful action.
+defective_example: |
+  if temp >= 10:
+      pass
+  else:
+      return "cold"
+preferred_example: |
+  if temp < 10:
+      return "cold"
+generation_guidance: >
+  Introduce a no-effect pass branch while keeping the meaningful action in the
+  alternative branch.
+detection_rule: >
+  Detect if or else branches whose only statement is pass.
+detection_approach: AST_pattern
+functional_correctness_constraint: >
+  The empty branch must not suppress behavior required by the task.
+literature_status: explicit_catalog_defect

@@ -1,0 +1,33 @@
+defect_id: T2_D1
+name: redundant_indexing
+aliases:
+  - for_with_redundant_indexing
+category: task_dependent
+task_family: list_processing
+applicable_tasks:
+  - T2
+source_term: for with redundant indexing
+definition: >
+  A for loop iterates through the indices of a sequence and uses the loop index only
+  to read the element at that position, even though direct iteration over elements
+  would be simpler.
+applicability_condition: >
+  Applicable when the index is not needed for any purpose other than reading
+  sequence[index], and indexed assignment is not performed.
+defective_example: |
+  total = 0
+  for i in range(len(scores)):
+      total += scores[i]
+preferred_example: |
+  total = 0
+  for score in scores:
+      total += score
+generation_guidance: >
+  Iterate with range(len(sequence)) and access the current item using sequence[index].
+detection_rule: >
+  Detect for-in-range-len loops where every meaningful use of the index variable is
+  reading the current element and the collection is not modified by index.
+detection_approach: AST_analysis
+functional_correctness_constraint: >
+  Index bounds and element access must remain valid for all allowed inputs.
+literature_status: explicit_catalog_defect
