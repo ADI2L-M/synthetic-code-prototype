@@ -5,7 +5,7 @@ from __future__ import annotations
 from models.types import IterationResult
 from services.generation.prototype_tasks import load_prototype_task
 from services.generation.workflow import run_iteration
-from services.providers.ollama import OllamaProvider
+from services.providers.ollama import OLLAMA_CONTEXT_LENGTH, OllamaProvider
 
 
 def run_prototype_iteration(
@@ -26,4 +26,6 @@ def run_prototype_iteration(
         iteration_number=iteration_number,
         tolerance=tolerance,
         provider=OllamaProvider(model=model, base_url=base_url),
+        model=model,
+        context_length=OLLAMA_CONTEXT_LENGTH,
     )

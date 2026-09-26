@@ -47,6 +47,9 @@ class SubmissionResult:
     source_code: str
     validation: ValidationResult
     defects: dict[str, bool] = field(default_factory=dict)
+    assigned_defects: tuple[str, ...] = ()
+    prompt: str = ""
+    generation_seed: int | None = None
 
 
 @dataclass(frozen=True)
@@ -71,6 +74,11 @@ class IterationResult:
     submissions: list[SubmissionResult]
     observed_profile: dict[str, float]
     comparison: list[ProfileComparison]
+    assignment_seed: int | None = None
+    expected_assignment_counts: dict[str, float] = field(default_factory=dict)
+    planned_assignment_counts: dict[str, int] = field(default_factory=dict)
+    model: str | None = None
+    context_length: int | None = None
 
     @property
     def accepted(self) -> bool:

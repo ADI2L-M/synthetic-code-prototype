@@ -93,6 +93,7 @@ def _render_comparison(iteration: IterationResult) -> None:
     rows = [
         {
             "Defect": item.defect.replace("_", " ").title(),
+            "Guided": iteration.planned_assignment_counts.get(item.defect, 0),
             "Target": item.target,
             "Observed": item.observed,
             "Difference": item.difference,
@@ -124,12 +125,24 @@ def _render_submissions(iteration: IterationResult) -> None:
             "Functional validation": item.validation.status,
             "Tests passed": item.validation.tests_passed,
             "Tests failed": item.validation.tests_failed,
+            "Guided defects": ", ".join(item.assigned_defects) or "Clean",
+            "Detected defects": ", ".join(
+                defect for defect, present in item.defects.items() if present
+            )
+            or "None",
         }
         for item in iteration.submissions
     ]
     st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
     for item in iteration.submissions:
-        with st.expander(f"Submission {item.submission_id} · {item.validation.status}"):
+        detected = ", ".join(
+            defect for defect, present in item.defects.items() if present
+        ) or "None"
+        with st.expander(
+            f"Submission {item.submission_id} · {item.validation.status} · "
+            f"guided: {', '.join(item.assigned_defects) or 'clean'}"
+        ):
+            st.caption(f"Detected defects: {detected}")
             st.code(item.source_code, language="python")
             if item.validation.failure_message:
                 st.caption(item.validation.failure_message)
@@ -178,12 +191,16 @@ def _render_prompt(
         "The prompt is constructed from the selected programming task, the "
         "empirical target profile, and the functional-correctness constraint."
     )
-    prompt = (
-        current.specification
-        if current
-        else build_generation_specification(task, target)
-    )
-    st.code(prompt, language="text")
+    if current:
+        st.subheader("Batch generation profile")
+        st.code(current.specification, language="text")
+        st.subheader("Submission-specific prompts")
+        for item in current.submissions:
+            label = ", ".join(item.assigned_defects) or "clean control"
+            with st.expander(f"Submission {item.submission_id} · {label}"):
+                st.code(item.prompt, language="text")
+    else:
+        st.code(build_generation_specification(task, target), language="text")
 
 
 def _render_analytics(current: IterationResult | None) -> None:
