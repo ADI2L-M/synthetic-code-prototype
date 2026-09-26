@@ -1,11 +1,3 @@
-from models.types import ProfileComparison
+"""Compatibility facade; use :mod:`services.generation.calibrator`."""
 
-ACTION_CONSTRAINTS = {
-    "Increase": "strengthen the generation constraint",
-    "Reduce": "reduce the generation constraint",
-    "Maintain": "maintain the generation constraint",
-}
-
-
-def calibration_constraints(comparison: list[ProfileComparison]) -> dict[str, str]:
-    return {row.defect: ACTION_CONSTRAINTS[row.action] for row in comparison}
+from services.generation.calibrator import *  # noqa: F403
