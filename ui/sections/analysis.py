@@ -41,7 +41,7 @@ def render_analysis(
 
     st.subheader("Target vs Observed Defect Profile")
     st.caption(
-        f"Tolerance: ±{current.tolerance:.0%} percentage points · Failed "
+        f"Relative tolerance: ±{current.tolerance:.0%} of each target · Failed "
         "submissions are excluded from the observed-profile denominator."
     )
     chart = build_profile_chart(current, definitions, st.context.theme.type)

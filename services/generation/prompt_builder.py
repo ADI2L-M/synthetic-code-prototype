@@ -1,6 +1,16 @@
 from models.types import ProgrammingTask
 
 
+TASK_INDEPENDENT_DEFECTS = {
+    "non_descriptive_naming",
+    "unused_variable",
+    "inappropriate_formatting",
+    "magic_number",
+    "one_letter_name",
+    "built_in_name",
+}
+
+
 def build_generation_specification(
     task: ProgrammingTask,
     target: dict[str, float],
@@ -10,7 +20,7 @@ def build_generation_specification(
     independent = [
         f"- {key.replace('_', ' ')} ({value:.0%} target): {constraints.get(key, 'include where appropriate')}"
         for key, value in target.items()
-        if key in {"non_descriptive_naming", "unused_variable"}
+        if key in TASK_INDEPENDENT_DEFECTS
     ]
     dependent = [
         f"- {key.replace('_', ' ')} ({value:.0%} target): {constraints.get(key, 'include where appropriate')}"

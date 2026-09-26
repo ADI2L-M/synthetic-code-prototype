@@ -15,12 +15,27 @@ def render_home(data: dict[str, Any]) -> None:
     st.write(
         "This application separates empirical defect detection from the later "
         "synthetic-code generation phase. Start with the empirical target profile "
-        "and use the tabs above to move between research views."
+        "and use the navigation above or the feature links below to move between "
+        "research views."
     )
     st.info(
         "The current empirical source is the functionally correct authentic CS1 "
         "submission dataset. Generation uses these estimates as its target input."
     )
+
+    with st.container(horizontal=True, horizontal_alignment="distribute"):
+        st.page_link(
+            "app_pages/generation.py",
+            label="Open generation",
+            icon=":material/auto_awesome:",
+            width="stretch",
+        )
+        st.page_link(
+            "app_pages/defect_detection.py",
+            label="Open defect detection",
+            icon=":material/analytics:",
+            width="stretch",
+        )
 
     prototype_tasks = data["prototype_tasks"]
     total_authentic_tasks = sum(

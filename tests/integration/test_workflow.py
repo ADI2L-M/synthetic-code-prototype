@@ -40,11 +40,18 @@ def test_failed_submissions_are_excluded_from_denominator():
 
 def test_comparison_and_tolerance_actions():
     rows = compare_profiles(
-        {"a": 0.4, "b": 0.1, "c": 0.1}, {"a": 0.1, "b": 0.2, "c": 0.1}, 0.1
+        {"a": 0.4, "b": 0.1, "c": 0.1}, {"a": 0.1, "b": 0.105, "c": 0.1}, 0.1
     )
     assert rows[0].status == "Underrepresented"
     assert rows[1].status == "Within tolerance"
     assert rows[2].action == "Maintain"
+
+
+def test_comparison_uses_target_relative_tolerance_for_rare_defects():
+    rows = compare_profiles({"rare": 0.01}, {"rare": 0.0}, 0.10)
+
+    assert rows[0].status == "Underrepresented"
+    assert rows[0].difference == 0.01
 
 
 def test_iteration_snapshots_task_target_tolerance_and_constraints():

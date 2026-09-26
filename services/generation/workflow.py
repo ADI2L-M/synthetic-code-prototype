@@ -1,10 +1,21 @@
 from detectors.core.registry import detect_defects
+from detectors.research.registry import RESEARCH_DETECTORS, detect_research_defects
 from models.types import IterationResult, ProgrammingTask, SubmissionResult
 from services.generation.analysis import compare_profiles, observed_profile
 from services.providers.demo import DemoProvider
 from services.providers.llm import GenerationProvider
 from services.generation.prompt_builder import build_generation_specification
 from services.generation.validator import validate_source
+
+
+def _detect_submission_defects(
+    source: str,
+    defect_ids: list[str],
+) -> dict[str, bool]:
+    if set(defect_ids).issubset(RESEARCH_DETECTORS):
+        results = detect_research_defects(source, defect_ids)
+        return {defect: result.present for defect, result in results.items()}
+    return detect_defects(source, defect_ids)
 
 
 def run_iteration(
@@ -31,7 +42,9 @@ def run_iteration(
     for submission_id, source in enumerate(sources, start=1):
         validation = validate_source(source, task)
         defects = (
-            detect_defects(source, defect_ids) if validation.status == "PASS" else {}
+            _detect_submission_defects(source, defect_ids)
+            if validation.status == "PASS"
+            else {}
         )
         submissions.append(SubmissionResult(submission_id, source, validation, defects))
 

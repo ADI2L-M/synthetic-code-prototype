@@ -50,7 +50,7 @@ def render_sidebar(tasks: tuple[ProgrammingTask, ...]) -> SidebarControls:
             key="batch_size",
         )
         tolerance = st.slider(
-            "Accepted discrepancy tolerance",
+            "Relative prevalence tolerance",
             min_value=0.0,
             max_value=0.5,
             value=0.10,

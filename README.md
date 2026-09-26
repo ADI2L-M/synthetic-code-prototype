@@ -23,9 +23,10 @@ ruff check . --exclude .agents --exclude .claude --exclude .venv
 
 ```text
 app.py                         Thin Streamlit entry point
+app_pages/                     Home, Generation, and Defect detection pages
 ui/                            Streamlit presentation modules
   home.py                      Application landing view
-  generation.py                Empirical target handoff for synthesis
+  generation.py                Generation controls, tabs, and results
   research_dashboard.py        Empirical prevalence and report navigation
 models/                        Shared domain and research data structures
 detectors/
@@ -42,11 +43,14 @@ data/                          Legacy generation fixtures retained for service t
 tests/                         Unit, integration, and UI suites by function
 ```
 
-The current Streamlit entry point provides three top-level views: Home,
-Generation, and Defect detection. It reads the persisted empirical reports
-through `services/research/dashboard.py`. Generation services remain available
-for the next phase, but the legacy Demo/Ollama controls are not exposed in the
-current research UI.
+The current Streamlit entry point provides three top-level pages: Home,
+Generation, and Defect detection. Home is the central navigation page.
+Generation is the primary working view: its sidebar selects the T1/T2/T3 task,
+Ollama model, batch size, tolerance, and connection URL. Its main content is
+organised into Target profile, Programming task, Prompt, Results, and Analytics
+tabs before running the shared validation and detector workflow. Defect
+detection remains a complementary page for authentic-submission analysis.
+The legacy demonstration task controls are not exposed.
 
 ## Empirical research foundation
 

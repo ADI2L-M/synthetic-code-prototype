@@ -10,7 +10,26 @@
 }
 
 [data-testid="stHeader"] {
-    background: transparent;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    /* Keep Streamlit's theme-provided background and foreground colors. */
+    border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+    box-shadow: 0 3px 14px color-mix(in srgb, currentColor 14%, transparent);
+}
+
+[data-testid="stTopNav"] {
+    /* Navigation inherits the active Streamlit light/dark theme. */
+    color-scheme: inherit;
+}
+
+[data-testid="stTopNav"] a:hover,
+[data-testid="stTopNav"] button:hover,
+[data-testid="stTopNav"] a[aria-current="page"],
+[data-testid="stTopNav"] button[aria-current="page"],
+[data-testid="stTopNav"] [aria-current="page"] {
+    color: inherit !important;
+    background: color-mix(in srgb, currentColor 12%, transparent) !important;
 }
 
 @media (max-width: 760px) {
