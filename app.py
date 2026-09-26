@@ -1,120 +1,51 @@
 import streamlit as st
 
-from services.calibrator import calibration_constraints
-from services.data_loader import load_profiles, load_tasks
-from services.demo_provider import DemoProvider
-from services.ollama_provider import OllamaProvider
-from services.profile_composer import compose_target_profile, definitions_by_id
-from services.workflow import run_iteration
-from ui.components import render_header, render_kpis
-from ui.sections.analysis import render_analysis
-from ui.sections.configure import render_configure
-from ui.sections.generate import render_generate
-from ui.sections.results import render_results
-from ui.sidebar import render_sidebar
-from ui.state import (
-    append_iteration,
-    constraints_for,
-    consume_calibration_request,
-    current_iteration,
-    initialise_state,
-    next_iteration_number,
-    set_constraints,
-    task_iterations,
-)
+from services.research.dashboard import load_dashboard_data
+from ui.generation import render_generation
+from ui.home import render_home
+from ui.research_dashboard import render_dashboard, render_sidebar
 from ui.styles import load_styles
 
 st.set_page_config(
-    page_title="Synthetic Code Prototype",
+    page_title="Synthetic Code Research Prototype",
     page_icon=":material/science:",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 load_styles()
-initialise_state()
 
-tasks = load_tasks()
-profiles = load_profiles()
-definitions = definitions_by_id()
-controls = render_sidebar(tasks)
-independent, dependent, target = compose_target_profile(controls.task, profiles)
-constraints = constraints_for(controls.task.id)
 
-if controls.generate_requested:
-    provider = (
-        DemoProvider()
-        if controls.provider_mode == "Demo"
-        else OllamaProvider(controls.ollama_model, controls.ollama_base_url)
-    )
-    append_iteration(
-        run_iteration(
-            task=controls.task,
-            target_profile=target,
-            batch_size=controls.batch_size,
-            iteration_number=next_iteration_number(controls.task.id),
-            tolerance=controls.tolerance,
-            constraints=constraints,
-            provider=provider,
-        )
-    )
+@st.cache_data(show_spinner=False)
+def _dashboard_data() -> dict:
+    return load_dashboard_data()
 
-current = current_iteration(controls.task.id)
 
-if consume_calibration_request() and current is not None:
-    revised_constraints = calibration_constraints(current.comparison)
-    set_constraints(controls.task.id, revised_constraints)
-    append_iteration(
-        run_iteration(
-            task=controls.task,
-            target_profile=current.target_profile,
-            batch_size=controls.batch_size,
-            iteration_number=next_iteration_number(controls.task.id),
-            tolerance=controls.tolerance,
-            constraints=revised_constraints,
-            provider=(
-                DemoProvider()
-                if controls.provider_mode == "Demo"
-                else OllamaProvider(controls.ollama_model, controls.ollama_base_url)
-            ),
-        )
-    )
+try:
+    dashboard_data = _dashboard_data()
+except (FileNotFoundError, KeyError, ValueError) as error:
+    st.error(f"Research report data could not be loaded: {error}")
+    st.stop()
 
-current = current_iteration(controls.task.id)
-history = task_iterations(controls.task.id)
-
-render_header()
-render_kpis(controls.task, current)
-
-configure_tab, generate_tab, results_tab, analysis_tab = st.tabs(
+home_tab, generation_tab, detection_tab = st.tabs(
     [
-        ":material/settings: Configure",
-        ":material/auto_awesome: Generate",
-        ":material/table_view: Results",
-        ":material/analytics: Analyse & Calibrate",
+        ":material/home: Home",
+        ":material/auto_awesome: Generation",
+        ":material/analytics: Defect detection",
     ],
-    key="workflow_tabs",
+    key="application_tabs",
     on_change="rerun",
 )
 
-with configure_tab:
-    if configure_tab.open:
-        render_configure(controls.task, independent, dependent, target, definitions)
+with home_tab:
+    if home_tab.open:
+        render_home(dashboard_data)
 
-with generate_tab:
-    if generate_tab.open:
-        render_generate(
-            controls.task,
-            target,
-            constraints,
-            definitions,
-            current,
-        )
+with generation_tab:
+    if generation_tab.open:
+        render_generation(dashboard_data)
 
-with results_tab:
-    if results_tab.open:
-        render_results(current, definitions)
-
-with analysis_tab:
-    if analysis_tab.open:
-        render_analysis(current, history, definitions)
+with detection_tab:
+    if detection_tab.open:
+        selected_task = render_sidebar(dashboard_data)
+        render_dashboard(dashboard_data, selected_task)
