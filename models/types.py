@@ -7,6 +7,7 @@ class TestCase:
     args: list[Any]
     expected: Any = None
     raises: str | None = None
+    expected_type: str | None = None
 
 
 @dataclass(frozen=True)

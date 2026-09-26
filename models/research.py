@@ -32,3 +32,28 @@ class Eligibility:
     status: str
     opportunity_level: str = "normal"
     reason: str | None = None
+
+
+@dataclass
+class ResearchAnalysisRecord:
+    submission_id: str
+    lab: int
+    question: int
+    task_id: str
+    task_family: str
+    source_code: str
+    parse_success: bool
+    parse_error: str | None = None
+    functional_correct: bool | None = None
+    constraint_compliant: bool | None = None
+    defects: dict[str, DetectionResult] = field(default_factory=dict)
+    eligibility: dict[str, Eligibility] = field(default_factory=dict)
+    exclusion_reason: str | None = None
+
+    @property
+    def valid_for_prevalence(self) -> bool:
+        return (
+            self.parse_success
+            and self.functional_correct is True
+            and self.constraint_compliant is True
+        )
