@@ -13,60 +13,6 @@
     background: transparent;
 }
 
-.st-key-workflow_tabs [data-baseweb="tab-list"] {
-    gap: 0.5rem;
-}
-
-.st-key-workflow_tabs button[role="tab"] {
-    flex: 0 0 210px;
-    width: 210px;
-    min-width: 210px;
-    max-width: 210px;
-    height: 48px;
-    padding: 0.65rem 1rem;
-    border-radius: 10px 10px 0 0;
-    background: color-mix(in srgb, currentColor 7%, transparent);
-}
-
-.st-key-workflow_tabs button[role="tab"]:hover {
-    background: color-mix(in srgb, currentColor 11%, transparent);
-}
-
-.st-key-workflow_tabs button[role="tab"][aria-selected="true"] {
-    background: color-mix(in srgb, currentColor 15%, transparent);
-}
-
-.st-key-metric_task,
-.st-key-metric_iteration,
-.st-key-metric_correct,
-.st-key-metric_status {
-    --metric-accent: var(--st-primary, #2563eb);
-}
-
-.st-key-metric_task { --metric-accent: #3b82f6; }
-.st-key-metric_iteration { --metric-accent: #8b5cf6; }
-.st-key-metric_correct { --metric-accent: #22c55e; }
-.st-key-metric_status { --metric-accent: #f59e0b; }
-
-.st-key-metric_task [data-testid="stMetric"],
-.st-key-metric_iteration [data-testid="stMetric"],
-.st-key-metric_correct [data-testid="stMetric"],
-.st-key-metric_status [data-testid="stMetric"] {
-    border-color: color-mix(in srgb, var(--metric-accent) 55%, currentColor 10%);
-    border-left: 6px solid var(--metric-accent);
-    background: color-mix(in srgb, var(--metric-accent) 16%, transparent);
-    box-shadow: 0 2px 10px color-mix(in srgb, currentColor 9%, transparent);
-}
-
-.st-key-metric_task [data-testid="stMetricValue"],
-.st-key-metric_iteration [data-testid="stMetricValue"],
-.st-key-metric_correct [data-testid="stMetricValue"],
-.st-key-metric_status [data-testid="stMetricValue"] {
-    color: var(--metric-accent);
-    font-size: clamp(1.25rem, 2vw, 1.75rem);
-    line-height: 1.15;
-}
-
 @media (max-width: 760px) {
     [data-testid="stMainBlockContainer"] {
         width: calc(100% - 1rem);
@@ -74,10 +20,4 @@
         padding: 1.25rem;
     }
 
-    .st-key-workflow_tabs button[role="tab"] {
-        flex-basis: 170px;
-        width: 170px;
-        min-width: 170px;
-        max-width: 170px;
-    }
 }

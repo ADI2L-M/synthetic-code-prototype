@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from models.types import DefectDefinition, IterationResult, ProgrammingTask
-from services.prompt_builder import build_generation_specification
+from services.generation.prompt_builder import build_generation_specification
 from ui.components import display_name
 
 
