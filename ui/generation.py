@@ -9,8 +9,13 @@ import pandas as pd
 import streamlit as st
 
 from models.types import IterationResult, ProgrammingTask
-from services.generation.prompt_builder import build_generation_specification
+from services.generation.analytics import (
+    defect_analytics_rows,
+    generation_quality,
+    iteration_history_rows,
+)
 from ui.research_dashboard import target_dataframe
+from ui.state import request_calibration as _request_calibration
 
 OLLAMA_MODELS = (
     "qwen2.5-coder:1.5b",
@@ -43,7 +48,7 @@ def render_generation_sidebar(data: dict[str, Any]) -> GenerationControls:
         model = st.selectbox(
             "Model",
             OLLAMA_MODELS,
-            index=1,
+            index=0,
             key="generation_model",
         )
         batch_size = st.number_input(
@@ -125,6 +130,10 @@ def _render_submissions(iteration: IterationResult) -> None:
             "Functional validation": item.validation.status,
             "Tests passed": item.validation.tests_passed,
             "Tests failed": item.validation.tests_failed,
+            "Attempts": item.generation_attempts,
+            "Category requirement": (
+                "Met" if item.category_requirements_met else "Not met"
+            ),
             "Guided defects": ", ".join(item.assigned_defects) or "Clean",
             "Detected defects": ", ".join(
                 defect for defect, present in item.defects.items() if present
@@ -143,6 +152,18 @@ def _render_submissions(iteration: IterationResult) -> None:
             f"guided: {', '.join(item.assigned_defects) or 'clean'}"
         ):
             st.caption(f"Detected defects: {detected}")
+            if item.category_requirements_met:
+                st.caption(
+                    f"Category requirement met after {item.generation_attempts} "
+                    "attempt(s): at least one task-independent and one "
+                    "task-dependent defect."
+                )
+            else:
+                missing = ", ".join(item.missing_defect_categories) or "unknown"
+                st.warning(
+                    f"Category requirement not met after {item.generation_attempts} "
+                    f"attempt(s). Missing: {missing}."
+                )
             st.code(item.source_code, language="python")
             if item.validation.failure_message:
                 st.caption(item.validation.failure_message)
@@ -183,41 +204,113 @@ def _render_programming_task(task: ProgrammingTask) -> None:
 
 
 def _render_prompt(
-    task: ProgrammingTask,
-    target: dict[str, float],
     current: IterationResult | None,
 ) -> None:
-    st.write(
-        "The prompt is constructed from the selected programming task, the "
-        "empirical target profile, and the functional-correctness constraint."
+    if current is None:
+        st.info(
+            "The exact provider prompts will appear here after a generation "
+            "batch is run."
+        )
+        return
+
+    st.caption(
+        "These are the exact prompts captured immediately before each provider "
+        "request. The prompt is shown separately for every submission because "
+        "assigned defect guidance can differ."
     )
-    if current:
-        st.subheader("Batch generation profile")
-        st.code(current.specification, language="text")
-        st.subheader("Submission-specific prompts")
-        for item in current.submissions:
-            label = ", ".join(item.assigned_defects) or "clean control"
-            with st.expander(f"Submission {item.submission_id} · {label}"):
-                st.code(item.prompt, language="text")
-    else:
-        st.code(build_generation_specification(task, target), language="text")
+    for item in current.submissions:
+        label = ", ".join(item.assigned_defects) or "clean control"
+        with st.expander(f"Submission {item.submission_id} · {label}"):
+            st.code(item.prompt, language="text")
 
 
-def _render_analytics(current: IterationResult | None) -> None:
+def _render_analytics(
+    current: IterationResult | None,
+    history: list[IterationResult] | None = None,
+) -> None:
     if current is None:
         st.info("Analytics will appear after a generation batch is completed.")
         return
-    valid_count = sum(
-        item.validation.status == "PASS" for item in current.submissions
-    )
+    quality = generation_quality(current)
     status = "Accepted" if current.accepted else "Needs review"
-    result_columns = st.columns(3, gap="small")
-    result_columns[0].metric(
-        "Functionally correct", f"{valid_count}/{len(current.submissions)}"
+    st.subheader("Generation quality")
+    quality_metrics = [
+        ("Functional pass rate", f"{quality['functional_pass_rate']:.0%}"),
+        (
+            "Category requirement",
+            f"{quality['category_requirement_rate']:.0%}",
+        ),
+        (
+            "Valid denominator",
+            f"{quality['valid_submissions']}/{quality['total_submissions']}",
+        ),
+        ("Average attempts", f"{quality['average_attempts']:.1f}"),
+    ]
+    for start in range(0, len(quality_metrics), 2):
+        columns = st.columns(2, gap="small")
+        for column, (label, value) in zip(columns, quality_metrics[start : start + 2]):
+            with column:
+                st.metric(label, value, border=True)
+
+    st.subheader("Defect generation profile")
+    analytics_rows = defect_analytics_rows(current)
+    profile = pd.DataFrame(analytics_rows).set_index("Defect")[["Target", "Observed"]]
+    st.bar_chart(profile, y_label="Prevalence", x_label="Defect")
+    st.dataframe(
+        pd.DataFrame(analytics_rows),
+        hide_index=True,
+        width="stretch",
+        column_config={
+            "Target": st.column_config.ProgressColumn(
+                min_value=0, max_value=1, format="percent"
+            ),
+            "Observed": st.column_config.ProgressColumn(
+                min_value=0, max_value=1, format="percent"
+            ),
+            "Difference": st.column_config.NumberColumn(format="percent"),
+        },
     )
-    result_columns[1].metric("Profile status", status)
-    result_columns[2].metric("Relative tolerance", f"±{current.tolerance:.0%}")
-    _render_comparison(current)
+
+    st.subheader("Profile status")
+    st.caption(f"{status} · relative tolerance ±{current.tolerance:.0%}")
+    if current.constraints:
+        st.subheader("Active calibration adjustments")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Defect": defect.replace("_", " ").title(),
+                        "Adjustment": instruction,
+                    }
+                    for defect, instruction in current.constraints.items()
+                ]
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+    if history and len(history) > 1:
+        st.subheader("Calibration history")
+        st.dataframe(
+            pd.DataFrame(iteration_history_rows(history)),
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "Pass rate": st.column_config.NumberColumn(format="percent"),
+                "Category coverage": st.column_config.NumberColumn(
+                    format="percent"
+                ),
+                "Average attempts": st.column_config.NumberColumn(format="%.1f"),
+            },
+        )
+    if not current.accepted:
+        st.button(
+            "Apply calibration and regenerate",
+            type="primary",
+            icon=":material/autorenew:",
+            width="stretch",
+            key="apply_generation_calibration",
+            on_click=_request_calibration,
+        )
 
 
 def render_generation(
@@ -226,6 +319,7 @@ def render_generation(
     current: IterationResult | None,
     task: ProgrammingTask,
     error: str | None = None,
+    history: list[IterationResult] | None = None,
 ) -> None:
     """Render generation inputs, empirical targets, and the latest batch."""
     task_data = data["prototype_tasks"][controls.task_id]
@@ -243,17 +337,15 @@ def render_generation(
         ("Batch size", controls.batch_size),
         ("Relative tolerance", f"±{controls.tolerance:.0%}"),
     ]
-    columns = st.columns(len(metrics), gap="small")
-    for column, (label, value) in zip(columns, metrics):
-        with column:
-            st.metric(label, value, border=True)
+    for start in range(0, len(metrics), 2):
+        columns = st.columns(2, gap="small")
+        for column, (label, value) in zip(columns, metrics[start : start + 2]):
+            with column:
+                st.metric(label, value, border=True)
 
     if error:
         st.error(error)
 
-    target = {
-        row["defect"]: row["target_prevalence"] for row in task_data["target_rows"]
-    }
     target_tab, task_tab, prompt_tab, results_tab, analytics_tab = st.tabs(
         [
             ":material/analytics: Target profile",
@@ -286,7 +378,7 @@ def render_generation(
             _render_programming_task(task)
     with prompt_tab:
         if prompt_tab.open:
-            _render_prompt(task, target, current)
+            _render_prompt(current)
     with results_tab:
         if results_tab.open:
             if current is None:
@@ -296,4 +388,4 @@ def render_generation(
                 _render_submissions(current)
     with analytics_tab:
         if analytics_tab.open:
-            _render_analytics(current)
+            _render_analytics(current, history)

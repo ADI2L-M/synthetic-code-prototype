@@ -171,6 +171,55 @@ GENERATION_EXAMPLES = {
     },
 }
 
+TASK_SPECIFIC_PATTERNS = {
+    ("T2", "duplicate_expression"): (
+        "total = 0\n"
+        "for s in scores:\n"
+        "    total = total + (s * 2 + 1) - (s * 2 + 1) + s\n"
+        "return total"
+    ),
+    ("T2", "misleading_iterator_name"): (
+        "total = 0\n"
+        "for i in scores:\n"
+        "    total = total + i\n"
+        "return total"
+    ),
+    ("T2", "one_letter_name"): (
+        "total = 0\n"
+        "for s in scores:\n"
+        "    total = total + (s * 2 + 1) - (s * 2 + 1) + s\n"
+        "return total"
+    ),
+    ("T3", "one_letter_name"): (
+        "total = 0\n"
+        "for v in range(1, n + 1):\n"
+        "    total = total + v\n"
+        "return total"
+    ),
+    ("T1", "else_if"): (
+        "if temp < 10:\n"
+        "    return 'cold'\n"
+        "else:\n"
+        "    if temp <= 24:\n"
+        "        return 'mild'\n"
+        "    else:\n"
+        "        return 'hot'"
+    ),
+    ("T1", "redundant_comparison"): (
+        "is_mild = temp >= 10 and temp <= 24\n"
+        "if is_mild == True:\n"
+        "    return 'mild'"
+    ),
+    ("T2", "augmentable_assignment"): (
+        "for score in scores:\n"
+        "    total = total + score"
+    ),
+    ("T3", "augmentable_assignment"): (
+        "for value in range(1, n + 1):\n"
+        "    total = total + value"
+    ),
+}
+
 
 @lru_cache(maxsize=1)
 def _defect_catalog() -> dict[str, dict[str, object]]:
@@ -184,36 +233,58 @@ def _defect_catalog() -> dict[str, dict[str, object]]:
     }
 
 
+def _task_defect_names(task_id: str, category: str) -> tuple[str, ...]:
+    """Return every catalogue defect applicable to a task and category."""
+    return tuple(
+        item["name"]
+        for item in _defect_catalog().values()
+        if item.get("category") == category
+        and task_id in item.get("applicable_tasks", [])
+    )
+
+
+def applicable_defect_names(task: ProgrammingTask, category: str) -> tuple[str, ...]:
+    """Return catalogue defects that can be generated for a task category."""
+    return _task_defect_names(task.id, category)
+
+
+def _calibration_section(constraints: dict[str, str] | None) -> str:
+    if not constraints:
+        return ""
+    rows = "\n".join(
+        f"- {defect.replace('_', ' ')}: {instruction}"
+        for defect, instruction in constraints.items()
+    )
+    return (
+        "\n\nCALIBRATION ADJUSTMENTS\n\n"
+        "These actions update the next iteration's defect emphasis. Follow them "
+        "without breaking functional correctness or the mandatory category requirement.\n"
+        + rows
+    )
+
+
 def build_generation_specification(
     task: ProgrammingTask,
     target: dict[str, float],
     constraints: dict[str, str] | None = None,
 ) -> str:
-    constraints = constraints or {}
-    catalog = _defect_catalog()
-    potential_task_dependent = [
-        key for key in target if key not in TASK_INDEPENDENT_DEFECTS
-    ]
-    potential_defects = [
-        f"- {key.replace('_', ' ')}: "
-        f"{catalog.get(key, {}).get('authoritative_definition', 'Use the documented structural condition.')}."
-        + (f" Guidance: {constraints[key]}." if constraints.get(key) else "")
-        for key in potential_task_dependent
-    ]
+    del target
+    independent_names = applicable_defect_names(task, "task_independent")
+    dependent_names = applicable_defect_names(task, "task_dependent")
     return (
         f"PROGRAMMING TASK\n\n{task.description}\n\n"
         "FUNCTIONAL REQUIREMENTS\n\n"
         + "\n".join(f"- {item}" for item in task.functional_requirements)
+        + "\n\nPOTENTIAL TASK-INDEPENDENT DEFECTS\n\n"
+        + "\n".join(f"- {name.replace('_', ' ')}" for name in independent_names)
         + "\n\nPOTENTIAL TASK-DEPENDENT DEFECTS\n\n"
-        + (
-            "\n".join(potential_defects)
-            or "- No additional task-dependent characteristics selected."
-        )
+        + "\n".join(f"- {name.replace('_', ' ')}" for name in dependent_names)
         + "\n\nGENERATION FOCUS\n\n"
         "Task-dependent structural defects are the primary research focus. "
         "When a task-dependent defect is assigned in the submission brief, "
         "implement that exact structure while preserving functional correctness. "
         "Do not substitute a task-independent style."
+        + _calibration_section(constraints)
         + "\n\nIMPORTANT\n\nThe program must remain functionally correct."
     )
 
@@ -224,67 +295,78 @@ def build_submission_specification(
     constraints: dict[str, str] | None = None,
 ) -> str:
     """Build a detailed, per-submission defect-guidance brief."""
-    constraints = constraints or {}
-    catalog = _defect_catalog()
+    independent_names = applicable_defect_names(task, "task_independent")
+    dependent_names = applicable_defect_names(task, "task_dependent")
     assigned_task_dependent = tuple(
-        defect for defect in assigned_defects if defect not in TASK_INDEPENDENT_DEFECTS
+        defect for defect in assigned_defects if defect in dependent_names
     )
-    guidance: list[str] = []
-    for defect in assigned_defects:
-        definition = catalog.get(defect, {})
-        authoritative_definition = definition.get("authoritative_definition", "")
-        positive_condition = definition.get("positive_condition", "")
-        exclusions = definition.get("exclusions", [])
-        expected_evidence = definition.get("expected_evidence", [])
-        example = GENERATION_EXAMPLES.get(defect)
-        exclusion_text = "; ".join(str(item) for item in exclusions)
-        evidence_text = "; ".join(str(item) for item in expected_evidence)
-        extra_constraint = constraints.get(defect)
-        guidance.append(
-            f"DEFECT: {defect.replace('_', ' ')}\n"
-            f"  Definition: {authoritative_definition}\n"
-            f"  Required structural condition: {positive_condition}\n"
-            f"  Construction hint: {GENERATION_HINTS.get(defect, 'Follow the required structural condition exactly.')}\n"
-            + (
-                "  Defective pattern example:\n"
-                f"    {example['defective'].replace(chr(10), chr(10) + '    ')}\n"
-                "  Corrected contrast:\n"
-                f"    {example['corrected'].replace(chr(10), chr(10) + '    ')}\n"
-                if example
-                else ""
-            )
-            + (f"  Avoid: {exclusion_text}.\n" if exclusion_text else "")
-            + (f"  Evidence the evaluator will look for: {evidence_text}.\n" if evidence_text else "")
-            + (
-                f"  Additional guidance: {extra_constraint}.\n"
-                if extra_constraint
-                else ""
-            )
-        )
-
-    if guidance:
-        assigned_section = "\n".join(guidance)
-        instruction = "Attempt to include every assigned style while preserving the functional contract."
-    else:
-        assigned_section = "- No intentional defect style assigned."
-        instruction = (
-            "Generate a conventional implementation and avoid intentionally introducing documented defect styles."
-        )
-
-    task_dependent_focus = ""
-    if assigned_task_dependent:
-        task_dependent_focus = (
-            "TASK-DEPENDENT DEFECT FOCUS\n\n"
-            "This submission has an assigned task-dependent structural defect. "
-            "That structure is mandatory: realise it in the task's control flow "
-            "or computation and do not replace it with a task-independent defect "
-            "such as formatting, naming, or a magic number.\n\n"
-        )
+    independent_section = "\n".join(
+        f"- {name.replace('_', ' ')}" for name in independent_names
+    ) or "- None applicable to this task."
+    dependent_section = "\n".join(
+        f"- {name.replace('_', ' ')}" for name in dependent_names
+    ) or "- None applicable to this task."
+    assigned_task_dependent_names = "\n".join(
+        f"- {defect.replace('_', ' ')}" for defect in assigned_task_dependent
+    ) or "- None assigned; choose a task-dependent defect from the list."
+    assigned_task_independent = tuple(
+        defect for defect in assigned_defects if defect in independent_names
+    )
+    assigned_task_independent_names = "\n".join(
+        f"- {defect.replace('_', ' ')}" for defect in assigned_task_independent
+    ) or "- None assigned; choose a task-independent defect from the list."
+    guidance_defects = tuple(
+        dict.fromkeys(assigned_task_independent + assigned_task_dependent)
+    )
+    guidance_sections: list[str] = []
+    for defect in guidance_defects:
+        hint = GENERATION_HINTS.get(defect)
+        example = GENERATION_EXAMPLES.get(defect, {}).get("defective")
+        if hint:
+            guidance = f"- {defect.replace('_', ' ')}: {hint}"
+            if example:
+                guidance += f" Example pattern:\n    {example}"
+            task_pattern = TASK_SPECIFIC_PATTERNS.get((task.id, defect))
+            if task_pattern:
+                guidance += (
+                    "\n  Task-specific valid pattern to adapt:\n    "
+                    + task_pattern.replace("\n", "\n    ")
+                )
+            guidance_sections.append(guidance)
+    guidance = "\n".join(guidance_sections) or "- Use the task contract to construct the required styles."
+    assigned_section = (
+        "REFERENCE DEFECT CATALOG — names only; do not implement every item:\n\n"
+        "Task-Independent defects:\n\n"
+        + independent_section
+        + "\n\n"
+        "Task-Dependent defects:\n\n"
+        + dependent_section
+        + "\n\nMANDATORY SELECTED DEFECTS — implement these two styles:\n\n"
+        + "Task-independent:\n"
+        + assigned_task_independent_names
+        + "\nASSIGNED TASK-DEPENDENT DEFECTS TO PRIORITISE:\n"
+        + assigned_task_dependent_names
+        + "\n\nMANDATORY CATEGORY REQUIREMENT:\n\n"
+        + "- Include at least one task-independent defect.\n"
+        + "- Include at least one task-dependent defect.\n"
+        + "Include at least one task-independent and at least one task-dependent "
+        "defect. The two selected defects above are the simplest required choices; "
+        "do not substitute another style.\n\n"
+        "MANDATORY DEFECT IMPLEMENTATION GUIDANCE:\n\n"
+        + guidance
+        + "\n\nGENERATION PROCEDURE:\n\n"
+        "1. Write the complete function so every functional requirement and evaluator "
+        "case is satisfied.\n"
+        "2. Add the selected task-independent style without changing behavior.\n"
+        "3. Add the selected task-dependent style without changing behavior.\n"
+        "4. Recheck every evaluator case and remove any module-level execution."
+    )
 
     return (
         "SUBMISSION GENERATION BRIEF\n\n"
         "ROLE\n\n"
-        "You are generating one authentic-looking Python student submission. "
+        "You are generating one python submission imitating a CS1 student with beginner programming coding style. "
+        "The coding style is stated in two distinct categories: task-dependent and task-independent. "
         "The source will be executed and structurally evaluated after generation.\n\n"
         "PROGRAMMING TASK\n\n"
         f"Task ID: {task.id}\n"
@@ -293,16 +375,39 @@ def build_submission_specification(
         f"Description: {task.description}\n\n"
         "FUNCTIONAL REQUIREMENTS\n\n"
         + "\n".join(f"- {item}" for item in task.functional_requirements)
-        + "\n\n"
-        + task_dependent_focus
+        + "\n\nFUNCTIONAL COVERAGE CHECKLIST\n\n"
+        + "Before returning the source, mentally evaluate the required function "
+        + "for every evaluator case and ensure every listed input has an explicit "
+        + "return path with the required result. Do not copy the evaluator cases "
+        + "into the submission.\n"
+        + "\n".join(
+            f"- {task.function_name}({', '.join(repr(arg) for arg in case.args)}) "
+            + (
+                f"must raise {case.raises}"
+                if case.raises
+                else f"must return {case.expected!r}"
+            )
+            for case in task.test_cases
+        )
         + "\n\nASSIGNED DEFECT STYLE BRIEFS\n\n"
         + assigned_section
         + "\n\nGENERATION OBJECTIVE\n\n"
-        + instruction
-        + " The defect guidance is intentional, but functional correctness takes priority if a conflict is discovered.\n\n"
+        + "Include at least one defect from each category while preserving "
+        + "functional correctness. If one construction conflicts with the task, "
+        + "revise the construction rather than omitting the category.\n\n"
+        + _calibration_section(constraints)
+        + "\n\n"
         "PRIVATE PRE-RETURN CHECK\n\n"
         "Before returning the source, silently check that the required function "
-        "exists, every functional requirement is satisfied, each assigned style "
-        "is represented as described, excluded forms are avoided, and the result "
-        "contains only executable Python code."
+        "exists, every functional requirement is satisfied, every mandatory "
+        "assigned style is represented as described, excluded forms are avoided, and the result "
+        "contains only executable Python code.\n\n"
+        "OUTPUT CONTRACT\n\n"
+        "Return only the complete executable Python source for the required function. "
+        "Define the required function and do not execute anything at module level. "
+        "The functional test cases are evaluator inputs, not code to copy. Do not "
+        "include print(), input(), assertions, test cases, a test harness, Markdown, "
+        "explanations, or a partial revision.\n\n"
+        "IMPORTANT NOTE:\n\n"
+        "Implementing coding style is mandatory, do not return the submission without including the task-dependent coding style criteria"
     )

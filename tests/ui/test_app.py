@@ -58,7 +58,7 @@ def test_generation_main_content_has_task_and_prompt_tabs():
 
     app.session_state["generation_content_tabs"] = ":material/description: Prompt"
     app.run()
-    assert any("PROGRAMMING TASK" in item.value for item in app.code)
+    assert any("exact provider prompts" in item.value for item in app.info)
 
 
 def test_home_is_accessible_as_a_separate_application_view():

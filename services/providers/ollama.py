@@ -3,9 +3,9 @@
 import json
 import os
 import re
+from enum import Enum
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
-from enum import Enum
 
 from dotenv import load_dotenv
 
@@ -36,7 +36,7 @@ class OllamaProvider(GenerationProvider):
         base_url: str = "http://localhost:11434",
         timeout: int = 180,
     ) -> None:
-        self.model = model or os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
+        self.model = model or os.getenv("OLLAMA_MODEL", "qwen2.5-coder:1.5b")
         self.base_url = (
             base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         ).rstrip("/")
@@ -112,25 +112,26 @@ class OllamaProvider(GenerationProvider):
             )
             for case in task.test_cases
         )
-        return f"""You are generating one Python submission for a programming task.
+        return f"""You are generating one Python submission for a programming task following certain coding style constraints.
 
 {specification}
 
 FUNCTIONAL TEST CASES
 {tests}
 
-INSTRUCTIONS
-- Implement the function named {task.function_name}.
-- The submission must pass every functional test case above.
-- Handle invalid inputs and required exceptions before normal return logic.
-- The assigned defect styles above are the intended guidance for this submission.
-- Attempt to include every assigned style without breaking functional correctness.
-- Do not intentionally introduce defect styles that were not assigned.
-- Use readable, conventional multiline Python.
-- Do not use semicolons to compress statements.
-- Return only executable Python source code.
-- Do not include Markdown fences, explanations, input(), print(), file access, or network access.
 """
+
+# INSTRUCTIONS
+# - Implement the function named {task.function_name}.
+# - The submission must pass every functional test case above.
+# - Handle invalid inputs and required exceptions before normal return logic.
+# - The assigned defect styles above are the intended guidance for this submission.
+# - Attempt to include every assigned style without breaking functional correctness.
+# - Do not intentionally introduce defect styles that were not assigned.
+# - Use readable, conventional multiline Python.
+# - Do not use semicolons to compress statements.
+# - Return only executable Python source code.
+# - Do not include Markdown fences, explanations, input(), print(), file access, or network access.
 
     @staticmethod
     def _extract_source(response: str, function_name: str) -> str:

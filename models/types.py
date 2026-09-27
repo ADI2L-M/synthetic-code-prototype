@@ -50,6 +50,9 @@ class SubmissionResult:
     assigned_defects: tuple[str, ...] = ()
     prompt: str = ""
     generation_seed: int | None = None
+    generation_attempts: int = 1
+    category_requirements_met: bool = False
+    missing_defect_categories: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

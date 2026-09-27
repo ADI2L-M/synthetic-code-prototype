@@ -7,7 +7,6 @@ import random
 from dataclasses import dataclass
 from math import floor
 
-
 MAX_ASSIGNED_DEFECTS = 3
 
 

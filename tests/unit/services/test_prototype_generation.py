@@ -22,6 +22,33 @@ class RecordingProvider(FakeProvider):
         return super().generate(task, batch_size, iteration, specification)
 
 
+class RepairingProvider:
+    def __init__(self):
+        self.calls = []
+
+    def generate(self, task, batch_size, iteration=1, specification=None):
+        self.calls.append((task.id, batch_size, iteration, specification))
+        if len(self.calls) == 1:
+            return [(
+                "def classify_temperature(temp):\n"
+                "    if temp < 10:\n"
+                "        return 'cold'\n"
+                "    if temp < 25:\n"
+                "        return 'mild'\n"
+                "    return 'hot'\n"
+            )]
+        return [(
+            "def classify_temperature(temp):\n"
+            "    x = temp\n"
+            "    is_cold = x < 10\n"
+            "    if is_cold == True:\n"
+            "        return 'cold'\n"
+            "    if x < 25:\n"
+            "        return 'mild'\n"
+            "    return 'hot'\n"
+        )]
+
+
 def test_prototype_tasks_cover_all_empirical_generation_families():
     tasks = load_prototype_tasks()
 
@@ -62,12 +89,33 @@ def test_generation_uses_one_reproducible_guidance_brief_per_submission():
 
     assert len(provider.calls) == 4
     assert all(call[1] == 1 for call in provider.calls)
-    assert all("ASSIGNED DEFECT STYLE BRIEFS" in call[3] for call in provider.calls)
-    assert any("Defective pattern example:" in call[3] for call in provider.calls)
-    assert any("Corrected contrast:" in call[3] for call in provider.calls)
+    assert all("Task-Independent defects" in call[3] for call in provider.calls)
+    assert all("Task-Dependent defects" in call[3] for call in provider.calls)
+    assert all("MANDATORY CATEGORY REQUIREMENT" in call[3] for call in provider.calls)
     assert all(item.prompt for item in result.submissions)
     assert all(item.generation_seed is not None for item in result.submissions)
     assert result.planned_assignment_counts["one_letter_name"] in {2, 3}
+
+
+def test_generation_repairs_until_functional_and_both_categories_are_detected():
+    provider = RepairingProvider()
+    result = run_iteration(
+        task=load_prototype_tasks()["T1"],
+        target_profile={"magic_number": 0.0, "redundant_comparison": 0.0},
+        batch_size=1,
+        iteration_number=1,
+        tolerance=0.1,
+        provider=provider,
+        max_repair_attempts=1,
+    )
+
+    submission = result.submissions[0]
+    assert len(provider.calls) == 2
+    assert submission.generation_attempts == 2
+    assert submission.validation.status == "PASS"
+    assert submission.category_requirements_met is True
+    assert submission.missing_defect_categories == ()
+    assert "REVISION REQUEST" in provider.calls[1][3]
 
 
 def test_submission_prompt_contains_only_assigned_defect_guidance():
@@ -85,10 +133,14 @@ def test_submission_prompt_contains_only_assigned_defect_guidance():
     )
 
     prompt = provider.calls[0][3]
-    assert "DEFECT: redundant not" in prompt
-    assert "TASK-DEPENDENT DEFECT FOCUS" in prompt
-    assert "Defective pattern example:" in prompt
-    assert "built in name" not in prompt
+    assert "- redundant not" in prompt
+    assert "MANDATORY CATEGORY REQUIREMENT" in prompt
+    assert "Include at least one task-independent defect." in prompt
+    assert "Include at least one task-dependent defect." in prompt
+    assert "ASSIGNED TASK-DEPENDENT DEFECTS TO PRIORITISE" in prompt
+    assert "- built in name" in prompt
+    assert "IMPORTANT NOTE:" in prompt
+    assert "Implementing coding style is mandatory" in prompt
     assert "100% target" not in prompt
 
 
@@ -100,5 +152,6 @@ def test_programming_task_brief_redacts_prevalence_and_lists_task_dependent_defe
 
     assert "POTENTIAL TASK-DEPENDENT DEFECTS" in brief
     assert "redundant not" in brief
-    assert "magic number" not in brief
+    assert "POTENTIAL TASK-INDEPENDENT DEFECTS" in brief
+    assert "magic number" in brief
     assert "%" not in brief
