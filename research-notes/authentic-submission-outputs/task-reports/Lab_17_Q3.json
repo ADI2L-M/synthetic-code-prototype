@@ -1,0 +1,825 @@
+{
+  "report_type": "authentic_task_prevalence",
+  "generated_at_utc": "2026-09-26T02:08:33.639436+00:00",
+  "task": {
+    "authentic_task": "Lab 17 Q3",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting"
+  },
+  "denominator_definition": "parseable submissions marked functionally correct by the functional-validation dataset",
+  "submissions": {
+    "functionally_correct_count": 552,
+    "parseable_count": 552,
+    "parse_failure_count": 0
+  },
+  "defects": {
+    "redundant_if_else": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_comparison": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_not": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "duplicate_if": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "else_if": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "nested_if": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_elif": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "empty_if": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_indexing": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 552,
+      "eligible_denominator": 552,
+      "affected_submission_count": 34,
+      "prevalence": 0.06159420289855073,
+      "raw_detected_submission_count": 34,
+      "raw_instance_count": 58,
+      "example_detections": [
+        {
+          "submission_id": "Lab_17_Q3_R5",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 5,
+              "column": 4
+            },
+            {
+              "line": 7,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "index_name": "i",
+              "sequence": "list2",
+              "matching_reads": 1,
+              "reason": "index is only used to read the current element"
+            },
+            {
+              "index_name": "j",
+              "sequence": "list1",
+              "matching_reads": 1,
+              "reason": "index is only used to read the current element"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R28",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 5,
+              "column": 4
+            },
+            {
+              "line": 7,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "index_name": "i",
+              "sequence": "list2",
+              "matching_reads": 1,
+              "reason": "index is only used to read the current element"
+            },
+            {
+              "index_name": "j",
+              "sequence": "list1",
+              "matching_reads": 1,
+              "reason": "index is only used to read the current element"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R49",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 5,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "index_name": "multiplier",
+              "sequence": "list2",
+              "matching_reads": 1,
+              "reason": "index is only used to read the current element"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "misleading_iterator_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 552,
+      "eligible_denominator": 552,
+      "affected_submission_count": 91,
+      "prevalence": 0.16485507246376813,
+      "raw_detected_submission_count": 91,
+      "raw_instance_count": 133,
+      "example_detections": [
+        {
+          "submission_id": "Lab_17_Q3_R3",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 5,
+              "column": 8
+            },
+            {
+              "line": 7,
+              "column": 12
+            }
+          ],
+          "evidence": [
+            {
+              "iterator_name": "i",
+              "iterable": "list2",
+              "role": "direct collection element"
+            },
+            {
+              "iterator_name": "j",
+              "iterable": "list1",
+              "role": "direct collection element"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R6",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 7,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "iterator_name": "i",
+              "iterable": "list2",
+              "role": "direct collection element"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R7",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 5,
+              "column": 8
+            },
+            {
+              "line": 31,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "iterator_name": "i",
+              "iterable": "list2",
+              "role": "direct collection element"
+            },
+            {
+              "iterator_name": "i",
+              "iterable": "list1",
+              "role": "direct collection element"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "duplicate_expression": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 552,
+      "eligible_denominator": 552,
+      "affected_submission_count": 1,
+      "prevalence": 0.0018115942028985507,
+      "raw_detected_submission_count": 1,
+      "raw_instance_count": 1,
+      "example_detections": [
+        {
+          "submission_id": "Lab_17_Q3_R240",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 1,
+              "column": 62
+            }
+          ],
+          "evidence": [
+            {
+              "occurrence_lines": [
+                1,
+                3,
+                1,
+                1
+              ],
+              "expression": "list[int]",
+              "weighted_complexity": 8,
+              "purity": "allowlisted pure expression"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "while_as_for": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 2,
+      "raw_instance_count": 2,
+      "example_detections": [
+        {
+          "submission_id": "Lab_17_Q3_R142",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 13,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "control_variable": "index1",
+              "test": "index1 < items",
+              "bound": "items",
+              "constant_step": 1,
+              "update_form": "augmented",
+              "path_safety": "constant update occurs on every executable path"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R235",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 9,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "control_variable": "index",
+              "test": "index < len(list1)",
+              "bound": "len(list1)",
+              "constant_step": 1,
+              "update_form": "augmented",
+              "path_safety": "constant update occurs on every executable path"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "redundant_for": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "augmentable_assignment": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 552,
+      "eligible_denominator": 552,
+      "affected_submission_count": 2,
+      "prevalence": 0.0036231884057971015,
+      "raw_detected_submission_count": 2,
+      "raw_instance_count": 2,
+      "example_detections": [
+        {
+          "submission_id": "Lab_17_Q3_R199",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 9,
+              "column": 12
+            }
+          ],
+          "evidence": [
+            {
+              "target": "num",
+              "operator": "Mult",
+              "matching_operand": "num",
+              "rewrite": "num Mult= ...",
+              "equivalence": "simple-name target with one left operand match"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R241",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 15,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "target": "count",
+              "operator": "Add",
+              "matching_operand": "count",
+              "rewrite": "count Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "inappropriate_formatting": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 552,
+      "eligible_denominator": 552,
+      "affected_submission_count": 219,
+      "prevalence": 0.3967391304347826,
+      "raw_detected_submission_count": 219,
+      "raw_instance_count": 487,
+      "example_detections": [
+        {
+          "submission_id": "Lab_17_Q3_R3",
+          "present": true,
+          "count": 5,
+          "locations": [
+            {
+              "line": 1,
+              "column": 37
+            },
+            {
+              "line": 3,
+              "column": 15
+            },
+            {
+              "line": 5,
+              "column": 19
+            },
+            {
+              "line": 7,
+              "column": 23
+            },
+            {
+              "line": 9,
+              "column": 32
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R6",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 11,
+              "column": 24
+            },
+            {
+              "line": 11,
+              "column": 24
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "*"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R7",
+          "present": true,
+          "count": 13,
+          "locations": [
+            {
+              "line": 9,
+              "column": 27
+            },
+            {
+              "line": 9,
+              "column": 27
+            },
+            {
+              "line": 11,
+              "column": 0
+            },
+            {
+              "line": 13,
+              "column": 0
+            },
+            {
+              "line": 15,
+              "column": 0
+            },
+            {
+              "line": 17,
+              "column": 0
+            },
+            {
+              "line": 21,
+              "column": 0
+            },
+            {
+              "line": 23,
+              "column": 0
+            },
+            {
+              "line": 25,
+              "column": 0
+            },
+            {
+              "line": 27,
+              "column": 0
+            },
+            {
+              "line": 29,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            },
+            {
+              "line": 39,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "*"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "magic_number": {
+      "eligibility": "eligible",
+      "opportunity_level": "low",
+      "valid_eligible_submission_count": 552,
+      "eligible_denominator": 552,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "one_letter_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 552,
+      "eligible_denominator": 552,
+      "affected_submission_count": 113,
+      "prevalence": 0.20471014492753623,
+      "raw_detected_submission_count": 113,
+      "raw_instance_count": 202,
+      "example_detections": [
+        {
+          "submission_id": "Lab_17_Q3_R3",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 5,
+              "column": 8
+            },
+            {
+              "line": 7,
+              "column": 12
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "i",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "j",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R6",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 7,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "i",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R7",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 5,
+              "column": 8
+            },
+            {
+              "line": 31,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "i",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "i",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "built_in_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 552,
+      "eligible_denominator": 552,
+      "affected_submission_count": 9,
+      "prevalence": 0.016304347826086956,
+      "raw_detected_submission_count": 9,
+      "raw_instance_count": 10,
+      "example_detections": [
+        {
+          "submission_id": "Lab_17_Q3_R17",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 3,
+              "column": 4
+            },
+            {
+              "line": 9,
+              "column": 12
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "list",
+              "shadowed_builtin": "list",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "sum",
+              "shadowed_builtin": "sum",
+              "binding_kind": "Name"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R113",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 3,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "list",
+              "shadowed_builtin": "list",
+              "binding_kind": "Name"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_17_Q3_R129",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 3,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "list",
+              "shadowed_builtin": "list",
+              "binding_kind": "Name"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    }
+  }
+}

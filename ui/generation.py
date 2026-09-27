@@ -432,10 +432,10 @@ def render_generation(
     if error:
         st.error(error)
 
-    target_tab, task_tab, prompt_tab, results_tab, analytics_tab = st.tabs(
+    task_tab, target_tab, prompt_tab, results_tab, analytics_tab = st.tabs(
         [
-            ":material/analytics: Target profile",
             ":material/code: Programming task",
+            ":material/analytics: Target profile",
             ":material/description: Prompt",
             ":material/table_view: Results",
             ":material/insights: Analytics",
@@ -454,10 +454,12 @@ def render_generation(
                     "Target prevalence": st.column_config.ProgressColumn(
                         min_value=0, max_value=1, format="percent"
                     ),
-                    "Pooled prevalence": st.column_config.ProgressColumn(
-                        min_value=0, max_value=1, format="percent"
-                    ),
                 },
+            )
+            st.caption(
+                "Primary target = equal-weighted mean across eligible authentic lab "
+                "tasks. Pooled prevalence and task-level variation are available in "
+                "Defect detection."
             )
     with task_tab:
         if task_tab.open:

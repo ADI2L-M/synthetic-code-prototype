@@ -63,16 +63,9 @@ def target_dataframe(task: dict[str, Any]) -> pd.DataFrame:
             {
                 "Defect": row["display_name"],
                 "Category": row["category"].replace("_", " ").title(),
-                "Opportunity": row["opportunity_level"],
                 "Target prevalence": row["target_prevalence"],
-                "Pooled prevalence": row["pooled_prevalence"],
                 "Eligible lab tasks": row["eligible_tasks"],
                 "Valid submissions": row["valid_submissions"],
-                "Affected submissions": row["affected_submissions"],
-                "Task range": (
-                    f"{_percentage(row['minimum_prevalence'])} – "
-                    f"{_percentage(row['maximum_prevalence'])}"
-                ),
             }
             for row in task["target_rows"]
         ]
@@ -83,7 +76,9 @@ def render_profile(task: dict[str, Any], data: dict[str, Any]) -> None:
     st.subheader("Empirical target profile")
     st.write(
         "The target is the equal-weighted mean of prevalence across eligible "
-        "authentic lab tasks. The pooled value is shown as a secondary estimate."
+        "authentic lab tasks. This compact view shows only the primary target and "
+        "the evidence coverage behind it; pooled prevalence and task-level ranges "
+        "remain available in the defect-detection detail view."
     )
     st.dataframe(
         target_dataframe(task),
@@ -91,9 +86,6 @@ def render_profile(task: dict[str, Any], data: dict[str, Any]) -> None:
         width="stretch",
         column_config={
             "Target prevalence": st.column_config.ProgressColumn(
-                min_value=0, max_value=1, format="percent"
-            ),
-            "Pooled prevalence": st.column_config.ProgressColumn(
                 min_value=0, max_value=1, format="percent"
             ),
         },
