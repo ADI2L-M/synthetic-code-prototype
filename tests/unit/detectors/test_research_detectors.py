@@ -19,8 +19,8 @@ from detectors.research.formatting import detect_inappropriate_formatting
 from detectors.research.iteration import detect_redundant_for, detect_while_as_for
 from detectors.research.magic import detect_magic_number
 from detectors.research.names import detect_built_in_name, detect_one_letter_name
-from detectors.research.registry import RESEARCH_DETECTORS, detect_research_defects
 from detectors.research.redundant_comparison import detect_redundant_comparison_result
+from detectors.research.registry import RESEARCH_DETECTORS, detect_research_defects
 
 
 def test_research_registry_covers_all_catalog_defects():

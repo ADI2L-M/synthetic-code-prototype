@@ -45,9 +45,8 @@ def test_generation_view_exposes_main_controls():
     ]
     assert app.selectbox(key="generation_model").options == [
         "qwen2.5-coder:1.5b",
-        "qwen2.5-coder:7b",
-        "deepseek-coder:6.7b",
-        "granite-code:8b",
+        "deepseek-coder:1.3b",
+        "granite-code:3b",
     ]
     assert app.number_input(key="generation_batch_size").value == 10
     assert app.slider(key="generation_tolerance").value == 0.10

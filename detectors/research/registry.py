@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from models.research import DetectionResult, TaskContext
-
 from detectors.research.assignments import detect_augmentable_assignment
 from detectors.research.collections import (
     detect_duplicate_expression,
@@ -26,6 +24,7 @@ from detectors.research.iteration import detect_redundant_for, detect_while_as_f
 from detectors.research.magic import detect_magic_number
 from detectors.research.names import detect_built_in_name, detect_one_letter_name
 from detectors.research.redundant_comparison import detect_redundant_comparison_result
+from models.research import DetectionResult, TaskContext
 
 ResearchDetector = Callable[[str, TaskContext | None], DetectionResult]
 

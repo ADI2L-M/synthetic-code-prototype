@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import ast
 
-from models.research import DetectionResult, TaskContext
-
 from detectors.research.common import finish, parse_for_detection, source_text
-
+from models.research import DetectionResult, TaskContext
 
 _AUGMENTABLE_OPERATORS: tuple[type[ast.operator], ...] = (
     ast.Add,

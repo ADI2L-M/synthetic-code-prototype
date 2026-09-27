@@ -3,7 +3,6 @@ from collections.abc import Iterable
 
 from models.research import DetectionLocation, DetectionResult, TaskContext
 
-
 _BOOLEAN_COMPARISON_OPERATORS = (
     ast.Eq,
     ast.NotEq,

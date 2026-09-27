@@ -4,7 +4,6 @@ from services.authentic.ingestion import load_task_submissions
 from services.authentic.pilot_task import lab_12_q2_task
 from services.generation.validator import validate_source
 
-
 WORKBOOK = Path("research-notes/data-identification/cs1_labs_responses.xlsx")
 GROUPING = Path("research-notes/data-identification/cs1_regeneration_task_groups.json")
 

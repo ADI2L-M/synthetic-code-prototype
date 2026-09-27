@@ -10,7 +10,6 @@ from models.research import (
 from services.authentic.ingestion import AuthenticSubmission
 from services.research.eligibility import eligibility_for
 
-
 TASK_FAMILIES = {
     "T1": "conditional_logic",
     "T2": "list_processing",

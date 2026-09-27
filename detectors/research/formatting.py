@@ -8,7 +8,6 @@ import tokenize
 
 from models.research import DetectionLocation, DetectionResult, TaskContext
 
-
 _DELIMITERS = {"(": ")", "[": "]", "{": "}"}
 _SPACING_OPERATORS = {
     "=",
@@ -112,9 +111,17 @@ def _detect_token_spacing(source: str, result: DetectionResult) -> None:
                     _add(result, token, "operator_spacing", "use one space after operator")
         if token.string == ":" and index + 1 < len(tokens):
             next_token = tokens[index + 1]
-            if _same_line(token, next_token) and _spacing(token, next_token) == 0:
-                if next_token.string not in {",", ")", "]", "}"}:
-                    _add(result, next_token, "missing_space_after_colon", "add one space after ordinary colon")
+            if (
+                _same_line(token, next_token)
+                and _spacing(token, next_token) == 0
+                and next_token.string not in {",", ")", "]", "}"}
+            ):
+                _add(
+                    result,
+                    next_token,
+                    "missing_space_after_colon",
+                    "add one space after ordinary colon",
+                )
 
 
 def _detect_line_formatting(source: str, result: DetectionResult) -> None:

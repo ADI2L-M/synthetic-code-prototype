@@ -7,7 +7,6 @@ from services.authentic.functional_validation import (
 )
 from services.authentic.ingestion import load_task_submissions
 
-
 WORKBOOK = Path("research-notes/data-identification/cs1_labs_responses.xlsx")
 GROUPING = Path("research-notes/data-identification/cs1_regeneration_task_groups.json")
 PLAN_FILE = Path("research-notes/functional-tests/authentic_test_cases.json")

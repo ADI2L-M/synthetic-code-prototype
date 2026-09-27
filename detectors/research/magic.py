@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import ast
 
+from detectors.research.common import (
+    finish,
+    numeric_literal,
+    parse_for_detection,
+    source_text,
+)
 from models.research import DetectionResult, TaskContext
-
-from detectors.research.common import finish, numeric_literal, parse_for_detection, source_text
 
 
 def _parent_map(tree: ast.AST) -> dict[ast.AST, ast.AST]:
@@ -24,9 +28,12 @@ def _inside_context(node: ast.AST, parents: dict[ast.AST, ast.AST]) -> str | Non
             return "comparison decision"
         if isinstance(current, ast.BinOp):
             return "domain computation"
-        if isinstance(current, ast.Call) and isinstance(current.func, ast.Name):
-            if current.func.id == "range":
-                return None
+        if (
+            isinstance(current, ast.Call)
+            and isinstance(current.func, ast.Name)
+            and current.func.id == "range"
+        ):
+            return None
         if isinstance(current, (ast.List, ast.Tuple, ast.Set, ast.Dict, ast.Subscript)):
             return None
         current = parents.get(current)

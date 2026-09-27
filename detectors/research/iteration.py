@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import ast
 
+from detectors.research.common import (
+    finish,
+    numeric_literal,
+    parse_for_detection,
+    source_text,
+)
 from models.research import DetectionResult, TaskContext
-
-from detectors.research.common import finish, numeric_literal, parse_for_detection, source_text
 
 
 def _numeric_update(statement: ast.stmt, variable: str) -> tuple[int | float, str] | None:
@@ -163,9 +167,11 @@ def _static_range_length(call: ast.Call) -> int | None:
 def _static_cardinality(node: ast.expr) -> int | None:
     if isinstance(node, ast.Call):
         return _static_range_length(node)
-    if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
-        if all(not any(isinstance(child, ast.Call) for child in ast.walk(element)) for element in node.elts):
-            return len(node.elts)
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)) and all(
+        not any(isinstance(child, ast.Call) for child in ast.walk(element))
+        for element in node.elts
+    ):
+        return len(node.elts)
     return None
 
 

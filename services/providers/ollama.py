@@ -16,7 +16,7 @@ load_dotenv()
 
 OLLAMA_CONTEXT_LENGTH = 16_384
 OLLAMA_OUTPUT_TOKENS = 1_200
-OLLAMA_TEMPERATURE = 0.8
+OLLAMA_TEMPERATURE = 0.3
 
 class OllamaModel(Enum):
     """List of available Ollama models"""

@@ -5,8 +5,6 @@ from __future__ import annotations
 import ast
 from collections import defaultdict
 
-from models.research import DetectionResult, TaskContext
-
 from detectors.research.common import (
     ast_equal,
     finish,
@@ -14,6 +12,7 @@ from detectors.research.common import (
     parse_for_detection,
     source_text,
 )
+from models.research import DetectionResult, TaskContext
 
 
 def _range_len_argument(node: ast.expr) -> ast.expr | None:
@@ -129,9 +128,12 @@ def detect_misleading_iterator_name(
             continue
         if node.target.id not in index_style_names:
             continue
-        if isinstance(node.iter, ast.Call) and isinstance(node.iter.func, ast.Name):
-            if node.iter.func.id == "range":
-                continue
+        if (
+            isinstance(node.iter, ast.Call)
+            and isinstance(node.iter.func, ast.Name)
+            and node.iter.func.id == "range"
+        ):
+            continue
         matches.append(
             (
                 node.target,
@@ -157,9 +159,14 @@ def _expression_is_pure(node: ast.AST) -> bool:
     if not is_side_effect_free(node):
         return False
     for child in ast.walk(node):
-        if isinstance(child, ast.Call):
-            if not isinstance(child.func, ast.Name) or child.func.id not in {"len", "abs"}:
-                return False
+        if (
+            isinstance(child, ast.Call)
+            and (
+                not isinstance(child.func, ast.Name)
+                or child.func.id not in {"len", "abs"}
+            )
+        ):
+            return False
     return True
 
 
@@ -172,9 +179,9 @@ def _weighted_complexity(node: ast.AST) -> int:
             score += 1
         elif isinstance(child, ast.Subscript):
             score += 4
-        elif isinstance(child, (ast.BinOp, ast.BoolOp, ast.Compare, ast.UnaryOp)):
-            score += 2
-        elif isinstance(child, ast.Call):
+        elif isinstance(
+            child, (ast.BinOp, ast.BoolOp, ast.Call, ast.Compare, ast.UnaryOp)
+        ):
             score += 2
         elif not isinstance(child, (ast.Load, ast.Store, ast.Del, ast.operator, ast.boolop, ast.cmpop)):
             score += 1

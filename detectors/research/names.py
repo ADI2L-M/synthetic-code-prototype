@@ -5,9 +5,8 @@ from __future__ import annotations
 import ast
 import builtins
 
-from models.research import DetectionResult, TaskContext
-
 from detectors.research.common import finish, parse_for_detection, task_allows
+from models.research import DetectionResult, TaskContext
 
 
 def _parents(tree: ast.AST) -> dict[ast.AST, ast.AST]:
@@ -37,27 +36,37 @@ def _role_appropriate_one_letter(
     if name in {"i", "j", "k"}:
         parent = parents.get(binding)
         if isinstance(parent, ast.For) and parent.target is binding:
-            if isinstance(parent.iter, ast.Call) and isinstance(parent.iter.func, ast.Name):
-                if parent.iter.func.id == "range":
-                    return "numeric index or counter"
+            if (
+                isinstance(parent.iter, ast.Call)
+                and isinstance(parent.iter.func, ast.Name)
+                and parent.iter.func.id == "range"
+            ):
+                return "numeric index or counter"
             return None
         for use in _load_uses(tree, name):
             parent = parents.get(use)
             if isinstance(parent, ast.Subscript) and parent.slice is use:
                 return "numeric index or counter"
         for node in ast.walk(tree):
-            if isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name):
-                if node.target.id == name and isinstance(node.op, (ast.Add, ast.Sub)):
-                    return "numeric index or counter"
+            if (
+                isinstance(node, ast.AugAssign)
+                and isinstance(node.target, ast.Name)
+                and node.target.id == name
+                and isinstance(node.op, (ast.Add, ast.Sub))
+            ):
+                return "numeric index or counter"
         return None
     if name in {"n", "m"}:
         for use in _load_uses(tree, name):
             parent = parents.get(use)
             if isinstance(parent, ast.Compare):
                 return "numeric size, count, or bound"
-            if isinstance(parent, ast.Call) and isinstance(parent.func, ast.Name):
-                if parent.func.id == "range":
-                    return "numeric size, count, or bound"
+            if (
+                isinstance(parent, ast.Call)
+                and isinstance(parent.func, ast.Name)
+                and parent.func.id == "range"
+            ):
+                return "numeric size, count, or bound"
         return None
     if name in {"x", "y", "z"}:
         for use in _load_uses(tree, name):

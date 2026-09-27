@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import ast
-
-from models.research import DetectionResult, TaskContext
+from itertools import pairwise
 
 from detectors.research.common import (
     ast_equal,
@@ -13,6 +12,7 @@ from detectors.research.common import (
     parse_for_detection,
     source_text,
 )
+from models.research import DetectionResult, TaskContext
 
 
 def _direct_boolean_return(body: list[ast.stmt]) -> bool | None:
@@ -148,23 +148,31 @@ def detect_duplicate_if(
         if not isinstance(node, ast.If):
             continue
         chain = _if_chain(node)
-        for left, right in zip(chain, chain[1:]):
+        for left, right in pairwise(chain):
             if not _line_starts_with(source, right, "elif"):
                 continue
-            if ast_equal(ast.Module(body=left.body, type_ignores=[]), ast.Module(body=right.body, type_ignores=[])):
-                if all(is_side_effect_free(statement) for statement in left.body + right.body):
-                    matches.append(
-                        (
-                            right,
-                            {
-                                "branch_lines": [left.lineno, right.lineno],
-                                "body": ast.dump(
-                                    ast.Module(body=left.body, type_ignores=[]),
-                                    include_attributes=False,
-                                ),
-                            },
-                        )
+            if (
+                ast_equal(
+                    ast.Module(body=left.body, type_ignores=[]),
+                    ast.Module(body=right.body, type_ignores=[]),
+                )
+                and all(
+                    is_side_effect_free(statement)
+                    for statement in left.body + right.body
+                )
+            ):
+                matches.append(
+                    (
+                        right,
+                        {
+                            "branch_lines": [left.lineno, right.lineno],
+                            "body": ast.dump(
+                                ast.Module(body=left.body, type_ignores=[]),
+                                include_attributes=False,
+                            ),
+                        },
                     )
+                )
     return finish(result, matches)
 
 
@@ -236,7 +244,7 @@ def detect_redundant_elif(
         if not isinstance(node, ast.If):
             continue
         chain = _if_chain(node)
-        for previous, current in zip(chain, chain[1:]):
+        for previous, current in pairwise(chain):
             if _line_starts_with(source, current, "elif") and _are_complements(
                 previous.test, current.test
             ):

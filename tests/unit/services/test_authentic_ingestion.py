@@ -2,7 +2,6 @@ from pathlib import Path
 
 from services.authentic.ingestion import load_task_submissions, task_id_for
 
-
 WORKBOOK = Path("research-notes/data-identification/cs1_labs_responses.xlsx")
 GROUPING = Path("research-notes/data-identification/cs1_regeneration_task_groups.json")
 
