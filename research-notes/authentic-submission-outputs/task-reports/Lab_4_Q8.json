@@ -1,0 +1,1849 @@
+{
+  "report_type": "authentic_task_prevalence",
+  "generated_at_utc": "2026-09-26T02:08:33.491871+00:00",
+  "task": {
+    "authentic_task": "Lab 4 Q8",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct"
+  },
+  "denominator_definition": "parseable submissions marked functionally correct by the functional-validation dataset",
+  "submissions": {
+    "functionally_correct_count": 482,
+    "parseable_count": 482,
+    "parse_failure_count": 0
+  },
+  "defects": {
+    "redundant_if_else": {
+      "eligibility": "eligible",
+      "opportunity_level": "low",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_comparison": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_not": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "duplicate_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "else_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 2,
+      "prevalence": 0.004149377593360996,
+      "raw_detected_submission_count": 2,
+      "raw_instance_count": 2,
+      "example_detections": [
+        {
+          "submission_id": "Lab_4_Q8_R70",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 43,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 35,
+              "nested_if_line": 43,
+              "suggestion": "replace else: if with elif"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R248",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 41,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 33,
+              "nested_if_line": 41,
+              "suggestion": "replace else: if with elif"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "nested_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_elif": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 5,
+      "prevalence": 0.01037344398340249,
+      "raw_detected_submission_count": 5,
+      "raw_instance_count": 25,
+      "example_detections": [
+        {
+          "submission_id": "Lab_4_Q8_R119",
+          "present": true,
+          "count": 6,
+          "locations": [
+            {
+              "line": 43,
+              "column": 0
+            },
+            {
+              "line": 43,
+              "column": 0
+            },
+            {
+              "line": 43,
+              "column": 0
+            },
+            {
+              "line": 43,
+              "column": 0
+            },
+            {
+              "line": 43,
+              "column": 0
+            },
+            {
+              "line": 43,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R270",
+          "present": true,
+          "count": 6,
+          "locations": [
+            {
+              "line": 29,
+              "column": 0
+            },
+            {
+              "line": 29,
+              "column": 0
+            },
+            {
+              "line": 29,
+              "column": 0
+            },
+            {
+              "line": 29,
+              "column": 0
+            },
+            {
+              "line": 29,
+              "column": 0
+            },
+            {
+              "line": 29,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            },
+            {
+              "preceding_condition": "wavelength < 1",
+              "elif_condition": "wavelength >= 1",
+              "proof": "direct inverse comparison"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R369",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 9,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "preceding_condition": "wavelength >= 1",
+              "elif_condition": "wavelength < 1",
+              "proof": "direct inverse comparison"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "empty_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 2,
+      "prevalence": 0.004149377593360996,
+      "raw_detected_submission_count": 2,
+      "raw_instance_count": 2,
+      "example_detections": [
+        {
+          "submission_id": "Lab_4_Q8_R494",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 49,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "branch": "else",
+              "if_line": 41,
+              "alternative_line": 43
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R533",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 51,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "branch": "else",
+              "if_line": 43,
+              "alternative_line": 45
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "redundant_indexing": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "misleading_iterator_name": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "duplicate_expression": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "while_as_for": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_for": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "augmentable_assignment": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 2,
+      "raw_instance_count": 10,
+      "example_detections": [
+        {
+          "submission_id": "Lab_4_Q8_R140",
+          "present": true,
+          "count": 8,
+          "locations": [
+            {
+              "line": 41,
+              "column": 0
+            },
+            {
+              "line": 13,
+              "column": 1
+            },
+            {
+              "line": 17,
+              "column": 1
+            },
+            {
+              "line": 21,
+              "column": 1
+            },
+            {
+              "line": 25,
+              "column": 1
+            },
+            {
+              "line": 29,
+              "column": 1
+            },
+            {
+              "line": 33,
+              "column": 1
+            },
+            {
+              "line": 37,
+              "column": 1
+            }
+          ],
+          "evidence": [
+            {
+              "target": "output",
+              "operator": "Add",
+              "matching_operand": "output",
+              "rewrite": "output Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "output",
+              "operator": "Add",
+              "matching_operand": "output",
+              "rewrite": "output Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "output",
+              "operator": "Add",
+              "matching_operand": "output",
+              "rewrite": "output Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "output",
+              "operator": "Add",
+              "matching_operand": "output",
+              "rewrite": "output Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "output",
+              "operator": "Add",
+              "matching_operand": "output",
+              "rewrite": "output Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "output",
+              "operator": "Add",
+              "matching_operand": "output",
+              "rewrite": "output Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "output",
+              "operator": "Add",
+              "matching_operand": "output",
+              "rewrite": "output Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "output",
+              "operator": "Add",
+              "matching_operand": "output",
+              "rewrite": "output Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R260",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 13,
+              "column": 8
+            },
+            {
+              "line": 25,
+              "column": 12
+            }
+          ],
+          "evidence": [
+            {
+              "target": "matissa",
+              "operator": "Add",
+              "matching_operand": "matissa",
+              "rewrite": "matissa Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "exponent",
+              "operator": "Add",
+              "matching_operand": "exponent",
+              "rewrite": "exponent Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "inappropriate_formatting": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 289,
+      "prevalence": 0.5995850622406639,
+      "raw_detected_submission_count": 289,
+      "raw_instance_count": 4897,
+      "example_detections": [
+        {
+          "submission_id": "Lab_4_Q8_R3",
+          "present": true,
+          "count": 48,
+          "locations": [
+            {
+              "line": 5,
+              "column": 12
+            },
+            {
+              "line": 5,
+              "column": 12
+            },
+            {
+              "line": 5,
+              "column": 14
+            },
+            {
+              "line": 5,
+              "column": 14
+            },
+            {
+              "line": 9,
+              "column": 7
+            },
+            {
+              "line": 9,
+              "column": 7
+            },
+            {
+              "line": 9,
+              "column": 9
+            },
+            {
+              "line": 9,
+              "column": 9
+            },
+            {
+              "line": 9,
+              "column": 25
+            },
+            {
+              "line": 9,
+              "column": 25
+            },
+            {
+              "line": 9,
+              "column": 27
+            },
+            {
+              "line": 9,
+              "column": 27
+            },
+            {
+              "line": 13,
+              "column": 7
+            },
+            {
+              "line": 13,
+              "column": 7
+            },
+            {
+              "line": 13,
+              "column": 9
+            },
+            {
+              "line": 13,
+              "column": 9
+            },
+            {
+              "line": 13,
+              "column": 26
+            },
+            {
+              "line": 13,
+              "column": 26
+            },
+            {
+              "line": 13,
+              "column": 29
+            },
+            {
+              "line": 13,
+              "column": 29
+            },
+            {
+              "line": 13,
+              "column": 31
+            },
+            {
+              "line": 13,
+              "column": 31
+            },
+            {
+              "line": 17,
+              "column": 9
+            },
+            {
+              "line": 17,
+              "column": 9
+            },
+            {
+              "line": 17,
+              "column": 12
+            },
+            {
+              "line": 17,
+              "column": 12
+            },
+            {
+              "line": 17,
+              "column": 14
+            },
+            {
+              "line": 17,
+              "column": 14
+            },
+            {
+              "line": 17,
+              "column": 32
+            },
+            {
+              "line": 17,
+              "column": 32
+            },
+            {
+              "line": 17,
+              "column": 35
+            },
+            {
+              "line": 17,
+              "column": 35
+            },
+            {
+              "line": 17,
+              "column": 37
+            },
+            {
+              "line": 17,
+              "column": 37
+            },
+            {
+              "line": 21,
+              "column": 9
+            },
+            {
+              "line": 21,
+              "column": 9
+            },
+            {
+              "line": 21,
+              "column": 12
+            },
+            {
+              "line": 21,
+              "column": 12
+            },
+            {
+              "line": 21,
+              "column": 14
+            },
+            {
+              "line": 21,
+              "column": 14
+            },
+            {
+              "line": 21,
+              "column": 30
+            },
+            {
+              "line": 21,
+              "column": 30
+            },
+            {
+              "line": 21,
+              "column": 32
+            },
+            {
+              "line": 21,
+              "column": 32
+            },
+            {
+              "line": 25,
+              "column": 7
+            },
+            {
+              "line": 25,
+              "column": 7
+            },
+            {
+              "line": 25,
+              "column": 9
+            },
+            {
+              "line": 25,
+              "column": 9
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "*"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "**"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space before operator",
+              "token": "-"
+            },
+            {
+              "rule": "operator_spacing",
+              "detail": "use one space after operator",
+              "token": "-"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R4",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 39,
+              "column": 5
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R5",
+          "present": true,
+          "count": 6,
+          "locations": [
+            {
+              "line": 7,
+              "column": 0
+            },
+            {
+              "line": 15,
+              "column": 0
+            },
+            {
+              "line": 21,
+              "column": 0
+            },
+            {
+              "line": 27,
+              "column": 0
+            },
+            {
+              "line": 33,
+              "column": 0
+            },
+            {
+              "line": 39,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "non_standard_indentation",
+              "detail": "19 spaces"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "magic_number": {
+      "eligibility": "eligible",
+      "opportunity_level": "high",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 478,
+      "prevalence": 0.991701244813278,
+      "raw_detected_submission_count": 478,
+      "raw_instance_count": 6404,
+      "example_detections": [
+        {
+          "submission_id": "Lab_4_Q8_R3",
+          "present": true,
+          "count": 24,
+          "locations": [
+            {
+              "line": 5,
+              "column": 10
+            },
+            {
+              "line": 5,
+              "column": 14
+            },
+            {
+              "line": 9,
+              "column": 5
+            },
+            {
+              "line": 9,
+              "column": 9
+            },
+            {
+              "line": 9,
+              "column": 23
+            },
+            {
+              "line": 9,
+              "column": 27
+            },
+            {
+              "line": 13,
+              "column": 5
+            },
+            {
+              "line": 13,
+              "column": 9
+            },
+            {
+              "line": 13,
+              "column": 23
+            },
+            {
+              "line": 13,
+              "column": 27
+            },
+            {
+              "line": 13,
+              "column": 31
+            },
+            {
+              "line": 17,
+              "column": 6
+            },
+            {
+              "line": 17,
+              "column": 29
+            },
+            {
+              "line": 17,
+              "column": 10
+            },
+            {
+              "line": 17,
+              "column": 14
+            },
+            {
+              "line": 17,
+              "column": 33
+            },
+            {
+              "line": 17,
+              "column": 37
+            },
+            {
+              "line": 21,
+              "column": 6
+            },
+            {
+              "line": 21,
+              "column": 28
+            },
+            {
+              "line": 21,
+              "column": 32
+            },
+            {
+              "line": 21,
+              "column": 10
+            },
+            {
+              "line": 21,
+              "column": 14
+            },
+            {
+              "line": 25,
+              "column": 5
+            },
+            {
+              "line": 25,
+              "column": 9
+            }
+          ],
+          "evidence": [
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -11,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-11"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -11,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-11"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -8,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-8"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -8,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-8"
+            },
+            {
+              "value": 3.8,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "3.8"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -7,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-7"
+            },
+            {
+              "value": 3.8,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "3.8"
+            },
+            {
+              "value": 7.5,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "7.5"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -7,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-7"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -7,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-7"
+            },
+            {
+              "value": 7.5,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "7.5"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -3,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-3"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -7,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-7"
+            },
+            {
+              "value": 10,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": -3,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "-3"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R4",
+          "present": true,
+          "count": 10,
+          "locations": [
+            {
+              "line": 3,
+              "column": 16
+            },
+            {
+              "line": 7,
+              "column": 5
+            },
+            {
+              "line": 7,
+              "column": 27
+            },
+            {
+              "line": 11,
+              "column": 5
+            },
+            {
+              "line": 11,
+              "column": 26
+            },
+            {
+              "line": 15,
+              "column": 5
+            },
+            {
+              "line": 15,
+              "column": 28
+            },
+            {
+              "line": 19,
+              "column": 5
+            },
+            {
+              "line": 19,
+              "column": 28
+            },
+            {
+              "line": 23,
+              "column": 5
+            }
+          ],
+          "evidence": [
+            {
+              "value": 1e-11,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "1e-11"
+            },
+            {
+              "value": 1e-11,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "1e-11"
+            },
+            {
+              "value": 1e-08,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "1e-08"
+            },
+            {
+              "value": 1e-08,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "1e-08"
+            },
+            {
+              "value": 3.8e-07,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "3.8e-07"
+            },
+            {
+              "value": 3.8e-07,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "3.8e-07"
+            },
+            {
+              "value": 7.5e-07,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "7.5e-07"
+            },
+            {
+              "value": 7.5e-07,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "7.5e-07"
+            },
+            {
+              "value": 0.001,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "0.001"
+            },
+            {
+              "value": 0.001,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "0.001"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R5",
+          "present": true,
+          "count": 10,
+          "locations": [
+            {
+              "line": 5,
+              "column": 16
+            },
+            {
+              "line": 11,
+              "column": 5
+            },
+            {
+              "line": 11,
+              "column": 27
+            },
+            {
+              "line": 17,
+              "column": 5
+            },
+            {
+              "line": 17,
+              "column": 26
+            },
+            {
+              "line": 23,
+              "column": 5
+            },
+            {
+              "line": 23,
+              "column": 28
+            },
+            {
+              "line": 29,
+              "column": 5
+            },
+            {
+              "line": 29,
+              "column": 28
+            },
+            {
+              "line": 35,
+              "column": 5
+            }
+          ],
+          "evidence": [
+            {
+              "value": 1e-11,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "1e-11"
+            },
+            {
+              "value": 1e-11,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "1e-11"
+            },
+            {
+              "value": 1e-08,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "1e-08"
+            },
+            {
+              "value": 1e-08,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "1e-08"
+            },
+            {
+              "value": 3.8e-07,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "3.8e-07"
+            },
+            {
+              "value": 3.8e-07,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "3.8e-07"
+            },
+            {
+              "value": 7.5e-07,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "7.5e-07"
+            },
+            {
+              "value": 7.5e-07,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "7.5e-07"
+            },
+            {
+              "value": 0.001,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "0.001"
+            },
+            {
+              "value": 0.001,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "0.001"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "one_letter_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 15,
+      "prevalence": 0.03112033195020747,
+      "raw_detected_submission_count": 15,
+      "raw_instance_count": 36,
+      "example_detections": [
+        {
+          "submission_id": "Lab_4_Q8_R29",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 1,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "w",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R36",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 1,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "a",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R51",
+          "present": true,
+          "count": 9,
+          "locations": [
+            {
+              "line": 1,
+              "column": 0
+            },
+            {
+              "line": 3,
+              "column": 0
+            },
+            {
+              "line": 9,
+              "column": 4
+            },
+            {
+              "line": 13,
+              "column": 4
+            },
+            {
+              "line": 17,
+              "column": 4
+            },
+            {
+              "line": 21,
+              "column": 4
+            },
+            {
+              "line": 25,
+              "column": 4
+            },
+            {
+              "line": 29,
+              "column": 4
+            },
+            {
+              "line": 33,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "w",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "t",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "t",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "t",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "t",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "t",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "t",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "t",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "t",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "built_in_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 482,
+      "eligible_denominator": 482,
+      "affected_submission_count": 2,
+      "prevalence": 0.004149377593360996,
+      "raw_detected_submission_count": 2,
+      "raw_instance_count": 15,
+      "example_detections": [
+        {
+          "submission_id": "Lab_4_Q8_R217",
+          "present": true,
+          "count": 8,
+          "locations": [
+            {
+              "line": 3,
+              "column": 0
+            },
+            {
+              "line": 7,
+              "column": 4
+            },
+            {
+              "line": 11,
+              "column": 4
+            },
+            {
+              "line": 15,
+              "column": 4
+            },
+            {
+              "line": 19,
+              "column": 4
+            },
+            {
+              "line": 23,
+              "column": 4
+            },
+            {
+              "line": 27,
+              "column": 4
+            },
+            {
+              "line": 31,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_4_Q8_R282",
+          "present": true,
+          "count": 7,
+          "locations": [
+            {
+              "line": 7,
+              "column": 4
+            },
+            {
+              "line": 11,
+              "column": 4
+            },
+            {
+              "line": 15,
+              "column": 4
+            },
+            {
+              "line": 19,
+              "column": 4
+            },
+            {
+              "line": 23,
+              "column": 4
+            },
+            {
+              "line": 27,
+              "column": 4
+            },
+            {
+              "line": 31,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "type",
+              "shadowed_builtin": "type",
+              "binding_kind": "Name"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    }
+  }
+}

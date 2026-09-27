@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_OUTPUT_DIR = ROOT / "outputs" / "authentic-prevalence"
+DEFAULT_OUTPUT_DIR = ROOT / "research-notes" / "authentic-submission-outputs"
 DEFAULT_PROFILE_PATH = DEFAULT_OUTPUT_DIR / "empirical-target-profile.json"
 DEFAULT_SUMMARY_PATH = DEFAULT_OUTPUT_DIR / "prototype-task-detection-summary.json"
 DEFAULT_SPECIFICATION_PATH = ROOT / "config" / "defect_specifications.json"

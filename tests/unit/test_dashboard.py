@@ -1,7 +1,8 @@
-from services.research.dashboard import load_dashboard_data
+from services.research.dashboard import DEFAULT_OUTPUT_DIR, load_dashboard_data
 
 
 def test_empirical_dashboard_loads_all_prototype_tasks():
+    assert DEFAULT_OUTPUT_DIR.name == "authentic-submission-outputs"
     data = load_dashboard_data()
 
     assert set(data["prototype_tasks"]) == {"T1", "T2", "T3"}
@@ -30,5 +31,8 @@ def test_dashboard_task_rows_include_mapping_role_and_report_path():
     )
 
     assert lab_12_q2["mapping_role"] == "direct"
+    assert lab_12_q2["report_path"].startswith(
+        "research-notes\\authentic-submission-outputs\\"
+    )
     assert lab_12_q2["report_path"].endswith("Lab_12_Q2.json")
     assert lab_12_q2["functionally_correct"] == 539

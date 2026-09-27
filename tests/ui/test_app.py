@@ -24,8 +24,8 @@ def test_generation_is_the_default_view_and_exposes_main_controls():
     assert not app.exception
     assert app.title[0].value == "Generation"
     assert [tab.label for tab in app.tabs] == [
-        ":material/analytics: Target profile",
         ":material/code: Programming task",
+        ":material/analytics: Target profile",
         ":material/description: Prompt",
         ":material/table_view: Results",
         ":material/insights: Analytics",
@@ -58,7 +58,7 @@ def test_generation_main_content_has_task_and_prompt_tabs():
 
     app.session_state["generation_content_tabs"] = ":material/description: Prompt"
     app.run()
-    assert any("PROGRAMMING TASK" in item.value for item in app.code)
+    assert any("exact provider prompts" in item.value for item in app.info)
 
 
 def test_home_is_accessible_as_a_separate_application_view():
@@ -66,7 +66,8 @@ def test_home_is_accessible_as_a_separate_application_view():
 
     assert not app.exception
     assert app.title[0].value == "Synthetic code research prototype"
-    assert any("Research workflow" in item.value for item in app.subheader)
+    assert any("Prototype at a glance" in item.value for item in app.subheader)
+    assert any("Research basis and citation notes" in item.value for item in app.subheader)
     assert len(app.selectbox) == 0
 
 

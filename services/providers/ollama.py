@@ -3,9 +3,9 @@
 import json
 import os
 import re
+from enum import Enum
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
-from enum import Enum
 
 from dotenv import load_dotenv
 
@@ -13,6 +13,10 @@ from models.types import ProgrammingTask
 from services.providers.llm import GenerationProvider
 
 load_dotenv()
+
+OLLAMA_CONTEXT_LENGTH = 16_384
+OLLAMA_OUTPUT_TOKENS = 1_200
+OLLAMA_TEMPERATURE = 0.8
 
 class OllamaModel(Enum):
     """List of available Ollama models"""
@@ -32,7 +36,7 @@ class OllamaProvider(GenerationProvider):
         base_url: str = "http://localhost:11434",
         timeout: int = 180,
     ) -> None:
-        self.model = model or os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
+        self.model = model or os.getenv("OLLAMA_MODEL", "qwen2.5-coder:1.5b")
         self.base_url = (
             base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         ).rstrip("/")
@@ -45,18 +49,32 @@ class OllamaProvider(GenerationProvider):
         iteration: int = 1,
         specification: str | None = None,
     ) -> list[str]:
-        prompt = self._build_prompt(task, specification or "")
+        prompt = self.build_prompt(task, specification or "")
         return [
             self._generate_one(prompt, task.function_name, iteration + index)
             for index in range(batch_size)
         ]
 
+    @staticmethod
+    def build_prompt(task: ProgrammingTask, specification: str) -> str:
+        """Build the exact prompt sent to Ollama for a submission."""
+        return OllamaProvider._build_prompt(task, specification)
+
     def _generate_one(self, prompt: str, function_name: str, seed: int) -> str:
         payload = {
-            "model": self.model,
+            "model": (
+                self.model.value
+                if isinstance(self.model, OllamaModel)
+                else self.model
+            ),
             "prompt": prompt,
             "stream": False,
-            "options": {"temperature": 0.8, "seed": seed, "num_predict": 1200},
+            "options": {
+                "temperature": OLLAMA_TEMPERATURE,
+                "seed": seed,
+                "num_ctx": OLLAMA_CONTEXT_LENGTH,
+                "num_predict": OLLAMA_OUTPUT_TOKENS,
+            },
         }
         request = Request(
             f"{self.base_url}/api/generate",
@@ -94,7 +112,7 @@ class OllamaProvider(GenerationProvider):
             )
             for case in task.test_cases
         )
-        return f"""You are generating one Python submission for a programming task.
+        return f"""You are generating one Python submission for a programming task following certain coding style constraints.
 
 {specification}
 
@@ -105,8 +123,16 @@ INSTRUCTIONS
 - Implement the function named {task.function_name}.
 - The submission must pass every functional test case above.
 - Handle invalid inputs and required exceptions before normal return logic.
-- The listed defect options are optional characteristics for natural variation.
-- Do not force a defect if it would break functional correctness.
+- The assigned defect styles above are mandatory guidance for this submission.
+- Include at least one assigned task-independent defect and one assigned
+  task-dependent defect.
+- The defect guidance is a hard acceptance criterion, not a suggestion. A clean
+  standard solution without the assigned styles is incorrect for this dataset.
+- Copy the key syntax and control-flow shape of every task-specific valid pattern
+  shown for the assigned defects inside the required function; do not replace it
+  with a different defect style.
+- Attempt to include every assigned style without breaking functional correctness.
+- Do not intentionally introduce defect styles that were not assigned.
 - Use readable, conventional multiline Python.
 - Do not use semicolons to compress statements.
 - Return only executable Python source code.

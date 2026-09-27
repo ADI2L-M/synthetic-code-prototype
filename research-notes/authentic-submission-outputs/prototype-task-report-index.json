@@ -1,0 +1,20 @@
+[
+  {
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "authentic_task_count": "20",
+    "report": "prototype-task-reports/T1_conditional_logic.json"
+  },
+  {
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "authentic_task_count": "19",
+    "report": "prototype-task-reports/T2_list_processing.json"
+  },
+  {
+    "prototype_task": "T3",
+    "task_family": "numeric_iteration",
+    "authentic_task_count": "7",
+    "report": "prototype-task-reports/T3_numeric_iteration.json"
+  }
+]
