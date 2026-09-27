@@ -14,6 +14,7 @@ from services.generation.analytics import (
     generation_quality,
     iteration_history_rows,
 )
+from services.generation.export import iteration_export_archive
 from ui.research_dashboard import target_dataframe
 from ui.state import request_calibration as _request_calibration
 
@@ -60,7 +61,7 @@ def render_generation_sidebar(data: dict[str, Any]) -> GenerationControls:
             key="generation_batch_size",
         )
         tolerance = st.slider(
-            "Relative prevalence tolerance",
+            "Minimum relative tolerance",
             min_value=0.0,
             max_value=0.5,
             value=0.10,
@@ -224,6 +225,81 @@ def _render_prompt(
             st.code(item.prompt, language="text")
 
 
+def _open_iteration_overlay(iteration_number: int) -> None:
+    st.session_state["generation_overlay_iteration"] = iteration_number
+
+
+def _close_iteration_overlay() -> None:
+    st.session_state.pop("generation_overlay_iteration", None)
+
+
+@st.dialog(
+    "Generation iteration",
+    width="large",
+    dismissible=True,
+    on_dismiss=_close_iteration_overlay,
+)
+def _render_iteration_overlay(iteration: IterationResult) -> None:
+    """Show one iteration's generated submissions in an overlay card."""
+    quality = generation_quality(iteration)
+    st.caption(
+        f"{iteration.task_id} · iteration {iteration.iteration} · "
+        f"{iteration.model or 'model unavailable'}"
+    )
+    metrics = [
+        ("Submissions", str(quality["total_submissions"])),
+        ("Functional pass rate", f"{quality['functional_pass_rate']:.0%}"),
+        ("Category requirement", f"{quality['category_requirement_rate']:.0%}"),
+        ("Average attempts", f"{quality['average_attempts']:.1f}"),
+    ]
+    columns = st.columns(4, gap="small")
+    for column, (label, value) in zip(columns, metrics):
+        with column:
+            st.metric(label, value, border=True)
+    _render_submissions(iteration)
+
+
+def _render_iteration_explorer(
+    history: list[IterationResult], task_id: str
+) -> None:
+    """Render iteration selection, overlay review, and ZIP export controls."""
+    if not history:
+        st.info("No generation iterations are available yet.")
+        return
+
+    st.subheader("Iteration explorer")
+    labels = [
+        f"Iteration {item.iteration} · {item.model or 'model unavailable'}"
+        for item in history
+    ]
+    selected_label = st.selectbox(
+        "Iteration to inspect",
+        labels,
+        index=len(labels) - 1,
+        key=f"generation_iteration_selector_{task_id}",
+    )
+    selected = history[labels.index(selected_label)]
+    with st.container(horizontal=True, horizontal_alignment="distribute"):
+        st.button(
+            "View generated code",
+            icon=":material/visibility:",
+            on_click=_open_iteration_overlay,
+            args=(selected.iteration,),
+            key=f"view_iteration_{task_id}_{selected.iteration}",
+        )
+        st.download_button(
+            "Export iteration code",
+            data=iteration_export_archive(selected),
+            file_name=f"{task_id.lower()}_iteration_{selected.iteration}.zip",
+            mime="application/zip",
+            icon=":material/download:",
+            key=f"export_iteration_{task_id}_{selected.iteration}",
+        )
+
+    if st.session_state.get("generation_overlay_iteration") == selected.iteration:
+        _render_iteration_overlay(selected)
+
+
 def _render_analytics(
     current: IterationResult | None,
     history: list[IterationResult] | None = None,
@@ -234,6 +310,11 @@ def _render_analytics(
     quality = generation_quality(current)
     status = "Accepted" if current.accepted else "Needs review"
     st.subheader("Generation quality")
+    st.caption(
+        "Observed prevalence uses only functionally valid submissions. Profile "
+        "status includes synthetic sampling uncertainty and authentic task-level "
+        "uncertainty; the target is not treated as an exact batch quota."
+    )
     quality_metrics = [
         ("Functional pass rate", f"{quality['functional_pass_rate']:.0%}"),
         (
@@ -246,11 +327,10 @@ def _render_analytics(
         ),
         ("Average attempts", f"{quality['average_attempts']:.1f}"),
     ]
-    for start in range(0, len(quality_metrics), 2):
-        columns = st.columns(2, gap="small")
-        for column, (label, value) in zip(columns, quality_metrics[start : start + 2]):
-            with column:
-                st.metric(label, value, border=True)
+    columns = st.columns(4, gap="small")
+    for column, (label, value) in zip(columns, quality_metrics):
+        with column:
+            st.metric(label, value, border=True)
 
     st.subheader("Defect generation profile")
     analytics_rows = defect_analytics_rows(current)
@@ -267,6 +347,12 @@ def _render_analytics(
             "Observed": st.column_config.ProgressColumn(
                 min_value=0, max_value=1, format="percent"
             ),
+            "Target standard error": st.column_config.NumberColumn(
+                format="percent"
+            ),
+            "Observed 95% low": st.column_config.NumberColumn(format="percent"),
+            "Observed 95% high": st.column_config.NumberColumn(format="percent"),
+            "Decision margin": st.column_config.NumberColumn(format="percent"),
             "Difference": st.column_config.NumberColumn(format="percent"),
         },
     )
@@ -335,7 +421,7 @@ def render_generation(
         ("Selected task", task_data["label"]),
         ("Model", controls.model),
         ("Batch size", controls.batch_size),
-        ("Relative tolerance", f"±{controls.tolerance:.0%}"),
+        ("Tolerance floor", f"±{controls.tolerance:.0%}"),
     ]
     for start in range(0, len(metrics), 2):
         columns = st.columns(2, gap="small")
@@ -386,6 +472,7 @@ def render_generation(
             else:
                 st.subheader(f"Latest generation · iteration {current.iteration}")
                 _render_submissions(current)
+                _render_iteration_explorer(history or [current], controls.task_id)
     with analytics_tab:
         if analytics_tab.open:
             _render_analytics(current, history)

@@ -119,19 +119,25 @@ class OllamaProvider(GenerationProvider):
 FUNCTIONAL TEST CASES
 {tests}
 
+INSTRUCTIONS
+- Implement the function named {task.function_name}.
+- The submission must pass every functional test case above.
+- Handle invalid inputs and required exceptions before normal return logic.
+- The assigned defect styles above are mandatory guidance for this submission.
+- Include at least one assigned task-independent defect and one assigned
+  task-dependent defect.
+- The defect guidance is a hard acceptance criterion, not a suggestion. A clean
+  standard solution without the assigned styles is incorrect for this dataset.
+- Copy the key syntax and control-flow shape of every task-specific valid pattern
+  shown for the assigned defects inside the required function; do not replace it
+  with a different defect style.
+- Attempt to include every assigned style without breaking functional correctness.
+- Do not intentionally introduce defect styles that were not assigned.
+- Use readable, conventional multiline Python.
+- Do not use semicolons to compress statements.
+- Return only executable Python source code.
+- Do not include Markdown fences, explanations, input(), print(), file access, or network access.
 """
-
-# INSTRUCTIONS
-# - Implement the function named {task.function_name}.
-# - The submission must pass every functional test case above.
-# - Handle invalid inputs and required exceptions before normal return logic.
-# - The assigned defect styles above are the intended guidance for this submission.
-# - Attempt to include every assigned style without breaking functional correctness.
-# - Do not intentionally introduce defect styles that were not assigned.
-# - Use readable, conventional multiline Python.
-# - Do not use semicolons to compress statements.
-# - Return only executable Python source code.
-# - Do not include Markdown fences, explanations, input(), print(), file access, or network access.
 
     @staticmethod
     def _extract_source(response: str, function_name: str) -> str:

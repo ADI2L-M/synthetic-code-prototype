@@ -1,9 +1,14 @@
 from detectors.core.registry import detect_defects
 from detectors.research.registry import RESEARCH_DETECTORS, detect_research_defects
 from models.types import IterationResult, ProgrammingTask, SubmissionResult
-from services.generation.analysis import compare_profiles, observed_profile
+from services.generation.analysis import (
+    compare_profiles,
+    observed_counts,
+    observed_profile,
+)
 from services.generation.assignment import plan_defect_assignments, stable_seed
 from services.generation.prompt_builder import (
+    DEFECT_REQUIRED_SIGNATURES,
     TASK_INDEPENDENT_DEFECTS,
     TASK_SPECIFIC_PATTERNS,
     applicable_defect_names,
@@ -33,6 +38,23 @@ RELIABLE_DEFECT_ORDER = {
 }
 
 TASK_RELIABLE_DEFECT_ORDER = {
+    "T1": {
+        "task_independent": (
+            "magic_number",
+            "one_letter_name",
+            "built_in_name",
+            "inappropriate_formatting",
+        ),
+        "task_dependent": (
+            "duplicate_if",
+            "empty_if",
+            "redundant_comparison",
+            "redundant_not",
+            "nested_if",
+            "redundant_elif",
+            "else_if",
+        ),
+    },
     "T2": {
         "task_independent": (
             "one_letter_name",
@@ -120,6 +142,13 @@ def _repair_specification(
     pattern_text = "\n\n".join(task_patterns) or (
         "Use the selected defect names while preserving the task contract."
     )
+    signature_text = "\n".join(
+        f"- {defect.replace('_', ' ')}: {DEFECT_REQUIRED_SIGNATURES[defect]}"
+        for defect in missing_defects
+        if defect in DEFECT_REQUIRED_SIGNATURES
+    )
+    if signature_text:
+        pattern_text += "\n\nREQUIRED OBSERVABLE SIGNATURES\n" + signature_text
     return (
         "REVISION REQUEST\n\n"
         f"Implement {task.function_name}(...) for this task: {task.description}\n\n"
@@ -157,13 +186,16 @@ def _mandatory_category_assignments(
         preferred_order = TASK_RELIABLE_DEFECT_ORDER.get(
             task.id, {}
         ).get(category, RELIABLE_DEFECT_ORDER[category])
+        candidates = [defect for defect in preferred_order if defect in names]
+        if not candidates:
+            candidates = names
         calibration_priority = {
             "strengthen the generation constraint": 0,
             "maintain the generation constraint": 1,
             "reduce the generation constraint": 2,
         }
         ordered = sorted(
-            names,
+            candidates,
             key=lambda defect: (
                 calibration_priority.get(constraints.get(defect, ""), 1),
                 preferred_order.index(defect)
@@ -188,6 +220,7 @@ def run_iteration(
     model: str | None = None,
     context_length: int | None = None,
     max_repair_attempts: int = 0,
+    target_standard_errors: dict[str, float] | None = None,
 ) -> IterationResult:
     """Run one generation and analysis iteration."""
     active_constraints = dict(constraints or {})
@@ -311,7 +344,15 @@ def run_iteration(
         )
 
     observed = observed_profile(submissions, defect_ids)
-    comparison = compare_profiles(target_profile, observed, tolerance)
+    counts, valid_denominator = observed_counts(submissions, defect_ids)
+    comparison = compare_profiles(
+        target_profile,
+        observed,
+        tolerance,
+        observed_denominator=valid_denominator,
+        target_standard_errors=target_standard_errors,
+        observed_counts_by_defect=counts,
+    )
     return IterationResult(
         iteration=iteration_number,
         task_id=task.id,
@@ -328,4 +369,5 @@ def run_iteration(
         planned_assignment_counts=assignment_plan.planned_counts,
         model=model,
         context_length=context_length,
+        target_standard_errors=dict(target_standard_errors or {}),
     )

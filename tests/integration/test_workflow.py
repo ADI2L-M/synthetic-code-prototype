@@ -2,7 +2,11 @@ from detectors.core.registry import detect_defects
 from models.types import IterationResult, SubmissionResult, ValidationResult
 from services.data.loader import load_profiles, load_tasks
 from services.data.profile_composer import compose_target_profile
-from services.generation.analysis import compare_profiles, observed_profile
+from services.generation.analysis import (
+    compare_profiles,
+    observed_profile,
+    wilson_interval,
+)
 from services.generation.calibrator import (
     calibration_constraints,
     calibration_is_non_regressive,
@@ -56,6 +60,50 @@ def test_comparison_uses_target_relative_tolerance_for_rare_defects():
 
     assert rows[0].status == "Underrepresented"
     assert rows[0].difference == 0.01
+
+
+def test_sampling_aware_comparison_records_counts_and_wilson_interval():
+    rows = compare_profiles(
+        {"defect": 0.5},
+        {"defect": 2 / 9},
+        0.10,
+        observed_denominator=9,
+        target_standard_errors={"defect": 0.10},
+        observed_counts_by_defect={"defect": 2},
+    )
+
+    row = rows[0]
+    assert row.observed_count == 2
+    assert row.observed_denominator == 9
+    assert row.observed_interval_low == wilson_interval(2, 9)[0]
+    assert row.observed_interval_high == wilson_interval(2, 9)[1]
+    assert row.status == "Within tolerance"
+
+
+def test_sampling_aware_comparison_can_still_identify_large_gap():
+    rows = compare_profiles(
+        {"defect": 0.5},
+        {"defect": 0.0},
+        0.10,
+        observed_denominator=100,
+        target_standard_errors={"defect": 0.0},
+        observed_counts_by_defect={"defect": 0},
+    )
+
+    assert rows[0].status == "Underrepresented"
+
+
+def test_sampling_aware_comparison_does_not_treat_zero_count_as_certain():
+    rows = compare_profiles(
+        {"defect": 0.01},
+        {"defect": 0.0},
+        0.10,
+        observed_denominator=10,
+        target_standard_errors={"defect": 0.0},
+        observed_counts_by_defect={"defect": 0},
+    )
+
+    assert rows[0].status == "Within tolerance"
 
 
 def test_iteration_snapshots_task_target_tolerance_and_constraints():

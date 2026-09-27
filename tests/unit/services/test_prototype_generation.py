@@ -1,5 +1,10 @@
-from services.generation.prompt_builder import build_generation_specification
+from detectors.research.registry import detect_research_defects
+from services.generation.prompt_builder import (
+    TASK_SPECIFIC_PATTERNS,
+    build_generation_specification,
+)
 from services.generation.prototype_tasks import load_prototype_tasks
+from services.generation.validator import validate_source
 from services.generation.workflow import run_iteration
 
 
@@ -144,6 +149,22 @@ def test_submission_prompt_contains_only_assigned_defect_guidance():
     assert "100% target" not in prompt
 
 
+def test_ollama_prompt_marks_assigned_defects_as_hard_requirements():
+    provider = RecordingProvider()
+    run_iteration(
+        task=load_prototype_tasks()["T1"],
+        target_profile={"redundant_comparison": 0.0},
+        batch_size=1,
+        iteration_number=1,
+        tolerance=0.1,
+        provider=provider,
+    )
+
+    prompt = provider.calls[0][3]
+    assert "hard acceptance criterion" in prompt
+    assert "Copy the key syntax and control-flow shape" in prompt
+
+
 def test_programming_task_brief_redacts_prevalence_and_lists_task_dependent_defects():
     brief = build_generation_specification(
         load_prototype_tasks()["T1"],
@@ -155,3 +176,24 @@ def test_programming_task_brief_redacts_prevalence_and_lists_task_dependent_defe
     assert "POTENTIAL TASK-INDEPENDENT DEFECTS" in brief
     assert "magic number" in brief
     assert "%" not in brief
+
+
+def test_t1_task_specific_patterns_are_functional_and_detector_visible():
+    task = load_prototype_tasks()["T1"]
+    defect_names = (
+        "else_if",
+        "redundant_comparison",
+        "redundant_not",
+        "duplicate_if",
+        "nested_if",
+        "redundant_elif",
+        "empty_if",
+    )
+
+    for defect in defect_names:
+        source = "def classify_temperature(temp):\n" + "".join(
+            f"    {line}\n"
+            for line in TASK_SPECIFIC_PATTERNS[("T1", defect)].splitlines()
+        )
+        assert validate_source(source, task).status == "PASS", defect
+        assert detect_research_defects(source, [defect])[defect].present, defect

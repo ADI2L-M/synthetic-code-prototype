@@ -20,6 +20,7 @@ def run_prototype_iteration(
     model: str,
     base_url: str,
     constraints: dict[str, str] | None = None,
+    target_standard_errors: dict[str, float] | None = None,
 ) -> IterationResult:
     """Generate and validate one synthetic batch for T1, T2, or T3."""
     task = load_prototype_task(task_id)
@@ -34,4 +35,5 @@ def run_prototype_iteration(
         context_length=OLLAMA_CONTEXT_LENGTH,
         max_repair_attempts=MAX_SUBMISSION_ATTEMPTS - 1,
         constraints=constraints,
+        target_standard_errors=target_standard_errors,
     )

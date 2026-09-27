@@ -1,5 +1,7 @@
 """Primary synthetic-generation page."""
 
+from math import sqrt
+
 from services.generation.calibrator import (
     calibration_constraints,
     calibration_is_non_regressive,
@@ -39,6 +41,15 @@ if generate_requested:
     target = {
         row["defect"]: row["target_prevalence"] for row in task["target_rows"]
     }
+    target_standard_errors = {
+        row["defect"]: (
+            float(row["standard_deviation"])
+            / sqrt(int(row["eligible_tasks"]))
+            if int(row["eligible_tasks"]) > 1
+            else 0.0
+        )
+        for row in task["target_rows"]
+    }
     try:
         candidate = run_prototype_iteration(
             task_id=generation_controls.task_id,
@@ -49,6 +60,7 @@ if generate_requested:
             model=generation_controls.model,
             base_url=generation_controls.base_url,
             constraints=active_constraints,
+            target_standard_errors=target_standard_errors,
         )
         if (
             calibration_requested

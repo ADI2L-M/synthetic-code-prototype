@@ -92,6 +92,20 @@ GENERATION_HINTS = {
     ),
 }
 
+DEFECT_REQUIRED_SIGNATURES = {
+    "inappropriate_formatting": "include a valid spacing violation such as `temp<10`",
+    "magic_number": "use an unnamed numeric literal in the task decision logic",
+    "one_letter_name": "bind a non-exempt one-letter local such as `t = temp`",
+    "built_in_name": "bind a Python built-in name such as `list = temp`",
+    "else_if": "include `else:` containing a nested `if`, not an `elif` replacement",
+    "redundant_comparison": "include a Boolean comparison such as `(temp < 10) == True`",
+    "redundant_not": "include `not` directly before a comparison such as `not temp >= 25`",
+    "duplicate_if": "include an `elif` branch with the same side-effect-free body as the preceding `if`",
+    "nested_if": "include an `if` directly inside another `if`, with both conditions side-effect-free",
+    "redundant_elif": "include an `elif` that is the direct inverse of the preceding `if` condition",
+    "empty_if": "include a branch whose only statement is `pass`",
+}
+
 # Short contrastive examples make the structural intent concrete without
 # putting a complete task solution in the model's context.  These examples
 # are deliberately task-independent; the construction hint and task contract
@@ -172,6 +186,36 @@ GENERATION_EXAMPLES = {
 }
 
 TASK_SPECIFIC_PATTERNS = {
+    ("T1", "inappropriate_formatting"): (
+        "if temp<10:\n"
+        "    return 'cold'\n"
+        "if temp <= 24:\n"
+        "    return 'mild'\n"
+        "return 'hot'"
+    ),
+    ("T1", "magic_number"): (
+        "if temp < 10:\n"
+        "    return 'cold'\n"
+        "if temp <= 24:\n"
+        "    return 'mild'\n"
+        "return 'hot'"
+    ),
+    ("T1", "one_letter_name"): (
+        "t = temp\n"
+        "if t < 10:\n"
+        "    return 'cold'\n"
+        "if t <= 24:\n"
+        "    return 'mild'\n"
+        "return 'hot'"
+    ),
+    ("T1", "built_in_name"): (
+        "list = temp\n"
+        "if list < 10:\n"
+        "    return 'cold'\n"
+        "if list <= 24:\n"
+        "    return 'mild'\n"
+        "return 'hot'"
+    ),
     ("T2", "duplicate_expression"): (
         "total = 0\n"
         "for s in scores:\n"
@@ -205,10 +249,54 @@ TASK_SPECIFIC_PATTERNS = {
         "    else:\n"
         "        return 'hot'"
     ),
+    ("T1", "redundant_not"): (
+        "if not temp >= 25:\n"
+        "    if temp < 10:\n"
+        "        return 'cold'\n"
+        "    return 'mild'\n"
+        "else:\n"
+        "    return 'hot'"
+    ),
+    ("T1", "duplicate_if"): (
+        "if temp < 5:\n"
+        "    return 'cold'\n"
+        "elif temp < 10:\n"
+        "    return 'cold'\n"
+        "if temp <= 24:\n"
+        "    return 'mild'\n"
+        "return 'hot'"
+    ),
+    ("T1", "nested_if"): (
+        "if temp < 10:\n"
+        "    return 'cold'\n"
+        "if temp >= 10:\n"
+        "    if temp < 25:\n"
+        "        return 'mild'\n"
+        "return 'hot'"
+    ),
+    ("T1", "redundant_elif"): (
+        "if temp < 10:\n"
+        "    return 'cold'\n"
+        "elif temp >= 10:\n"
+        "    if temp <= 24:\n"
+        "        return 'mild'\n"
+        "    return 'hot'"
+    ),
+    ("T1", "empty_if"): (
+        "if temp < 10:\n"
+        "    pass\n"
+        "else:\n"
+        "    if temp <= 24:\n"
+        "        return 'mild'\n"
+        "    return 'hot'\n"
+        "return 'cold'"
+    ),
     ("T1", "redundant_comparison"): (
-        "is_mild = temp >= 10 and temp <= 24\n"
-        "if is_mild == True:\n"
-        "    return 'mild'"
+        "if (temp < 10) == True:\n"
+        "    return 'cold'\n"
+        "if temp <= 24:\n"
+        "    return 'mild'\n"
+        "return 'hot'"
     ),
     ("T2", "augmentable_assignment"): (
         "for score in scores:\n"
@@ -324,6 +412,9 @@ def build_submission_specification(
         example = GENERATION_EXAMPLES.get(defect, {}).get("defective")
         if hint:
             guidance = f"- {defect.replace('_', ' ')}: {hint}"
+            signature = DEFECT_REQUIRED_SIGNATURES.get(defect)
+            if signature:
+                guidance += f" Required observable signature: {signature}."
             if example:
                 guidance += f" Example pattern:\n    {example}"
             task_pattern = TASK_SPECIFIC_PATTERNS.get((task.id, defect))
@@ -409,5 +500,7 @@ def build_submission_specification(
         "include print(), input(), assertions, test cases, a test harness, Markdown, "
         "explanations, or a partial revision.\n\n"
         "IMPORTANT NOTE:\n\n"
-        "Implementing coding style is mandatory, do not return the submission without including the task-dependent coding style criteria"
+        "Implementing coding style is mandatory, do not return the submission without including the task-dependent coding style criteria. "
+        "The defect guidance is a hard acceptance criterion, not a suggestion. "
+        "Copy the key syntax and control-flow shape of every task-specific valid pattern."
     )
