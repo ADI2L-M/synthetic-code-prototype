@@ -37,18 +37,23 @@ def render_results(
                 "Functional Status": item.validation.status,
                 "Tests Passed": item.validation.tests_passed,
                 "Tests Failed": item.validation.tests_failed,
-                "Detected Defects": ", ".join(labels)
-                or (
+                "Detected Defects": labels
+                or [
                     "Not analysed"
                     if item.validation.status != "PASS"
                     else "None detected"
-                ),
+                ],
             }
         )
     st.dataframe(
         pd.DataFrame(result_rows),
         hide_index=True,
         width="stretch",
+        column_config={
+            "Detected Defects": st.column_config.ListColumn(
+                width="large", disabled=True
+            )
+        },
     )
 
     st.subheader("Submission details")

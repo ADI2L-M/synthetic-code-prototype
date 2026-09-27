@@ -1,0 +1,104 @@
+{
+  "overall_status": "preliminary",
+  "criteria": {
+    "precision_target": 0.9,
+    "recall_target": 0.85,
+    "f1_target": 0.87,
+    "minimum_positive_labels": 20,
+    "minimum_negative_labels": 20
+  },
+  "detectors": [
+    {
+      "defect": "augmentable_assignment",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "built_in_name",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "duplicate_expression",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "duplicate_if",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "else_if",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "empty_if",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "inappropriate_formatting",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "magic_number",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "misleading_iterator_name",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "nested_if",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "one_letter_name",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "redundant_comparison",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "redundant_elif",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "redundant_for",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "redundant_if_else",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "redundant_indexing",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "redundant_not",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    },
+    {
+      "defect": "while_as_for",
+      "status": "pending",
+      "reason": "No manual validation labels have been recorded."
+    }
+  ],
+  "label_source": "research-notes\\detector-validation\\gold-labels.template.jsonl",
+  "label_count": 0
+}

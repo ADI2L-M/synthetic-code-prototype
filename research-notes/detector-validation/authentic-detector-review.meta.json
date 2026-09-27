@@ -1,0 +1,163 @@
+{
+  "submission_count": 28960,
+  "parseable_submission_count": 27974,
+  "parse_failure_count": 986,
+  "excluded_noneligible_case_count": 234075,
+  "candidate_counts": {
+    "redundant_if_else": {
+      "detector_positive": 115,
+      "detector_negative": 12354
+    },
+    "redundant_comparison": {
+      "detector_positive": 59,
+      "detector_negative": 12410
+    },
+    "redundant_not": {
+      "detector_positive": 11,
+      "detector_negative": 12458
+    },
+    "duplicate_if": {
+      "detector_positive": 132,
+      "detector_negative": 12337
+    },
+    "else_if": {
+      "detector_positive": 174,
+      "detector_negative": 12295
+    },
+    "nested_if": {
+      "detector_positive": 25,
+      "detector_negative": 12444
+    },
+    "redundant_elif": {
+      "detector_positive": 109,
+      "detector_negative": 12360
+    },
+    "empty_if": {
+      "detector_positive": 16,
+      "detector_negative": 12453
+    },
+    "redundant_indexing": {
+      "detector_positive": 345,
+      "detector_negative": 10949
+    },
+    "misleading_iterator_name": {
+      "detector_positive": 1213,
+      "detector_negative": 10081
+    },
+    "duplicate_expression": {
+      "detector_positive": 1642,
+      "detector_negative": 9652
+    },
+    "while_as_for": {
+      "detector_positive": 202,
+      "detector_negative": 4009
+    },
+    "redundant_for": {
+      "detector_positive": 0,
+      "detector_negative": 4211
+    },
+    "augmentable_assignment": {
+      "detector_positive": 191,
+      "detector_negative": 15314
+    },
+    "inappropriate_formatting": {
+      "detector_positive": 15353,
+      "detector_negative": 12621
+    },
+    "magic_number": {
+      "detector_positive": 11584,
+      "detector_negative": 16390
+    },
+    "one_letter_name": {
+      "detector_positive": 4418,
+      "detector_negative": 23556
+    },
+    "built_in_name": {
+      "detector_positive": 1286,
+      "detector_negative": 26688
+    }
+  },
+  "selected_counts": {
+    "redundant_if_else": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "redundant_comparison": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "redundant_not": {
+      "detector_positive": 11,
+      "detector_negative": 40
+    },
+    "duplicate_if": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "else_if": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "nested_if": {
+      "detector_positive": 25,
+      "detector_negative": 40
+    },
+    "redundant_elif": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "empty_if": {
+      "detector_positive": 16,
+      "detector_negative": 40
+    },
+    "redundant_indexing": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "misleading_iterator_name": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "duplicate_expression": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "while_as_for": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "redundant_for": {
+      "detector_positive": 0,
+      "detector_negative": 40
+    },
+    "augmentable_assignment": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "inappropriate_formatting": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "magic_number": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "one_letter_name": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    },
+    "built_in_name": {
+      "detector_positive": 40,
+      "detector_negative": 40
+    }
+  },
+  "selected_case_count": 1332,
+  "detector_count": 18,
+  "per_class_limit": 40,
+  "seed": 20260927,
+  "eligible_only": true,
+  "report_type": "authentic_detector_review_sample",
+  "workbook": "D:\\UoA\\Semester 3\\IS720\\Research Assignment\\synthetic-code-prototype\\research-notes\\data-identification\\cs1_labs_responses.xlsx",
+  "grouping": "D:\\UoA\\Semester 3\\IS720\\Research Assignment\\synthetic-code-prototype\\research-notes\\data-identification\\cs1_regeneration_task_groups.json",
+  "review_file": "D:\\UoA\\Semester 3\\IS720\\Research Assignment\\synthetic-code-prototype\\research-notes\\detector-validation\\authentic-detector-review.jsonl"
+}

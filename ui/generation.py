@@ -178,15 +178,13 @@ def _render_programming_task(task: ProgrammingTask) -> None:
             [
                 {"Field": "Function", "Value": task.function_name},
                 {"Field": "Contexts", "Value": ", ".join(task.contexts)},
-                {
-                    "Field": "Functional requirements",
-                    "Value": "\n".join(f"- {item}" for item in task.functional_requirements),
-                },
             ]
         ),
         hide_index=True,
         width="stretch",
     )
+    st.subheader("Functional requirements")
+    st.markdown("\n".join(f"- {item}" for item in task.functional_requirements))
     st.subheader("Functional test cases")
     st.dataframe(
         pd.DataFrame(

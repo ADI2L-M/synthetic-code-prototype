@@ -1,0 +1,2 @@
+# One JSON object per reviewed detector/submission pair. Replace null with 0 or 1 when reviewed.
+{"submission_id":"Lab_12_Q2_R001","task_id":"T2","task_family":"list_processing","defect":"duplicate_expression","eligibility":"eligible","manual_label":null,"detector_label":1,"reviewer":"","evidence_reference":"","notes":""}

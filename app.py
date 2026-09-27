@@ -19,12 +19,12 @@ page = st.navigation(
             "app_pages/home.py",
             title="Home",
             icon=":material/home:",
+            default=True,
         ),
         st.Page(
             "app_pages/generation.py",
             title="Generation",
             icon=":material/auto_awesome:",
-            default=True,
         ),
         st.Page(
             "app_pages/defect_detection.py",

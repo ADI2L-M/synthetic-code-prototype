@@ -18,8 +18,16 @@ def _open_page(app: AppTest, page: str) -> AppTest:
     return app.switch_page(page).run()
 
 
-def test_generation_is_the_default_view_and_exposes_main_controls():
+def test_home_is_the_default_view():
     app = _app()
+
+    assert not app.exception
+    assert app.title[0].value == "Synthetic code research prototype"
+    assert any("Prototype at a glance" in item.value for item in app.subheader)
+
+
+def test_generation_view_exposes_main_controls():
+    app = _open_page(_app(), GENERATION_PAGE)
 
     assert not app.exception
     assert app.title[0].value == "Generation"
@@ -48,7 +56,7 @@ def test_generation_is_the_default_view_and_exposes_main_controls():
 
 
 def test_generation_main_content_has_task_and_prompt_tabs():
-    app = _app()
+    app = _open_page(_app(), GENERATION_PAGE)
     app.session_state["generation_content_tabs"] = ":material/code: Programming task"
     app.run()
 
