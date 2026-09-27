@@ -1,0 +1,324 @@
+[
+  {
+    "authentic_task": "Lab 3 Q7",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_3_Q7.json"
+  },
+  {
+    "authentic_task": "Lab 3 Q9",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_3_Q9.json"
+  },
+  {
+    "authentic_task": "Lab 3 Q10",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_3_Q10.json"
+  },
+  {
+    "authentic_task": "Lab 3 Q11",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_3_Q11.json"
+  },
+  {
+    "authentic_task": "Lab 3 Q12",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_3_Q12.json"
+  },
+  {
+    "authentic_task": "Lab 3 Q13",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_3_Q13.json"
+  },
+  {
+    "authentic_task": "Lab 4 Q2",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_4_Q2.json"
+  },
+  {
+    "authentic_task": "Lab 4 Q6",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_4_Q6.json"
+  },
+  {
+    "authentic_task": "Lab 4 Q7",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_4_Q7.json"
+  },
+  {
+    "authentic_task": "Lab 4 Q8",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_4_Q8.json"
+  },
+  {
+    "authentic_task": "Lab 4 Q9",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_4_Q9.json"
+  },
+  {
+    "authentic_task": "Lab 4 Q11",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_4_Q11.json"
+  },
+  {
+    "authentic_task": "Lab 5 Q1",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_5_Q1.json"
+  },
+  {
+    "authentic_task": "Lab 5 Q2",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_5_Q2.json"
+  },
+  {
+    "authentic_task": "Lab 6 Q1",
+    "prototype_task": "T3",
+    "task_family": "numeric_iteration",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_6_Q1.json"
+  },
+  {
+    "authentic_task": "Lab 6 Q8",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_6_Q8.json"
+  },
+  {
+    "authentic_task": "Lab 7 Q4",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_7_Q4.json"
+  },
+  {
+    "authentic_task": "Lab 8 Q8",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_8_Q8.json"
+  },
+  {
+    "authentic_task": "Lab 8 Q9",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_8_Q9.json"
+  },
+  {
+    "authentic_task": "Lab 9 Q1",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_9_Q1.json"
+  },
+  {
+    "authentic_task": "Lab 9 Q3",
+    "prototype_task": "T3",
+    "task_family": "numeric_iteration",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_9_Q3.json"
+  },
+  {
+    "authentic_task": "Lab 9 Q8",
+    "prototype_task": "T3",
+    "task_family": "numeric_iteration",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_9_Q8.json"
+  },
+  {
+    "authentic_task": "Lab 10 Q6",
+    "prototype_task": "T3",
+    "task_family": "numeric_iteration",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_10_Q6.json"
+  },
+  {
+    "authentic_task": "Lab 10 Q9",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_10_Q9.json"
+  },
+  {
+    "authentic_task": "Lab 10 Q10",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_10_Q10.json"
+  },
+  {
+    "authentic_task": "Lab 10 Q12",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_10_Q12.json"
+  },
+  {
+    "authentic_task": "Lab 10 Q14",
+    "prototype_task": "T3",
+    "task_family": "numeric_iteration",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_10_Q14.json"
+  },
+  {
+    "authentic_task": "Lab 12 Q2",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_12_Q2.json"
+  },
+  {
+    "authentic_task": "Lab 12 Q3",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_12_Q3.json"
+  },
+  {
+    "authentic_task": "Lab 12 Q5",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_12_Q5.json"
+  },
+  {
+    "authentic_task": "Lab 12 Q7",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_12_Q7.json"
+  },
+  {
+    "authentic_task": "Lab 12 Q8",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_12_Q8.json"
+  },
+  {
+    "authentic_task": "Lab 13 Q1",
+    "prototype_task": "T3",
+    "task_family": "numeric_iteration",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_13_Q1.json"
+  },
+  {
+    "authentic_task": "Lab 14 Q1",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_14_Q1.json"
+  },
+  {
+    "authentic_task": "Lab 14 Q7",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_14_Q7.json"
+  },
+  {
+    "authentic_task": "Lab 15 Q4",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_15_Q4.json"
+  },
+  {
+    "authentic_task": "Lab 15 Q5",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_15_Q5.json"
+  },
+  {
+    "authentic_task": "Lab 15 Q6",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_15_Q6.json"
+  },
+  {
+    "authentic_task": "Lab 15 Q7",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_15_Q7.json"
+  },
+  {
+    "authentic_task": "Lab 15 Q9",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_15_Q9.json"
+  },
+  {
+    "authentic_task": "Lab 17 Q1",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_17_Q1.json"
+  },
+  {
+    "authentic_task": "Lab 17 Q3",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_17_Q3.json"
+  },
+  {
+    "authentic_task": "Lab 17 Q4",
+    "prototype_task": "T3",
+    "task_family": "numeric_iteration",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_17_Q4.json"
+  },
+  {
+    "authentic_task": "Lab 17 Q5",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "direct",
+    "report": "task-reports/Lab_17_Q5.json"
+  },
+  {
+    "authentic_task": "Lab 17 Q7",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_17_Q7.json"
+  },
+  {
+    "authentic_task": "Lab 17 Q10",
+    "prototype_task": "T2",
+    "task_family": "list_processing",
+    "mapping_role": "supporting",
+    "report": "task-reports/Lab_17_Q10.json"
+  }
+]

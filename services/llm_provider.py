@@ -1,15 +1,3 @@
-from typing import Protocol
+"""Compatibility facade; use :mod:`services.providers.llm`."""
 
-from models.types import ProgrammingTask
-
-
-class GenerationProvider(Protocol):
-    """Provider contract shared by Demo mode and live LLM adapters."""
-
-    def generate(
-        self,
-        task: ProgrammingTask,
-        batch_size: int,
-        iteration: int = 1,
-        specification: str | None = None,
-    ) -> list[str]: ...
+from services.providers.llm import *  # noqa: F403

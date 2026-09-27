@@ -1,0 +1,1003 @@
+{
+  "report_type": "authentic_task_prevalence",
+  "generated_at_utc": "2026-09-26T02:08:33.462639+00:00",
+  "task": {
+    "authentic_task": "Lab 3 Q11",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "direct"
+  },
+  "denominator_definition": "parseable submissions marked functionally correct by the functional-validation dataset",
+  "submissions": {
+    "functionally_correct_count": 547,
+    "parseable_count": 547,
+    "parse_failure_count": 0
+  },
+  "defects": {
+    "redundant_if_else": {
+      "eligibility": "eligible",
+      "opportunity_level": "low",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_comparison": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_not": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "duplicate_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 33,
+      "prevalence": 0.0603290676416819,
+      "raw_detected_submission_count": 33,
+      "raw_instance_count": 259,
+      "example_detections": [
+        {
+          "submission_id": "Lab_3_Q11_R67",
+          "present": true,
+          "count": 7,
+          "locations": [
+            {
+              "line": 33,
+              "column": 0
+            },
+            {
+              "line": 33,
+              "column": 0
+            },
+            {
+              "line": 33,
+              "column": 0
+            },
+            {
+              "line": 33,
+              "column": 0
+            },
+            {
+              "line": 33,
+              "column": 0
+            },
+            {
+              "line": 33,
+              "column": 0
+            },
+            {
+              "line": 33,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "branch_lines": [
+                29,
+                33
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='day', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                29,
+                33
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='day', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                29,
+                33
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='day', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                29,
+                33
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='day', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                29,
+                33
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='day', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                29,
+                33
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='day', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                29,
+                33
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='day', ctx=Store())], value=Constant(value=31))])"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R166",
+          "present": true,
+          "count": 9,
+          "locations": [
+            {
+              "line": 17,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            },
+            {
+              "line": 17,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "branch_lines": [
+                13,
+                17
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            },
+            {
+              "branch_lines": [
+                33,
+                37
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            },
+            {
+              "branch_lines": [
+                13,
+                17
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            },
+            {
+              "branch_lines": [
+                33,
+                37
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            },
+            {
+              "branch_lines": [
+                33,
+                37
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            },
+            {
+              "branch_lines": [
+                33,
+                37
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            },
+            {
+              "branch_lines": [
+                33,
+                37
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            },
+            {
+              "branch_lines": [
+                33,
+                37
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            },
+            {
+              "branch_lines": [
+                33,
+                37
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='number_of_days', ctx=Store())], value=Constant(value='31'))])"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R181",
+          "present": true,
+          "count": 7,
+          "locations": [
+            {
+              "line": 49,
+              "column": 0
+            },
+            {
+              "line": 49,
+              "column": 0
+            },
+            {
+              "line": 49,
+              "column": 0
+            },
+            {
+              "line": 49,
+              "column": 0
+            },
+            {
+              "line": 49,
+              "column": 0
+            },
+            {
+              "line": 49,
+              "column": 0
+            },
+            {
+              "line": 49,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "branch_lines": [
+                43,
+                49
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='days', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                43,
+                49
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='days', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                43,
+                49
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='days', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                43,
+                49
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='days', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                43,
+                49
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='days', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                43,
+                49
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='days', ctx=Store())], value=Constant(value=31))])"
+            },
+            {
+              "branch_lines": [
+                43,
+                49
+              ],
+              "body": "Module(body=[Assign(targets=[Name(id='days', ctx=Store())], value=Constant(value=31))])"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "else_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 3,
+      "prevalence": 0.005484460694698354,
+      "raw_detected_submission_count": 3,
+      "raw_instance_count": 10,
+      "example_detections": [
+        {
+          "submission_id": "Lab_3_Q11_R140",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 9,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 3,
+              "nested_if_line": 9,
+              "suggestion": "replace else: if with elif"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R188",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 11,
+              "column": 4
+            },
+            {
+              "line": 17,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 5,
+              "nested_if_line": 11,
+              "suggestion": "replace else: if with elif"
+            },
+            {
+              "outer_if_line": 11,
+              "nested_if_line": 17,
+              "suggestion": "replace else: if with elif"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R481",
+          "present": true,
+          "count": 7,
+          "locations": [
+            {
+              "line": 9,
+              "column": 4
+            },
+            {
+              "line": 15,
+              "column": 8
+            },
+            {
+              "line": 21,
+              "column": 12
+            },
+            {
+              "line": 27,
+              "column": 16
+            },
+            {
+              "line": 33,
+              "column": 20
+            },
+            {
+              "line": 39,
+              "column": 24
+            },
+            {
+              "line": 45,
+              "column": 28
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 3,
+              "nested_if_line": 9,
+              "suggestion": "replace else: if with elif"
+            },
+            {
+              "outer_if_line": 9,
+              "nested_if_line": 15,
+              "suggestion": "replace else: if with elif"
+            },
+            {
+              "outer_if_line": 15,
+              "nested_if_line": 21,
+              "suggestion": "replace else: if with elif"
+            },
+            {
+              "outer_if_line": 21,
+              "nested_if_line": 27,
+              "suggestion": "replace else: if with elif"
+            },
+            {
+              "outer_if_line": 27,
+              "nested_if_line": 33,
+              "suggestion": "replace else: if with elif"
+            },
+            {
+              "outer_if_line": 33,
+              "nested_if_line": 39,
+              "suggestion": "replace else: if with elif"
+            },
+            {
+              "outer_if_line": 39,
+              "nested_if_line": 45,
+              "suggestion": "replace else: if with elif"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "nested_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_elif": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "empty_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_indexing": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 1,
+      "raw_instance_count": 1,
+      "example_detections": [
+        {
+          "submission_id": "Lab_3_Q11_R19",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 5,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "index_name": "i",
+              "sequence": "calendar",
+              "matching_reads": 2,
+              "reason": "index is only used to read the current element"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "misleading_iterator_name": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "duplicate_expression": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 1,
+      "raw_instance_count": 1,
+      "example_detections": [
+        {
+          "submission_id": "Lab_3_Q11_R19",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 7,
+              "column": 7
+            }
+          ],
+          "evidence": [
+            {
+              "occurrence_lines": [
+                7,
+                9
+              ],
+              "expression": "calendar[i]",
+              "weighted_complexity": 8,
+              "purity": "allowlisted pure expression"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "while_as_for": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "redundant_for": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "augmentable_assignment": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "inappropriate_formatting": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 272,
+      "prevalence": 0.49725776965265084,
+      "raw_detected_submission_count": 272,
+      "raw_instance_count": 2000,
+      "example_detections": [
+        {
+          "submission_id": "Lab_3_Q11_R2",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 9,
+              "column": 65
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "missing_space_after_colon",
+              "detail": "add one space after ordinary colon",
+              "token": "3"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R3",
+          "present": true,
+          "count": 12,
+          "locations": [
+            {
+              "line": 5,
+              "column": 27
+            },
+            {
+              "line": 7,
+              "column": 30
+            },
+            {
+              "line": 9,
+              "column": 27
+            },
+            {
+              "line": 11,
+              "column": 27
+            },
+            {
+              "line": 13,
+              "column": 25
+            },
+            {
+              "line": 15,
+              "column": 26
+            },
+            {
+              "line": 17,
+              "column": 26
+            },
+            {
+              "line": 19,
+              "column": 28
+            },
+            {
+              "line": 21,
+              "column": 31
+            },
+            {
+              "line": 23,
+              "column": 29
+            },
+            {
+              "line": 25,
+              "column": 30
+            },
+            {
+              "line": 27,
+              "column": 30
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            },
+            {
+              "rule": "whitespace_before_delimiter",
+              "detail": "remove whitespace before delimiter",
+              "token": ":"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R5",
+          "present": true,
+          "count": 4,
+          "locations": [
+            {
+              "line": 67,
+              "column": 0
+            },
+            {
+              "line": 75,
+              "column": 0
+            },
+            {
+              "line": 83,
+              "column": 0
+            },
+            {
+              "line": 91,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "magic_number": {
+      "eligibility": "eligible",
+      "opportunity_level": "high",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 5,
+      "prevalence": 0.009140767824497258,
+      "raw_detected_submission_count": 5,
+      "raw_instance_count": 5,
+      "example_detections": [
+        {
+          "submission_id": "Lab_3_Q11_R160",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 17,
+              "column": 31
+            }
+          ],
+          "evidence": [
+            {
+              "value": 2,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "2"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R225",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 11,
+              "column": 23
+            }
+          ],
+          "evidence": [
+            {
+              "value": 2,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "2"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R226",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 11,
+              "column": 26
+            }
+          ],
+          "evidence": [
+            {
+              "value": 2,
+              "context": "domain computation",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "2"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "one_letter_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 15,
+      "prevalence": 0.027422303473491772,
+      "raw_detected_submission_count": 15,
+      "raw_instance_count": 27,
+      "example_detections": [
+        {
+          "submission_id": "Lab_3_Q11_R53",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 1,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "a",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R89",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 11,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "x",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_3_Q11_R106",
+          "present": true,
+          "count": 3,
+          "locations": [
+            {
+              "line": 5,
+              "column": 0
+            },
+            {
+              "line": 7,
+              "column": 0
+            },
+            {
+              "line": 9,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "a",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "b",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "c",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "built_in_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 547,
+      "eligible_denominator": 547,
+      "affected_submission_count": 1,
+      "prevalence": 0.0018281535648994515,
+      "raw_detected_submission_count": 1,
+      "raw_instance_count": 1,
+      "example_detections": [
+        {
+          "submission_id": "Lab_3_Q11_R184",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 3,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "dict",
+              "shadowed_builtin": "dict",
+              "binding_kind": "Name"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    }
+  }
+}

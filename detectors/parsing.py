@@ -1,9 +1,3 @@
-import ast
+"""Compatibility facade; use :mod:`detectors.core.parsing`."""
 
-
-def parse_source(source: str) -> ast.AST | None:
-    """Parse source code once per detector and tolerate invalid submissions."""
-    try:
-        return ast.parse(source)
-    except SyntaxError:
-        return None
+from detectors.core.parsing import *  # noqa: F403

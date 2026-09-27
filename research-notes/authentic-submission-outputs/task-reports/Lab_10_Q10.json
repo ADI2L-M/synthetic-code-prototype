@@ -1,0 +1,1302 @@
+{
+  "report_type": "authentic_task_prevalence",
+  "generated_at_utc": "2026-09-26T02:08:33.560686+00:00",
+  "task": {
+    "authentic_task": "Lab 10 Q10",
+    "prototype_task": "T1",
+    "task_family": "conditional_logic",
+    "mapping_role": "supporting"
+  },
+  "denominator_definition": "parseable submissions marked functionally correct by the functional-validation dataset",
+  "submissions": {
+    "functionally_correct_count": 461,
+    "parseable_count": 461,
+    "parse_failure_count": 0
+  },
+  "defects": {
+    "redundant_if_else": {
+      "eligibility": "eligible",
+      "opportunity_level": "low",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 103,
+      "prevalence": 0.22342733188720174,
+      "raw_detected_submission_count": 103,
+      "raw_instance_count": 103,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R5",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 27,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "condition": "alpha >= 5 and num >= 4",
+              "true_return_line": 29,
+              "false_return_line": 33,
+              "equivalence": "condition -> True, else -> False"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R17",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 17,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "condition": "len(password) >= 10 and '123' not in password and ('abc' not in password) and (isalpha_index >= 5) and (isdigit_index >= 4)",
+              "true_return_line": 19,
+              "false_return_line": 25,
+              "equivalence": "condition -> True, else -> False"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R18",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 25,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "condition": "alpha_amt >= 5 and digit_amt >= 4",
+              "true_return_line": 27,
+              "false_return_line": 31,
+              "equivalence": "condition -> True, else -> False"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "redundant_comparison": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 10,
+      "prevalence": 0.021691973969631236,
+      "raw_detected_submission_count": 10,
+      "raw_instance_count": 20,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R31",
+          "present": true,
+          "count": 4,
+          "locations": [
+            {
+              "line": 43,
+              "column": 7
+            },
+            {
+              "line": 43,
+              "column": 26
+            },
+            {
+              "line": 43,
+              "column": 46
+            },
+            {
+              "line": 43,
+              "column": 68
+            }
+          ],
+          "evidence": [
+            {
+              "operator": "Eq",
+              "boolean_operand": "length",
+              "boolean_proof": "syntactic_or_local_data_flow"
+            },
+            {
+              "operator": "Eq",
+              "boolean_operand": "abc_123",
+              "boolean_proof": "syntactic_or_local_data_flow"
+            },
+            {
+              "operator": "Eq",
+              "boolean_operand": "five_char",
+              "boolean_proof": "syntactic_or_local_data_flow"
+            },
+            {
+              "operator": "Eq",
+              "boolean_operand": "four_num",
+              "boolean_proof": "syntactic_or_local_data_flow"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R51",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 27,
+              "column": 31
+            }
+          ],
+          "evidence": [
+            {
+              "operator": "Eq",
+              "boolean_operand": "substrings",
+              "boolean_proof": "syntactic_or_local_data_flow"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R286",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 45,
+              "column": 7
+            },
+            {
+              "line": 49,
+              "column": 9
+            }
+          ],
+          "evidence": [
+            {
+              "operator": "Eq",
+              "boolean_operand": "valid",
+              "boolean_proof": "syntactic_or_local_data_flow"
+            },
+            {
+              "operator": "Eq",
+              "boolean_operand": "valid",
+              "boolean_proof": "syntactic_or_local_data_flow"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "redundant_not": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 1,
+      "prevalence": 0.0021691973969631237,
+      "raw_detected_submission_count": 1,
+      "raw_instance_count": 3,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R16",
+          "present": true,
+          "count": 3,
+          "locations": [
+            {
+              "line": 3,
+              "column": 7
+            },
+            {
+              "line": 25,
+              "column": 7
+            },
+            {
+              "line": 25,
+              "column": 25
+            }
+          ],
+          "evidence": [
+            {
+              "comparison": "len(password) >= 10",
+              "operator": "GtE",
+              "inverse_operator": "Lt"
+            },
+            {
+              "comparison": "alpha >= 5",
+              "operator": "GtE",
+              "inverse_operator": "Lt"
+            },
+            {
+              "comparison": "digit >= 4",
+              "operator": "GtE",
+              "inverse_operator": "Lt"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "duplicate_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 42,
+      "prevalence": 0.0911062906724512,
+      "raw_detected_submission_count": 42,
+      "raw_instance_count": 168,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R16",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 7,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "branch_lines": [
+                3,
+                7
+              ],
+              "body": "Module(body=[Return(value=Constant(value=False))])"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R40",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 15,
+              "column": 4
+            },
+            {
+              "line": 37,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "branch_lines": [
+                11,
+                15
+              ],
+              "body": "Module(body=[Return(value=Constant(value=False))])"
+            },
+            {
+              "branch_lines": [
+                33,
+                37
+              ],
+              "body": "Module(body=[Return(value=Constant(value=False))])"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R54",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 9,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "branch_lines": [
+                5,
+                9
+              ],
+              "body": "Module(body=[Return(value=Constant(value=False))])"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "else_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 6,
+      "prevalence": 0.013015184381778741,
+      "raw_detected_submission_count": 6,
+      "raw_instance_count": 6,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R24",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 13,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 7,
+              "nested_if_line": 13,
+              "suggestion": "replace else: if with elif"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R139",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 9,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 3,
+              "nested_if_line": 9,
+              "suggestion": "replace else: if with elif"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R241",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 11,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 5,
+              "nested_if_line": 11,
+              "suggestion": "replace else: if with elif"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "nested_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 4,
+      "prevalence": 0.008676789587852495,
+      "raw_detected_submission_count": 4,
+      "raw_instance_count": 6,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R195",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 25,
+              "column": 12
+            },
+            {
+              "line": 27,
+              "column": 16
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 23,
+              "inner_if_line": 25,
+              "combined_condition": "('123' not in password and 'abc' not in password) and (alpha >= 5)",
+              "safety": "single body, no else branches, side-effect-free conditions"
+            },
+            {
+              "outer_if_line": 25,
+              "inner_if_line": 27,
+              "combined_condition": "(alpha >= 5) and (num >= 4)",
+              "safety": "single body, no else branches, side-effect-free conditions"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R242",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 23,
+              "column": 12
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 21,
+              "inner_if_line": 23,
+              "combined_condition": "('abc' not in password and '123' not in password) and (alpha >= 5 and num >= 4)",
+              "safety": "single body, no else branches, side-effect-free conditions"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R276",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 25,
+              "column": 12
+            }
+          ],
+          "evidence": [
+            {
+              "outer_if_line": 23,
+              "inner_if_line": 25,
+              "combined_condition": "('123' not in password and 'abc' not in password) and (alpha_count >= 5 and digit_count >= 4)",
+              "safety": "single body, no else branches, side-effect-free conditions"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "redundant_elif": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 0,
+      "prevalence": 0.0,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "empty_if": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 2,
+      "prevalence": 0.004338394793926247,
+      "raw_detected_submission_count": 2,
+      "raw_instance_count": 3,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R361",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 33,
+              "column": 12
+            },
+            {
+              "line": 25,
+              "column": 20
+            }
+          ],
+          "evidence": [
+            {
+              "branch": "else",
+              "if_line": 7,
+              "alternative_line": 9
+            },
+            {
+              "branch": "else",
+              "if_line": 19,
+              "alternative_line": 21
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R404",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 27,
+              "column": 20
+            }
+          ],
+          "evidence": [
+            {
+              "branch": "else",
+              "if_line": 21,
+              "alternative_line": 23
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "redundant_indexing": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 21,
+      "raw_instance_count": 22,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R13",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 11,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "index_name": "i",
+              "sequence": "password",
+              "matching_reads": 2,
+              "reason": "index is only used to read the current element"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R39",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 7,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "index_name": "i",
+              "sequence": "password",
+              "matching_reads": 2,
+              "reason": "index is only used to read the current element"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R49",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 11,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "index_name": "i",
+              "sequence": "password",
+              "matching_reads": 2,
+              "reason": "index is only used to read the current element"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "misleading_iterator_name": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 50,
+      "raw_instance_count": 53,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R16",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 15,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "iterator_name": "i",
+              "iterable": "password",
+              "role": "direct collection element"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R22",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 9,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "iterator_name": "i",
+              "iterable": "password",
+              "role": "direct collection element"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R24",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 19,
+              "column": 16
+            }
+          ],
+          "evidence": [
+            {
+              "iterator_name": "i",
+              "iterable": "password",
+              "role": "direct collection element"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "duplicate_expression": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 63,
+      "raw_instance_count": 64,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R12",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 15,
+              "column": 11
+            }
+          ],
+          "evidence": [
+            {
+              "occurrence_lines": [
+                15,
+                19
+              ],
+              "expression": "password[counter]",
+              "weighted_complexity": 8,
+              "purity": "allowlisted pure expression"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R13",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 13,
+              "column": 15
+            }
+          ],
+          "evidence": [
+            {
+              "occurrence_lines": [
+                13,
+                19
+              ],
+              "expression": "password[i]",
+              "weighted_complexity": 8,
+              "purity": "allowlisted pure expression"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R27",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 11,
+              "column": 11
+            }
+          ],
+          "evidence": [
+            {
+              "occurrence_lines": [
+                11,
+                17
+              ],
+              "expression": "password[index]",
+              "weighted_complexity": 8,
+              "purity": "allowlisted pure expression"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "while_as_for": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 6,
+      "raw_instance_count": 9,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R84",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 11,
+              "column": 12
+            },
+            {
+              "line": 31,
+              "column": 16
+            }
+          ],
+          "evidence": [
+            {
+              "control_variable": "index",
+              "test": "index < len(password)",
+              "bound": "len(password)",
+              "constant_step": 1,
+              "update_form": "augmented",
+              "path_safety": "constant update occurs on every executable path"
+            },
+            {
+              "control_variable": "index",
+              "test": "index < len(password)",
+              "bound": "len(password)",
+              "constant_step": 1,
+              "update_form": "augmented",
+              "path_safety": "constant update occurs on every executable path"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R143",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 15,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "control_variable": "count",
+              "test": "count < len(password)",
+              "bound": "len(password)",
+              "constant_step": 1,
+              "update_form": "augmented",
+              "path_safety": "constant update occurs on every executable path"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R160",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 23,
+              "column": 4
+            },
+            {
+              "line": 37,
+              "column": 4
+            }
+          ],
+          "evidence": [
+            {
+              "control_variable": "alpha_count",
+              "test": "alpha_count < pass_length",
+              "bound": "pass_length",
+              "constant_step": 1,
+              "update_form": "augmented",
+              "path_safety": "constant update occurs on every executable path"
+            },
+            {
+              "control_variable": "numerical_count",
+              "test": "numerical_count < pass_length",
+              "bound": "pass_length",
+              "constant_step": 1,
+              "update_form": "augmented",
+              "path_safety": "constant update occurs on every executable path"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "redundant_for": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 0,
+      "raw_instance_count": 0,
+      "example_detections": []
+    },
+    "augmentable_assignment": {
+      "eligibility": "not_applicable",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": null,
+      "eligible_denominator": null,
+      "affected_submission_count": null,
+      "prevalence": null,
+      "raw_detected_submission_count": 1,
+      "raw_instance_count": 2,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R31",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 27,
+              "column": 12
+            },
+            {
+              "line": 37,
+              "column": 12
+            }
+          ],
+          "evidence": [
+            {
+              "target": "num_char",
+              "operator": "Add",
+              "matching_operand": "num_char",
+              "rewrite": "num_char Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            },
+            {
+              "target": "num_nums",
+              "operator": "Add",
+              "matching_operand": "num_nums",
+              "rewrite": "num_nums Add= ...",
+              "equivalence": "simple-name target with one left operand match"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "inappropriate_formatting": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 305,
+      "prevalence": 0.6616052060737527,
+      "raw_detected_submission_count": 305,
+      "raw_instance_count": 1448,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R3",
+          "present": true,
+          "count": 4,
+          "locations": [
+            {
+              "line": 9,
+              "column": 0
+            },
+            {
+              "line": 17,
+              "column": 0
+            },
+            {
+              "line": 27,
+              "column": 0
+            },
+            {
+              "line": 37,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R5",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 35,
+              "column": 9
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R7",
+          "present": true,
+          "count": 5,
+          "locations": [
+            {
+              "line": 7,
+              "column": 0
+            },
+            {
+              "line": 15,
+              "column": 0
+            },
+            {
+              "line": 23,
+              "column": 0
+            },
+            {
+              "line": 31,
+              "column": 0
+            },
+            {
+              "line": 39,
+              "column": 0
+            }
+          ],
+          "evidence": [
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            },
+            {
+              "rule": "trailing_whitespace",
+              "detail": "trailing whitespace"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "magic_number": {
+      "eligibility": "eligible",
+      "opportunity_level": "high",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 457,
+      "prevalence": 0.9913232104121475,
+      "raw_detected_submission_count": 457,
+      "raw_instance_count": 1459,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R3",
+          "present": true,
+          "count": 3,
+          "locations": [
+            {
+              "line": 5,
+              "column": 23
+            },
+            {
+              "line": 23,
+              "column": 28
+            },
+            {
+              "line": 33,
+              "column": 25
+            }
+          ],
+          "evidence": [
+            {
+              "value": 10,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": 5,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "5"
+            },
+            {
+              "value": 4,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "4"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R4",
+          "present": true,
+          "count": 3,
+          "locations": [
+            {
+              "line": 3,
+              "column": 23
+            },
+            {
+              "line": 21,
+              "column": 16
+            },
+            {
+              "line": 21,
+              "column": 27
+            }
+          ],
+          "evidence": [
+            {
+              "value": 10,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": 5,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "5"
+            },
+            {
+              "value": 4,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "4"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R5",
+          "present": true,
+          "count": 3,
+          "locations": [
+            {
+              "line": 11,
+              "column": 24
+            },
+            {
+              "line": 27,
+              "column": 20
+            },
+            {
+              "line": 27,
+              "column": 33
+            }
+          ],
+          "evidence": [
+            {
+              "value": 10,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "10"
+            },
+            {
+              "value": 5,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "5"
+            },
+            {
+              "value": 4,
+              "context": "comparison decision",
+              "exemption": "none; not 0 or 1 and not a conventional -1",
+              "expression": "4"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "one_letter_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 150,
+      "prevalence": 0.32537960954446854,
+      "raw_detected_submission_count": 150,
+      "raw_instance_count": 260,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R3",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 21,
+              "column": 45
+            },
+            {
+              "line": 31,
+              "column": 42
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "c",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            },
+            {
+              "identifier": "c",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R16",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 15,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "i",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        },
+        {
+          "submission_id": "Lab_10_Q10_R18",
+          "present": true,
+          "count": 1,
+          "locations": [
+            {
+              "line": 15,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "c",
+              "role": "unclear or non-descriptive",
+              "exemption": "none"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "built_in_name": {
+      "eligibility": "eligible",
+      "opportunity_level": "normal",
+      "valid_eligible_submission_count": 461,
+      "eligible_denominator": 461,
+      "affected_submission_count": 1,
+      "prevalence": 0.0021691973969631237,
+      "raw_detected_submission_count": 1,
+      "raw_instance_count": 2,
+      "example_detections": [
+        {
+          "submission_id": "Lab_10_Q10_R128",
+          "present": true,
+          "count": 2,
+          "locations": [
+            {
+              "line": 13,
+              "column": 8
+            },
+            {
+              "line": 31,
+              "column": 8
+            }
+          ],
+          "evidence": [
+            {
+              "identifier": "chr",
+              "shadowed_builtin": "chr",
+              "binding_kind": "Name"
+            },
+            {
+              "identifier": "chr",
+              "shadowed_builtin": "chr",
+              "binding_kind": "Name"
+            }
+          ],
+          "notes": null
+        }
+      ]
+    }
+  }
+}

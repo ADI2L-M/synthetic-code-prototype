@@ -1,0 +1,394 @@
+{
+  "report_type": "empirical_target_profile",
+  "generated_at_utc": "2026-09-26T02:39:13.644874+00:00",
+  "profile_source": "authentic_cs1_submissions",
+  "primary_estimator": "arithmetic mean of eligible authentic-task prevalence",
+  "secondary_estimator": "pooled affected submissions divided by pooled valid submissions",
+  "detector_validation_status": "preliminary_raw_detector_estimates",
+  "prototype_tasks": {
+    "T1": {
+      "task_family": "conditional_logic",
+      "target_profile": {
+        "redundant_if_else": 0.011263447625667637,
+        "redundant_comparison": 0.0046988838006574085,
+        "redundant_not": 0.0009625425323411543,
+        "duplicate_if": 0.00936753034718475,
+        "else_if": 0.014395503033575969,
+        "nested_if": 0.0016817752439846675,
+        "redundant_elif": 0.008608585680358778,
+        "empty_if": 0.0013574935799046577,
+        "inappropriate_formatting": 0.5500888360094959,
+        "magic_number": 0.5406715722892081,
+        "one_letter_name": 0.10748581661723428,
+        "built_in_name": 0.011536938850286378
+      },
+      "task_independent": {
+        "inappropriate_formatting": {
+          "prevalence": 0.5500888360094959,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 5715,
+          "pooled_prevalence": 0.5302467990350714,
+          "minimum_task_prevalence": 0.1520572450805009,
+          "maximum_task_prevalence": 1.0,
+          "standard_deviation": 0.23577291478357473,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "magic_number": {
+          "prevalence": 0.5406715722892081,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 5930,
+          "pooled_prevalence": 0.5501948413434774,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 1.0,
+          "standard_deviation": 0.46097593880540266,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "one_letter_name": {
+          "prevalence": 0.10748581661723428,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 1136,
+          "pooled_prevalence": 0.10539988866208944,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.9644859813084112,
+          "standard_deviation": 0.21794447137364592,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "built_in_name": {
+          "prevalence": 0.011536938850286378,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 129,
+          "pooled_prevalence": 0.011968825385043607,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.19499105545617174,
+          "standard_deviation": 0.04223303757315207,
+          "estimator": "equal_task_weighted_mean"
+        }
+      },
+      "task_dependent": {
+        "redundant_if_else": {
+          "prevalence": 0.011263447625667637,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 104,
+          "pooled_prevalence": 0.009649285581740583,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.22342733188720174,
+          "standard_deviation": 0.04867538348715976,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "redundant_comparison": {
+          "prevalence": 0.0046988838006574085,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 48,
+          "pooled_prevalence": 0.004453516422341808,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.052941176470588235,
+          "standard_deviation": 0.012128153312756568,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "redundant_not": {
+          "prevalence": 0.0009625425323411543,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 11,
+          "pooled_prevalence": 0.0010205975134533309,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.006482982171799027,
+          "standard_deviation": 0.001897019404859357,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "duplicate_if": {
+          "prevalence": 0.00936753034718475,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 94,
+          "pooled_prevalence": 0.008721469660419373,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.0911062906724512,
+          "standard_deviation": 0.023041035061726847,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "else_if": {
+          "prevalence": 0.014395503033575969,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 157,
+          "pooled_prevalence": 0.014566709964742994,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.09023941068139964,
+          "standard_deviation": 0.02441165236911753,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "nested_if": {
+          "prevalence": 0.0016817752439846675,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 18,
+          "pooled_prevalence": 0.0016700686583781777,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.0148975791433892,
+          "standard_deviation": 0.0036614709633800992,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "redundant_elif": {
+          "prevalence": 0.008608585680358778,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 101,
+          "pooled_prevalence": 0.00937094080534422,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.0548885077186964,
+          "standard_deviation": 0.01457748128662639,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "empty_if": {
+          "prevalence": 0.0013574935799046577,
+          "eligible_tasks": 20,
+          "valid_submissions": 10778,
+          "affected_submissions": 14,
+          "pooled_prevalence": 0.001298942289849694,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.011009174311926606,
+          "standard_deviation": 0.0026713796153308342,
+          "estimator": "equal_task_weighted_mean"
+        }
+      },
+      "omitted_not_applicable": [
+        "augmentable_assignment",
+        "duplicate_expression",
+        "misleading_iterator_name",
+        "redundant_for",
+        "redundant_indexing",
+        "while_as_for"
+      ]
+    },
+    "T2": {
+      "task_family": "list_processing",
+      "target_profile": {
+        "redundant_indexing": 0.030401494410907965,
+        "misleading_iterator_name": 0.10642567844798964,
+        "duplicate_expression": 0.14632313482395196,
+        "augmentable_assignment": 0.009225905724313352,
+        "inappropriate_formatting": 0.530716837673383,
+        "magic_number": 0.2773978714749132,
+        "one_letter_name": 0.16159040438367828,
+        "built_in_name": 0.033328503888796296
+      },
+      "task_independent": {
+        "inappropriate_formatting": {
+          "prevalence": 0.530716837673383,
+          "eligible_tasks": 19,
+          "valid_submissions": 10756,
+          "affected_submissions": 5678,
+          "pooled_prevalence": 0.5278914094458906,
+          "minimum_task_prevalence": 0.27627118644067794,
+          "maximum_task_prevalence": 1.0,
+          "standard_deviation": 0.15955048479462133,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "magic_number": {
+          "prevalence": 0.2773978714749132,
+          "eligible_tasks": 19,
+          "valid_submissions": 10756,
+          "affected_submissions": 3006,
+          "pooled_prevalence": 0.27947192264782444,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 1.0,
+          "standard_deviation": 0.43279001384906846,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "one_letter_name": {
+          "prevalence": 0.16159040438367828,
+          "eligible_tasks": 19,
+          "valid_submissions": 10756,
+          "affected_submissions": 1739,
+          "pooled_prevalence": 0.16167720342134623,
+          "minimum_task_prevalence": 0.095703125,
+          "maximum_task_prevalence": 0.27101200686106347,
+          "standard_deviation": 0.047593544413093866,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "built_in_name": {
+          "prevalence": 0.033328503888796296,
+          "eligible_tasks": 19,
+          "valid_submissions": 10756,
+          "affected_submissions": 359,
+          "pooled_prevalence": 0.033376719970249165,
+          "minimum_task_prevalence": 0.006896551724137931,
+          "maximum_task_prevalence": 0.08433734939759036,
+          "standard_deviation": 0.022453541831670244,
+          "estimator": "equal_task_weighted_mean"
+        }
+      },
+      "task_dependent": {
+        "redundant_indexing": {
+          "prevalence": 0.030401494410907965,
+          "eligible_tasks": 19,
+          "valid_submissions": 10756,
+          "affected_submissions": 332,
+          "pooled_prevalence": 0.030866493120119003,
+          "minimum_task_prevalence": 0.001869158878504673,
+          "maximum_task_prevalence": 0.06456953642384106,
+          "standard_deviation": 0.020404785344958234,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "misleading_iterator_name": {
+          "prevalence": 0.10642567844798964,
+          "eligible_tasks": 19,
+          "valid_submissions": 10756,
+          "affected_submissions": 1149,
+          "pooled_prevalence": 0.10682409817776126,
+          "minimum_task_prevalence": 0.013084112149532711,
+          "maximum_task_prevalence": 0.16485507246376813,
+          "standard_deviation": 0.03471749198460854,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "duplicate_expression": {
+          "prevalence": 0.14632313482395196,
+          "eligible_tasks": 19,
+          "valid_submissions": 10756,
+          "affected_submissions": 1593,
+          "pooled_prevalence": 0.14810338415767943,
+          "minimum_task_prevalence": 0.0018115942028985507,
+          "maximum_task_prevalence": 0.8341793570219966,
+          "standard_deviation": 0.20124104642572577,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "augmentable_assignment": {
+          "prevalence": 0.009225905724313352,
+          "eligible_tasks": 19,
+          "valid_submissions": 10756,
+          "affected_submissions": 99,
+          "pooled_prevalence": 0.00920416511714392,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.05862068965517241,
+          "standard_deviation": 0.016065074992705406,
+          "estimator": "equal_task_weighted_mean"
+        }
+      },
+      "omitted_not_applicable": [
+        "duplicate_if",
+        "else_if",
+        "empty_if",
+        "nested_if",
+        "redundant_comparison",
+        "redundant_elif",
+        "redundant_for",
+        "redundant_if_else",
+        "redundant_not",
+        "while_as_for"
+      ]
+    },
+    "T3": {
+      "task_family": "numeric_iteration",
+      "target_profile": {
+        "while_as_for": 0.04729745011398226,
+        "redundant_for": 0.0,
+        "augmentable_assignment": 0.020509658370547114,
+        "inappropriate_formatting": 0.5946224098318529,
+        "magic_number": 0.4092793606959698,
+        "one_letter_name": 0.2940467999895844,
+        "built_in_name": 0.18237484845666238
+      },
+      "task_independent": {
+        "inappropriate_formatting": {
+          "prevalence": 0.5946224098318529,
+          "eligible_tasks": 7,
+          "valid_submissions": 3859,
+          "affected_submissions": 2251,
+          "pooled_prevalence": 0.5833117387924333,
+          "minimum_task_prevalence": 0.3673139158576052,
+          "maximum_task_prevalence": 0.884083044982699,
+          "standard_deviation": 0.15681485374885523,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "magic_number": {
+          "prevalence": 0.4092793606959698,
+          "eligible_tasks": 7,
+          "valid_submissions": 3859,
+          "affected_submissions": 1630,
+          "pooled_prevalence": 0.4223892200051827,
+          "minimum_task_prevalence": 0.0196078431372549,
+          "maximum_task_prevalence": 0.9965095986038395,
+          "standard_deviation": 0.3931245947693249,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "one_letter_name": {
+          "prevalence": 0.2940467999895844,
+          "eligible_tasks": 7,
+          "valid_submissions": 3859,
+          "affected_submissions": 1027,
+          "pooled_prevalence": 0.2661311220523452,
+          "minimum_task_prevalence": 0.06310679611650485,
+          "maximum_task_prevalence": 0.865546218487395,
+          "standard_deviation": 0.31510220889747015,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "built_in_name": {
+          "prevalence": 0.18237484845666238,
+          "eligible_tasks": 7,
+          "valid_submissions": 3859,
+          "affected_submissions": 760,
+          "pooled_prevalence": 0.19694221300855144,
+          "minimum_task_prevalence": 0.005190311418685121,
+          "maximum_task_prevalence": 0.8042071197411004,
+          "standard_deviation": 0.25943386669334784,
+          "estimator": "equal_task_weighted_mean"
+        }
+      },
+      "task_dependent": {
+        "while_as_for": {
+          "prevalence": 0.04729745011398226,
+          "eligible_tasks": 7,
+          "valid_submissions": 3859,
+          "affected_submissions": 195,
+          "pooled_prevalence": 0.050531225706141485,
+          "minimum_task_prevalence": 0.006191950464396285,
+          "maximum_task_prevalence": 0.119281045751634,
+          "standard_deviation": 0.04504892168020127,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "redundant_for": {
+          "prevalence": 0.0,
+          "eligible_tasks": 7,
+          "valid_submissions": 3859,
+          "affected_submissions": 0,
+          "pooled_prevalence": 0.0,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.0,
+          "standard_deviation": 0.0,
+          "estimator": "equal_task_weighted_mean"
+        },
+        "augmentable_assignment": {
+          "prevalence": 0.020509658370547114,
+          "eligible_tasks": 7,
+          "valid_submissions": 3859,
+          "affected_submissions": 78,
+          "pooled_prevalence": 0.020212490282456596,
+          "minimum_task_prevalence": 0.0,
+          "maximum_task_prevalence": 0.058823529411764705,
+          "standard_deviation": 0.018317221216130927,
+          "estimator": "equal_task_weighted_mean"
+        }
+      },
+      "omitted_not_applicable": [
+        "duplicate_expression",
+        "duplicate_if",
+        "else_if",
+        "empty_if",
+        "misleading_iterator_name",
+        "nested_if",
+        "redundant_comparison",
+        "redundant_elif",
+        "redundant_if_else",
+        "redundant_indexing",
+        "redundant_not"
+      ]
+    }
+  }
+}

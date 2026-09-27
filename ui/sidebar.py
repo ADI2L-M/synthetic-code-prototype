@@ -24,7 +24,7 @@ def render_sidebar(tasks: tuple[ProgrammingTask, ...]) -> SidebarControls:
             ["Demo", "Local Ollama"],
             key="provider_mode",
         )
-        ollama_model = "qwen2.5-coder:7b"
+        ollama_model = "qwen2.5-coder:1.5b"
         ollama_base_url = "http://localhost:11434"
         if provider_mode == "Local Ollama":
             ollama_model = st.text_input(
@@ -50,7 +50,7 @@ def render_sidebar(tasks: tuple[ProgrammingTask, ...]) -> SidebarControls:
             key="batch_size",
         )
         tolerance = st.slider(
-            "Accepted discrepancy tolerance",
+            "Relative prevalence tolerance",
             min_value=0.0,
             max_value=0.5,
             value=0.10,
