@@ -22,9 +22,8 @@ class OllamaModel(Enum):
     """List of available Ollama models"""
 
     QW25_CODER_1_5B = "qwen2.5-coder:1.5b"
-    QW25_CODER_7B = "qwen2.5-coder:7b"
-    DS_CODER_6_7B = "deepseek-coder:6.7b"
-    GRANITE_CODE_8B = "granite-code:8b"
+    DS_CODER_1_3B = "deepseek-coder:1.3b"
+    GRANITE_CODE_3B = "granite-code:3b"
 
 
 class OllamaProvider(GenerationProvider):
