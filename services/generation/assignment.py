@@ -39,6 +39,7 @@ def plan_defect_assignments(
     batch_size: int,
     iteration_number: int,
     max_defects_per_submission: int = MAX_ASSIGNED_DEFECTS,
+    seed_namespace: str = "",
 ) -> AssignmentPlan:
     """Create assignments without rounding rare defects upward."""
     if batch_size < 1:
@@ -48,7 +49,8 @@ def plan_defect_assignments(
     if any(not 0 <= prevalence <= 1 for prevalence in target_profile.values()):
         raise ValueError("target prevalence values must be between 0 and 1")
 
-    seed = stable_seed(task_id, iteration_number, "defect-assignment")
+    seed_parts = (task_id, iteration_number, "defect-assignment")
+    seed = stable_seed(seed_namespace, *seed_parts) if seed_namespace else stable_seed(*seed_parts)
     expected_counts = {
         defect: prevalence * batch_size
         for defect, prevalence in target_profile.items()

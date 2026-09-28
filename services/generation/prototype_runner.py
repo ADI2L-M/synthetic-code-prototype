@@ -21,6 +21,8 @@ def run_prototype_iteration(
     base_url: str,
     constraints: dict[str, str] | None = None,
     target_standard_errors: dict[str, float] | None = None,
+    condition: str = "task_aware_non_adaptive",
+    seed_namespace: str = "",
 ) -> IterationResult:
     """Generate and validate one synthetic batch for T1, T2, or T3."""
     task = load_prototype_task(task_id)
@@ -36,4 +38,6 @@ def run_prototype_iteration(
         max_repair_attempts=MAX_SUBMISSION_ATTEMPTS - 1,
         constraints=constraints,
         target_standard_errors=target_standard_errors,
+        condition=condition,
+        seed_namespace=seed_namespace,
     )

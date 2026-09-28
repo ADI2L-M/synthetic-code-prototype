@@ -111,7 +111,33 @@ class OllamaProvider(GenerationProvider):
             )
             for case in task.test_cases
         )
-        return f"""You are generating one Python submission for a programming task following certain coding style constraints.
+        baseline = "PROMPTING CONDITION: NON-ADAPTIVE BASELINE" in specification
+        role_instruction = (
+            "You are generating one Python submission for a programming task "
+            "from its task contract only."
+            if baseline
+            else "You are generating one Python submission for a programming task "
+            "following certain coding style constraints."
+        )
+        condition_instructions = (
+            "- Follow only the programming task and functional requirements.\n"
+            if baseline
+            else "- The assigned defect styles above are mandatory guidance for this submission.\n"
+        )
+        defect_instructions = (
+            ""
+            if baseline
+            else "- Include at least one assigned task-independent defect and one assigned\n"
+            "  task-dependent defect.\n"
+            "- The defect guidance is a hard acceptance criterion, not a suggestion. A clean\n"
+            "  standard solution without the assigned styles is incorrect for this dataset.\n"
+            "- Copy the key syntax and control-flow shape of every task-specific valid pattern\n"
+            "  shown for the assigned defects inside the required function; do not replace it\n"
+            "  with a different defect style.\n"
+            "- Attempt to include every assigned style without breaking functional correctness.\n"
+            "- Do not intentionally introduce defect styles that were not assigned.\n"
+        )
+        return f"""{role_instruction}
 
 {specification}
 
@@ -122,16 +148,7 @@ INSTRUCTIONS
 - Implement the function named {task.function_name}.
 - The submission must pass every functional test case above.
 - Handle invalid inputs and required exceptions before normal return logic.
-- The assigned defect styles above are mandatory guidance for this submission.
-- Include at least one assigned task-independent defect and one assigned
-  task-dependent defect.
-- The defect guidance is a hard acceptance criterion, not a suggestion. A clean
-  standard solution without the assigned styles is incorrect for this dataset.
-- Copy the key syntax and control-flow shape of every task-specific valid pattern
-  shown for the assigned defects inside the required function; do not replace it
-  with a different defect style.
-- Attempt to include every assigned style without breaking functional correctness.
-- Do not intentionally introduce defect styles that were not assigned.
+{condition_instructions}{defect_instructions}
 - Use readable, conventional multiline Python.
 - Do not use semicolons to compress statements.
 - Return only executable Python source code.

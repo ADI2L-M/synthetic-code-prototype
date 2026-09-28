@@ -89,6 +89,7 @@ class IterationResult:
     model: str | None = None
     context_length: int | None = None
     target_standard_errors: dict[str, float] = field(default_factory=dict)
+    condition: str = "task_aware_non_adaptive"
 
     @property
     def accepted(self) -> bool:

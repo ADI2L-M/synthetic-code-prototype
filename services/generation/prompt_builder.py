@@ -369,6 +369,19 @@ def build_generation_specification(
     )
 
 
+def build_baseline_specification(task: ProgrammingTask) -> str:
+    """Build the task-only prompt specification for the baseline condition."""
+    return (
+        "PROMPTING CONDITION: NON-ADAPTIVE BASELINE\n\n"
+        "Generate a conventional implementation from the task contract only. "
+        "Do not add any generation objective beyond functional correctness.\n\n"
+        f"PROGRAMMING TASK\n\n{task.description}\n\n"
+        "FUNCTIONAL REQUIREMENTS\n\n"
+        + "\n".join(f"- {item}" for item in task.functional_requirements)
+        + "\n\nIMPORTANT\n\nThe program must remain functionally correct."
+    )
+
+
 def build_submission_specification(
     task: ProgrammingTask,
     assigned_defects: tuple[str, ...],

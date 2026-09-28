@@ -12,6 +12,7 @@ from services.generation.prompt_builder import (
     TASK_INDEPENDENT_DEFECTS,
     TASK_SPECIFIC_PATTERNS,
     applicable_defect_names,
+    build_baseline_specification,
     build_generation_specification,
     build_submission_specification,
 )
@@ -21,6 +22,14 @@ from services.providers.llm import GenerationProvider
 
 MAX_CATEGORY_REPAIR_ATTEMPTS = 2
 MAX_SUBMISSION_ATTEMPTS = MAX_CATEGORY_REPAIR_ATTEMPTS + 1
+BASELINE_CONDITION = "non_adaptive_baseline"
+TASK_AWARE_CONDITION = "task_aware_non_adaptive"
+ITERATIVE_CONDITION = "task_aware_iterative"
+GENERATION_CONDITIONS = (
+    BASELINE_CONDITION,
+    TASK_AWARE_CONDITION,
+    ITERATIVE_CONDITION,
+)
 
 RELIABLE_DEFECT_ORDER = {
     "task_independent": (
@@ -128,7 +137,7 @@ def _repair_specification(
     missing_text = ", ".join(missing_categories) or "none"
     assigned_text = ", ".join(
         defect.replace("_", " ") for defect in assigned_defects
-    ) or "one task-independent and one task-dependent defect"
+    ) or "no intentional defect style; repair functional correctness only"
     missing_defect_text = ", ".join(
         defect.replace("_", " ") for defect in missing_defects
     ) or "none"
@@ -140,7 +149,7 @@ def _repair_specification(
                 f"{defect.replace('_', ' ')}:\n{pattern}"
             )
     pattern_text = "\n\n".join(task_patterns) or (
-        "Use the selected defect names while preserving the task contract."
+        "Repair the functional contract without adding intentional defect styles."
     )
     signature_text = "\n".join(
         f"- {defect.replace('_', ' ')}: {DEFECT_REQUIRED_SIGNATURES[defect]}"
@@ -221,46 +230,62 @@ def run_iteration(
     context_length: int | None = None,
     max_repair_attempts: int = 0,
     target_standard_errors: dict[str, float] | None = None,
+    condition: str = TASK_AWARE_CONDITION,
+    seed_namespace: str = "",
 ) -> IterationResult:
     """Run one generation and analysis iteration."""
     active_constraints = dict(constraints or {})
     if max_repair_attempts < 0:
         raise ValueError("max_repair_attempts cannot be negative")
-    specification = build_generation_specification(
-        task, target_profile, active_constraints
+    if condition not in GENERATION_CONDITIONS:
+        raise ValueError(f"Unknown generation condition: {condition}")
+    guided = condition != BASELINE_CONDITION
+    specification = (
+        build_generation_specification(task, target_profile, active_constraints)
+        if guided
+        else build_baseline_specification(task)
     )
     source_provider = provider or DemoProvider()
     defect_ids = list(target_profile)
-    required_defect_ids = list(
-        dict.fromkeys(
-            applicable_defect_names(task, "task_independent")
-            + applicable_defect_names(task, "task_dependent")
+    required_defect_ids = (
+        list(
+            dict.fromkeys(
+                applicable_defect_names(task, "task_independent")
+                + applicable_defect_names(task, "task_dependent")
+            )
         )
+        if guided
+        else []
     )
     detection_ids = list(dict.fromkeys(defect_ids + required_defect_ids))
     assignment_plan = plan_defect_assignments(
         task.id,
-        target_profile,
+        target_profile if guided else {},
         batch_size,
         iteration_number,
+        seed_namespace=seed_namespace,
     )
     submissions: list[SubmissionResult] = []
 
     for submission_id in range(1, batch_size + 1):
-        assigned_defects = _mandatory_category_assignments(
-            task, target_profile, submission_id, active_constraints
+        assigned_defects = (
+            _mandatory_category_assignments(
+                task, target_profile, submission_id, active_constraints
+            )
+            if guided
+            else ()
         )
-        submission_specification = build_submission_specification(
-            task,
-            assigned_defects,
-            active_constraints,
+        submission_specification = (
+            build_submission_specification(task, assigned_defects, active_constraints)
+            if guided
+            else specification
         )
-        generation_seed = stable_seed(
-            task.id,
-            iteration_number,
-            submission_id,
-            "generation",
+        generation_parts = (
+            (seed_namespace, task.id, iteration_number, submission_id, "generation")
+            if seed_namespace
+            else (task.id, iteration_number, submission_id, "generation")
         )
+        generation_seed = stable_seed(*generation_parts)
         attempt_specification = submission_specification
         source = ""
         prompt = submission_specification
@@ -281,11 +306,24 @@ def run_iteration(
                 generation_seed
                 if attempt == 1
                 else stable_seed(
-                    task.id,
-                    iteration_number,
-                    submission_id,
-                    "repair",
-                    attempt,
+                    *(
+                        (
+                            seed_namespace,
+                            task.id,
+                            iteration_number,
+                            submission_id,
+                            "repair",
+                            attempt,
+                        )
+                        if seed_namespace
+                        else (
+                            task.id,
+                            iteration_number,
+                            submission_id,
+                            "repair",
+                            attempt,
+                        )
+                    )
                 )
             )
             sources = source_provider.generate(
@@ -308,7 +346,15 @@ def run_iteration(
             missing_categories = (
                 _missing_defect_categories(required_defect_ids, defects)
                 if validation.status == "PASS"
-                else ("functional-correctness", "task-independent", "task-dependent")
+                else (
+                    ("functional-correctness",)
+                    if not guided
+                    else (
+                        "functional-correctness",
+                        "task-independent",
+                        "task-dependent",
+                    )
+                )
             )
             missing_defects = tuple(
                 defect
@@ -370,4 +416,5 @@ def run_iteration(
         model=model,
         context_length=context_length,
         target_standard_errors=dict(target_standard_errors or {}),
+        condition=condition,
     )

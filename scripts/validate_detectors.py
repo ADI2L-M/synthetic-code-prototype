@@ -13,16 +13,6 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from detectors.research.registry import RESEARCH_DETECTORS
-from services.research.authentic_detector_review import write_authentic_review
-from services.research.detector_validation import (
-    create_assisted_validation,
-    load_validation_labels,
-    merge_assisted_labels,
-    run_controlled_fixtures,
-)
-from services.research.validation_metrics import detector_readiness_report
-
 DEFAULT_VALIDATION_DIR = ROOT / "research-notes" / "detector-validation"
 
 
@@ -124,6 +114,16 @@ def main() -> None:
         help="Output JSON path. Defaults under research-notes/detector-validation.",
     )
     args = parser.parse_args()
+
+    from detectors.research.registry import RESEARCH_DETECTORS
+    from services.research.authentic_detector_review import write_authentic_review
+    from services.research.detector_validation import (
+        create_assisted_validation,
+        load_validation_labels,
+        merge_assisted_labels,
+        run_controlled_fixtures,
+    )
+    from services.research.validation_metrics import detector_readiness_report
 
     if args.mode == "assisted":
         output = args.output or DEFAULT_VALIDATION_DIR / "authentic-detector-assisted-labels.jsonl"

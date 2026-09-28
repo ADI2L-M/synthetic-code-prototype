@@ -19,6 +19,7 @@ def iteration_export_archive(iteration: IterationResult) -> bytes:
         "context_length": iteration.context_length,
         "tolerance": iteration.tolerance,
         "accepted": iteration.accepted,
+        "condition": iteration.condition,
         "target_standard_errors": iteration.target_standard_errors,
         "submissions": [],
     }
