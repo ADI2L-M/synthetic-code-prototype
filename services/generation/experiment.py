@@ -26,12 +26,20 @@ from services.generation.workflow import (
 )
 from services.providers.llm import GenerationProvider
 
-DEFAULT_EXPERIMENT_LOG = (
+EXPERIMENT_LOG_DIRECTORY = (
     Path(__file__).resolve().parents[2]
     / "research-notes"
     / "synthetic-generation-experiments"
-    / "experiment-log.jsonl"
 )
+
+
+def experiment_log_path(now: datetime | None = None) -> Path:
+    """Return a timestamped JSONL path using local time."""
+    timestamp = (now or datetime.now()).strftime("%d%m%y%H%M%S")
+    return EXPERIMENT_LOG_DIRECTORY / f"experiment-log-{timestamp}.jsonl"
+
+
+DEFAULT_EXPERIMENT_LOG = experiment_log_path()
 
 ProviderFactory = Callable[[], GenerationProvider]
 
@@ -116,6 +124,22 @@ def _iteration_metrics(iteration: IterationResult) -> dict[str, float | int | No
 
 
 def _run_record(run: ExperimentRun) -> dict[str, Any]:
+    def comparison_records(iteration: IterationResult) -> list[dict[str, Any]]:
+        return [
+            {
+                "defect": row.defect,
+                "target": row.target,
+                "observed": row.observed,
+                "difference": row.difference,
+                "allowed_difference": row.allowed_difference,
+                "observed_count": row.observed_count,
+                "observed_denominator": row.observed_denominator,
+                "status": row.status,
+                "action": row.action,
+            }
+            for row in iteration.comparison
+        ]
+
     return {
         "run_id": run.run_id,
         "condition": run.condition,
@@ -123,11 +147,32 @@ def _run_record(run: ExperimentRun) -> dict[str, Any]:
         "selected_iteration": run.final_iteration.iteration,
         "iteration_count": len(run.iterations),
         "stop_reason": run.stop_reason,
+        "selected_out_of_tolerance": [
+            row.defect
+            for row in run.final_iteration.comparison
+            if row.status != "Within tolerance"
+        ],
+        "selected_zero_observed": [
+            row.defect
+            for row in run.final_iteration.comparison
+            if row.target > 0 and row.observed_count == 0
+        ],
         "iterations": [
             {
                 "iteration": iteration.iteration,
                 "constraints": iteration.constraints,
                 "metrics": _iteration_metrics(iteration),
+                "profile_comparison": comparison_records(iteration),
+                "out_of_tolerance": [
+                    row.defect
+                    for row in iteration.comparison
+                    if row.status != "Within tolerance"
+                ],
+                "zero_observed": [
+                    row.defect
+                    for row in iteration.comparison
+                    if row.target > 0 and row.observed_count == 0
+                ],
                 "accepted": iteration.accepted,
             }
             for iteration in run.iterations
@@ -164,9 +209,10 @@ def _condition_summary(runs: list[ExperimentRun]) -> dict[str, dict[str, float]]
 
 def append_experiment_log(
     result: ExperimentResult,
-    path: Path = DEFAULT_EXPERIMENT_LOG,
+    path: Path | None = None,
 ) -> None:
     """Append a compact experiment summary without storing source code."""
+    path = path or DEFAULT_EXPERIMENT_LOG
     path.parent.mkdir(parents=True, exist_ok=True)
     record = {
         "record_type": "synthetic_generation_experiment",
@@ -286,11 +332,13 @@ def run_experiment(
 __all__ = [
     "BASELINE_CONDITION",
     "DEFAULT_EXPERIMENT_LOG",
+    "EXPERIMENT_LOG_DIRECTORY",
     "ExperimentConfig",
     "ExperimentResult",
     "ExperimentRun",
     "ITERATIVE_CONDITION",
     "TASK_AWARE_CONDITION",
     "append_experiment_log",
+    "experiment_log_path",
     "run_experiment",
 ]

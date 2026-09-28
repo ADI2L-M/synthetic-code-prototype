@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import pytest
 
@@ -7,6 +8,7 @@ from services.generation.experiment import (
     ExperimentConfig,
     ITERATIVE_CONDITION,
     TASK_AWARE_CONDITION,
+    experiment_log_path,
     run_experiment,
 )
 from services.generation.prototype_tasks import load_prototype_tasks
@@ -42,10 +44,16 @@ class ConventionalProvider:
         return [source] * batch_size
 
 
+def test_experiment_log_path_uses_requested_timestamp_format():
+    path = experiment_log_path(datetime(2026, 9, 29, 12, 34, 56))
+
+    assert path.name == "experiment-log-290926123456.jsonl"
+
+
 def test_baseline_condition_uses_task_only_prompt_and_no_assignments():
     result = run_iteration(
         task=load_prototype_tasks()["T1"],
-        target_profile={"magic_number": 0.0},
+        target_profile={"built_in_name": 0.1},
         batch_size=1,
         iteration_number=1,
         tolerance=0.10,
@@ -66,7 +74,7 @@ def test_experiment_compares_conditions_and_appends_compact_jsonl(tmp_path):
     config = ExperimentConfig(
         experiment_id="test-experiment",
         task_id="T1",
-        target_profile={"magic_number": 0.0},
+        target_profile={"built_in_name": 0.1},
         batch_size=1,
         conditions=(
             BASELINE_CONDITION,
@@ -96,6 +104,19 @@ def test_experiment_compares_conditions_and_appends_compact_jsonl(tmp_path):
     assert record["condition_summary"][BASELINE_CONDITION][
         "functional_pass_rate"
     ] == 1.0
+    selected_run = next(
+        run
+        for run in record["runs"]
+        if run["condition"] == BASELINE_CONDITION
+    )
+    assert selected_run["selected_out_of_tolerance"] == []
+    assert selected_run["selected_zero_observed"] == [
+        "built_in_name",
+    ]
+    comparison = selected_run["iterations"][0]["profile_comparison"]
+    assert comparison[0]["defect"] == "built_in_name"
+    assert comparison[0]["observed_count"] == 0
+    assert comparison[0]["status"] == "Within tolerance"
     assert "source_code" not in log_path.read_text(encoding="utf-8")
     assert "prompt" not in log_path.read_text(encoding="utf-8")
 

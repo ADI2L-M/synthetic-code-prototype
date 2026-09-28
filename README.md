@@ -116,8 +116,9 @@ python scripts/run_generation_experiment.py --task T1 --model qwen2.5-coder:1.5b
 The command compares functional pass rate, task-independent coverage,
 task-dependent coverage, category-requirement rate, mean absolute profile
 error, root mean square profile error, and the proportion of defect rows within
-tolerance. It appends one compact JSON record per experiment to
-`research-notes/synthetic-generation-experiments/experiment-log.jsonl`.
-The log stores configuration, condition summaries, iteration metrics, and stop
-reasons; it intentionally excludes generated source and prompts so repeated
-experiments remain reviewable without creating oversized repository files.
+tolerance. It writes one compact JSONL file per experiment using the filename
+pattern `research-notes/synthetic-generation-experiments/experiment-log-DDMMYYHHMMSS.jsonl`.
+The log stores configuration, condition summaries, iteration metrics, per-defect
+comparisons, zero-observed defects, and stop reasons. It intentionally excludes
+generated source and prompts so repeated experiments remain reviewable without
+creating oversized repository files.

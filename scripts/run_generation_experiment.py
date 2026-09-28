@@ -52,7 +52,7 @@ def main() -> None:
     parser.add_argument(
         "--log",
         type=Path,
-        default=ROOT / "research-notes" / "synthetic-generation-experiments" / "experiment-log.jsonl",
+        default=None,
     )
     parser.add_argument(
         "--conditions",
@@ -65,10 +65,15 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    from services.generation.experiment import ExperimentConfig, run_experiment
+    from services.generation.experiment import (
+        ExperimentConfig,
+        experiment_log_path,
+        run_experiment,
+    )
     from services.providers.ollama import OLLAMA_CONTEXT_LENGTH, OllamaProvider
 
     target_profile, standard_errors = _profile_inputs(args.profile, args.task)
+    log_path = args.log or experiment_log_path()
     experiment_id = args.experiment_id or datetime.now(timezone.utc).strftime(
         "experiment-%Y%m%dT%H%M%SZ"
     )
@@ -92,11 +97,11 @@ def main() -> None:
             model=args.model,
             base_url=args.base_url,
         ),
-        log_path=args.log,
+        log_path=log_path,
     )
     print(json.dumps({
         "experiment_id": result.experiment_id,
-        "log": str(args.log),
+        "log": str(log_path),
         "condition_summary": result.condition_summary,
     }, indent=2))
 
