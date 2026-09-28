@@ -16,7 +16,9 @@ if str(ROOT) not in sys.path:
 from detectors.research.registry import RESEARCH_DETECTORS
 from services.research.authentic_detector_review import write_authentic_review
 from services.research.detector_validation import (
+    create_assisted_validation,
     load_validation_labels,
+    merge_assisted_labels,
     run_controlled_fixtures,
 )
 from services.research.validation_metrics import detector_readiness_report
@@ -33,17 +35,53 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--mode",
-        choices=("authentic", "controlled", "manual"),
+        choices=("assisted", "authentic", "controlled", "manual", "merge"),
         required=True,
         help=(
-            "Create an authentic review sample, run controlled fixtures, or "
-            "score a completed manual-label JSONL file."
+            "Create an AI-assisted first-pass label file, create an authentic "
+            "review sample, run controlled fixtures, or score manual labels."
         ),
     )
     parser.add_argument(
         "--labels",
         type=Path,
         help="Completed manual-label JSONL file used with --mode manual.",
+    )
+    parser.add_argument(
+        "--review-input",
+        type=Path,
+        default=ROOT
+        / "research-notes"
+        / "detector-validation"
+        / "authentic-detector-review.jsonl",
+        help="Authentic review JSONL used with --mode assisted.",
+    )
+    parser.add_argument(
+        "--uncertain-output",
+        type=Path,
+        default=ROOT
+        / "research-notes"
+        / "detector-validation"
+        / "authentic-detector-uncertain-cases.jsonl",
+        help="Uncertainty queue written with --mode assisted.",
+    )
+    parser.add_argument(
+        "--assisted-input",
+        type=Path,
+        default=ROOT
+        / "research-notes"
+        / "detector-validation"
+        / "authentic-detector-assisted-labels.jsonl",
+        help="Complete assisted label file used with --mode merge.",
+    )
+    parser.add_argument(
+        "--reviewed-uncertain",
+        type=Path,
+        default=ROOT
+        / "research-notes"
+        / "detector-validation"
+        / "authentic-detector-uncertain-cases.jsonl",
+        help="Edited uncertainty queue used with --mode merge.",
     )
     parser.add_argument(
         "--workbook",
@@ -86,6 +124,33 @@ def main() -> None:
         help="Output JSON path. Defaults under research-notes/detector-validation.",
     )
     args = parser.parse_args()
+
+    if args.mode == "assisted":
+        output = args.output or DEFAULT_VALIDATION_DIR / "authentic-detector-assisted-labels.jsonl"
+        counts = create_assisted_validation(
+            args.review_input,
+            output,
+            args.uncertain_output,
+        )
+        print(
+            f"Assisted labels written to {output}\n"
+            f"Provisional: {counts['provisional']} | "
+            f"Uncertain: {counts['uncertain']}"
+        )
+        return
+
+    if args.mode == "merge":
+        output = args.output or DEFAULT_VALIDATION_DIR / "authentic-detector-gold-labels.jsonl"
+        counts = merge_assisted_labels(
+            args.assisted_input,
+            args.reviewed_uncertain,
+            output,
+        )
+        print(
+            f"Merged labels written to {output}\n"
+            f"Merged human decisions: {counts['merged']}"
+        )
+        return
 
     if args.mode == "authentic":
         output = args.output or DEFAULT_VALIDATION_DIR / "authentic-detector-review.jsonl"

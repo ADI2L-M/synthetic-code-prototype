@@ -13,6 +13,45 @@ from detectors.research.registry import RESEARCH_DETECTORS
 from services.research.validation_metrics import ValidationLabel
 
 
+def _review_required_defects() -> set[str]:
+    specification_path = (
+        Path(__file__).resolve().parents[2]
+        / "config"
+        / "defect_specifications.json"
+    )
+    specification = json.loads(specification_path.read_text(encoding="utf-8"))
+    return {
+        str(defect["name"])
+        for defect in specification.get("defects", [])
+        if defect.get("requires_review")
+    }
+
+
+ASSISTED_REVIEW_REASONS = {
+    "duplicate_if": (
+        "The branch bodies may be identical, but human review is needed to "
+        "confirm that merging the conditions preserves evaluation order and "
+        "does not change side effects."
+    ),
+    "nested_if": (
+        "Human review is needed to confirm that flattening the nested condition "
+        "does not change short-circuit behavior, scope, or else association."
+    ),
+    "redundant_elif": (
+        "Human review is needed to confirm that preceding conditions prove the "
+        "elif condition is guaranteed whenever control reaches it."
+    ),
+    "augmentable_assignment": (
+        "Human review is needed to confirm that replacing the assignment with "
+        "an augmented assignment preserves evaluation and aliasing behavior."
+    ),
+    "magic_number": (
+        "Human review is needed to distinguish an unexplained domain literal "
+        "from a task-required threshold, sentinel, index, or configuration value."
+    ),
+}
+
+
 @dataclass(frozen=True)
 class ControlledCase:
     case_id: str
@@ -508,3 +547,104 @@ def load_validation_labels(path: Path) -> list[ValidationLabel]:
                 f"Invalid validation label at {path}:{line_number}: {error}"
             ) from error
     return labels
+
+
+def create_assisted_validation(
+    input_path: Path,
+    output_path: Path,
+    uncertain_output_path: Path,
+) -> dict[str, int]:
+    """Create a provisional first-pass label file and uncertainty queue.
+
+    This is intentionally separate from official manual validation. Cases whose
+    specification requires contextual review are left as ``uncertain``. Other
+    cases receive the detector result as a provisional label because their
+    operational definition states that AST evidence is sufficient. A human
+    reviewer must audit the resulting file before it is used as gold data.
+    """
+    review_required = _review_required_defects()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    uncertain_output_path.parent.mkdir(parents=True, exist_ok=True)
+    counts = {"total": 0, "provisional": 0, "uncertain": 0}
+
+    with (
+        input_path.open(encoding="utf-8") as input_file,
+        output_path.open("w", encoding="utf-8") as output_file,
+        uncertain_output_path.open("w", encoding="utf-8") as uncertain_file,
+    ):
+        for line_number, line in enumerate(input_file, start=1):
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            item = json.loads(line)
+            defect = str(item["defect"])
+            detector_label = int(item["detector_label"])
+            counts["total"] += 1
+            if defect in review_required:
+                item["manual_label"] = "uncertain"
+                item["reviewer"] = "Codex AI first pass"
+                item["ai_first_pass_reason"] = ASSISTED_REVIEW_REASONS[defect]
+                uncertain_file.write(
+                    json.dumps(item, ensure_ascii=False) + "\n"
+                )
+                counts["uncertain"] += 1
+            else:
+                item["manual_label"] = detector_label
+                item["reviewer"] = "Codex AI first pass"
+                item["ai_first_pass_reason"] = (
+                    "Provisional label follows the detector result because the "
+                    "operational specification states that AST evidence is "
+                    "sufficient; human audit remains required."
+                )
+                counts["provisional"] += 1
+            output_file.write(json.dumps(item, ensure_ascii=False) + "\n")
+
+    counts["input_line_count"] = line_number if "line_number" in locals() else 0
+    return counts
+
+
+def merge_assisted_labels(
+    assisted_path: Path,
+    reviewed_uncertain_path: Path,
+    output_path: Path,
+) -> dict[str, int]:
+    """Merge reviewed uncertainty decisions into the complete label file."""
+    base_rows = [
+        json.loads(line)
+        for line in assisted_path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    reviewed_rows = [
+        json.loads(line)
+        for line in reviewed_uncertain_path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    by_key = {
+        (str(row["submission_id"]), str(row["task_id"]), str(row["defect"])): row
+        for row in base_rows
+    }
+    merged = 0
+    for reviewed in reviewed_rows:
+        key = (
+            str(reviewed["submission_id"]),
+            str(reviewed["task_id"]),
+            str(reviewed["defect"]),
+        )
+        if key not in by_key:
+            raise ValueError(
+                "Reviewed uncertainty case is not present in the assisted file: "
+                f"{key}"
+            )
+        if reviewed.get("manual_label") in (None, "", "uncertain"):
+            continue
+        target = by_key[key]
+        for field in ("manual_label", "reviewer", "notes", "evidence_reference"):
+            if field in reviewed:
+                target[field] = reviewed[field]
+        target["ai_review_status"] = "human-reviewed"
+        merged += 1
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as output_file:
+        for row in base_rows:
+            output_file.write(json.dumps(row, ensure_ascii=False) + "\n")
+    return {"total": len(base_rows), "merged": merged}

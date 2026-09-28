@@ -67,6 +67,30 @@ The runner excludes defects marked `not_applicable` or
 `instruction_confounded` by default. Add `--include-noneligible` only when
 you explicitly need those cases for a separate detector audit.
 
+### AI-assisted first pass
+
+To reduce the manual workload, create a provisional first-pass file:
+
+```text
+.venv\\Scripts\\python.exe scripts/validate_detectors.py --mode assisted
+```
+
+This writes `authentic-detector-assisted-labels.jsonl` and separates cases
+whose specification requires contextual review into
+`authentic-detector-uncertain-cases.jsonl`. The assisted labels are not final
+gold labels; a human must review the uncertainty queue and audit the
+provisional labels before reporting detector validity.
+
+After editing the uncertainty queue, merge the reviewed decisions into the
+complete file:
+
+```text
+.venv\\Scripts\\python.exe scripts/validate_detectors.py --mode merge
+```
+
+This writes `authentic-detector-gold-labels.jsonl`, which can then be scored
+with the manual-validation command below.
+
 Before annotating, make a copy so a later sample regeneration does not erase
 your labels:
 
