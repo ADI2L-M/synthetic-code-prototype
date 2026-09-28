@@ -55,11 +55,15 @@ The legacy demonstration task controls are not exposed.
 ## Empirical research foundation
 
 The authoritative research catalog is formalized in
-`config/defect_specifications.json`. It records all 18 YAML-defined defects,
+`config/defect_specifications.json`. It records the 17 active YAML-defined defects,
 conservative detection rules, exclusions, evidence requirements, and the
 T1/T2/T3 eligibility matrix. Raw detection is intentionally separate from task
 eligibility; low-opportunity defects remain eligible and carry a separate
 opportunity level.
+
+The exploratory `redundant_for` detector remains implemented and covered by
+controlled tests, but is excluded from the active catalogue because no positive
+authentic examples were found in the available T3 submissions.
 
 The research services currently provide:
 

@@ -1,10 +1,10 @@
 {
   "report_type": "controlled_detector_validation",
-  "case_count": 36,
-  "passed_count": 36,
+  "case_count": 34,
+  "passed_count": 34,
   "failed_count": 0,
   "all_passed": true,
-  "detector_count": 18,
+  "detector_count": 17,
   "cases": [
     {
       "case_id": "redundant_if_else_positive",
@@ -289,30 +289,6 @@
       "expected_present": false,
       "source_code": null,
       "description": "The loop is input-controlled rather than a counted iteration.",
-      "detected_present": false,
-      "detected_count": 0,
-      "passed": true,
-      "evidence_available": false
-    },
-    {
-      "case_id": "redundant_for_positive",
-      "defect": "redundant_for",
-      "task_family": "numeric_iteration",
-      "expected_present": true,
-      "source_code": null,
-      "description": "A one-iteration loop can be replaced by its body.",
-      "detected_present": true,
-      "detected_count": 1,
-      "passed": true,
-      "evidence_available": true
-    },
-    {
-      "case_id": "redundant_for_negative",
-      "defect": "redundant_for",
-      "task_family": "numeric_iteration",
-      "expected_present": false,
-      "source_code": null,
-      "description": "The loop may execute an arbitrary number of times.",
       "detected_present": false,
       "detected_count": 0,
       "passed": true,

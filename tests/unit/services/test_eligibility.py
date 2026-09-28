@@ -16,11 +16,9 @@ def test_not_applicable_is_not_a_negative_observation():
     assert eligibility.status == "not_applicable"
 
 
-def test_t3_redundant_for_is_low_opportunity_but_eligible():
-    eligibility = eligibility_for("T3", "redundant_for")
-
-    assert eligibility.status == "eligible"
-    assert eligibility.opportunity_level == "low"
+def test_t3_redundant_for_is_outside_primary_scope():
+    with pytest.raises(ValueError, match="not classified"):
+        eligibility_for("T3", "redundant_for")
 
 
 def test_unknown_task_fails_loudly():

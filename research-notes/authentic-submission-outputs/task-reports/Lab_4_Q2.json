@@ -332,17 +332,6 @@
       "raw_instance_count": 0,
       "example_detections": []
     },
-    "redundant_for": {
-      "eligibility": "not_applicable",
-      "opportunity_level": "normal",
-      "valid_eligible_submission_count": null,
-      "eligible_denominator": null,
-      "affected_submission_count": null,
-      "prevalence": null,
-      "raw_detected_submission_count": 0,
-      "raw_instance_count": 0,
-      "example_detections": []
-    },
     "augmentable_assignment": {
       "eligibility": "not_applicable",
       "opportunity_level": "normal",

@@ -490,9 +490,10 @@ CONTROLLED_CASES: tuple[ControlledCase, ...] = (
 def run_controlled_fixtures(
     cases: Iterable[ControlledCase] = CONTROLLED_CASES,
 ) -> dict[str, Any]:
-    """Run every controlled positive/negative detector case."""
+    """Run controlled cases for the active research detector registry."""
     results: list[dict[str, Any]] = []
-    for case in cases:
+    active_cases = [case for case in cases if case.defect in RESEARCH_DETECTORS]
+    for case in active_cases:
         detector = RESEARCH_DETECTORS[case.defect]
         detection = detector(case.source_code)
         passed = detection.present is case.expected_present

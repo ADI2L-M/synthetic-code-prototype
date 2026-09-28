@@ -273,17 +273,6 @@
         }
       ]
     },
-    "redundant_for": {
-      "eligibility": "eligible",
-      "opportunity_level": "low",
-      "valid_eligible_submission_count": 595,
-      "eligible_denominator": 595,
-      "affected_submission_count": 0,
-      "prevalence": 0.0,
-      "raw_detected_submission_count": 0,
-      "raw_instance_count": 0,
-      "example_detections": []
-    },
     "augmentable_assignment": {
       "eligibility": "eligible",
       "opportunity_level": "normal",

@@ -1,5 +1,5 @@
 {
-  "overall_status": "preliminary",
+  "overall_status": "pilot_validated",
   "criteria": {
     "precision_target": 0.9,
     "recall_target": 0.85,
@@ -202,21 +202,6 @@
       "validation_n": 80,
       "status": "validated",
       "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
-    },
-    {
-      "defect": "redundant_for",
-      "TP": 0,
-      "FP": 0,
-      "TN": 40,
-      "FN": 0,
-      "precision": null,
-      "recall": null,
-      "f1": null,
-      "positive_labels": 0,
-      "negative_labels": 40,
-      "validation_n": 40,
-      "status": "preliminary",
-      "reason": "One or more metric targets are not met."
     },
     {
       "defect": "redundant_if_else",

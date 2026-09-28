@@ -37,7 +37,6 @@ def test_research_registry_covers_all_catalog_defects():
         "misleading_iterator_name",
         "duplicate_expression",
         "while_as_for",
-        "redundant_for",
         "augmentable_assignment",
         "inappropriate_formatting",
         "magic_number",
@@ -183,6 +182,6 @@ def test_registry_runs_selected_detectors_without_changing_raw_results():
 def test_parse_failure_is_recorded_for_every_research_detector():
     results = detect_research_defects("def broken(:")
 
-    assert len(results) == 18
+    assert len(results) == 17
     assert all(not result.present for result in results.values())
     assert all(result.notes for result in results.values())

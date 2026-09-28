@@ -66,10 +66,6 @@ GENERATION_HINTS = {
         "Use a counter-controlled while loop with a constant update on every "
         "executable path and no break, return, or bypassing continue."
     ),
-    "redundant_for": (
-        "Use a for loop over a statically zero- or one-element iterable where the "
-        "body does not depend on repetition."
-    ),
     "augmentable_assignment": (
         "Write a matching update as ordinary assignment, such as total = total "
         "+ value, instead of using the equivalent augmented assignment."
@@ -158,10 +154,6 @@ GENERATION_EXAMPLES = {
     "while_as_for": {
         "defective": "i = 0\nwhile i < limit:\n    process(i)\n    i += 1",
         "corrected": "for i in range(limit):\n    process(i)",
-    },
-    "redundant_for": {
-        "defective": "for _ in range(1):\n    result = compute(value)",
-        "corrected": "result = compute(value)",
     },
     "augmentable_assignment": {
         "defective": "total = total + value",

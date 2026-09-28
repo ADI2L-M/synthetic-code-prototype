@@ -13,8 +13,8 @@ from services.research.validation_metrics import (
 def test_controlled_fixtures_cover_every_detector_and_pass():
     report = run_controlled_fixtures()
 
-    assert report["detector_count"] == 18
-    assert report["case_count"] == 36
+    assert report["detector_count"] == 17
+    assert report["case_count"] == 34
     assert report["all_passed"] is True
     assert report["failed_count"] == 0
 

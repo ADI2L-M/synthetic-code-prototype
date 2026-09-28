@@ -1,7 +1,10 @@
 # Detector validation
 
-This folder contains the validation artefacts for the 18 research AST
-detectors. The validation has two separate layers:
+This folder contains the validation artefacts for the 17 active research AST
+detectors. The exploratory `redundant_for` detector is retained in the source
+tree and controlled detector tests, but is excluded from the active catalogue
+because no positive authentic examples were found. The validation has two
+separate layers:
 
 1. Controlled fixtures verify that each detector recognises a known positive
    case and rejects a known negative or boundary case.
@@ -51,7 +54,7 @@ From the project root, run:
 ```
 
 This reads `research-notes/data-identification/cs1_labs_responses.xlsx`, runs
-all 18 detectors, and writes:
+the 17 active detectors, and writes:
 
 - `authentic-detector-review.jsonl`: selected cases containing source code,
   detector labels, detector evidence, and blank `manual_label` fields;

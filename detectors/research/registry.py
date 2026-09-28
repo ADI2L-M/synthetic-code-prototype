@@ -20,7 +20,7 @@ from detectors.research.conditionals import (
     detect_redundant_not,
 )
 from detectors.research.formatting import detect_inappropriate_formatting
-from detectors.research.iteration import detect_redundant_for, detect_while_as_for
+from detectors.research.iteration import detect_while_as_for
 from detectors.research.magic import detect_magic_number
 from detectors.research.names import detect_built_in_name, detect_one_letter_name
 from detectors.research.redundant_comparison import detect_redundant_comparison_result
@@ -41,7 +41,6 @@ RESEARCH_DETECTORS: dict[str, ResearchDetector] = {
     "misleading_iterator_name": detect_misleading_iterator_name,
     "duplicate_expression": detect_duplicate_expression,
     "while_as_for": detect_while_as_for,
-    "redundant_for": detect_redundant_for,
     "augmentable_assignment": detect_augmentable_assignment,
     "inappropriate_formatting": detect_inappropriate_formatting,
     "magic_number": detect_magic_number,
