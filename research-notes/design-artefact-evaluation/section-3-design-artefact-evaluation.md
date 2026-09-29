@@ -24,7 +24,7 @@ authentic submissions
 
 | Evidence | Current result | Interpretation |
 |---|---:|---|
-| Automated repository tests | 139 passed | Current automated implementation behaviour is passing. |
+| Automated repository tests | 145 passed | Current automated implementation behaviour is passing. |
 | Ruff | `All checks passed!` | No current Ruff findings were reported by the verification command. |
 | Controlled detector fixtures | 34/34 passed across 17 active detectors | The controlled positive/negative detector suite passes. |
 | Manually reviewed detector labels | 1,332 | Evidence exists for detector-readiness assessment. |
@@ -168,12 +168,20 @@ The current Streamlit workflow is:
 8. Export an iteration or the retained calibrated artefact.
 9. Use the calibration action when the profile needs improvement.
 
+During generation, the sidebar controls and generation-related inspection/export
+actions are disabled. A native Streamlit modal overlay runs the generation job in
+the background, reports the selected task, model, batch, iteration, current
+submission, repair attempt, validation phase, and final profile-calculation
+phase, and provides a cancellation action.
+
 ### Usability strengths
 
 - Home, Generation, and Defect detection are separate navigable application pages.
 - Generation controls are separated into the sidebar, leaving the main area for research evidence.
 - The Programming task tab is first, followed by target profile, prompt, results, and analytics.
 - Exact per-submission prompts are visible after generation.
+- Generation exposes a live viewport overlay and disables conflicting controls
+  while the synchronous model request is running.
 - Generated code and functional-test failures are visible per submission.
 - Analytics separates category coverage from defect-level profile alignment.
 - Defect alignment can be filtered by category or defects outside tolerance.
@@ -318,7 +326,7 @@ Black-box evidence is strongest in integration tests and Streamlit `AppTest` tes
 
 | Test ID or group | Input/condition | Expected external behaviour | Repository evidence | Result |
 |---|---|---|---|---|
-| `test_demo_generation_validates_and_detects_defects` | Demo provider and a prototype task | Valid source passes and selected defects are detected | `tests/integration/test_workflow.py` | Passed in the 139-test run |
+| `test_demo_generation_validates_and_detects_defects` | Demo provider and a prototype task | Valid source passes and selected defects are detected | `tests/integration/test_workflow.py` | Passed in the 145-test run |
 | `test_failed_submissions_are_excluded_from_denominator` | One valid and one failed submission | Observed profile uses only valid submissions | `tests/integration/test_workflow.py` | Passed |
 | `test_comparison_and_tolerance_actions` | Target and observed profile with discrepancy | Status and action are produced | `tests/integration/test_workflow.py` | Passed |
 | `test_sampling_aware_comparison_records_counts_and_wilson_interval` | Counts and denominator supplied | Comparison contains sampling interval and decision margin | `tests/integration/test_workflow.py` | Passed |
@@ -474,7 +482,7 @@ The Analytics tab now presents the retained calibrated artefact, its lineage, an
 | Static Analysis | Layered modules, `IterationResult` traceability, clean Ruff verification | `models/types.py`, `services/`, `detectors/`, `ruff check .` | Separation of concerns and current code quality are acceptable for a prototype. | Dependencies are unpinned and legacy/compatibility modules remain. |
 | Dynamic Analysis | Integration tests and workflow implementation | `run_iteration()`, `validate_source()`, `compare_profiles()` | Invalid code is bounded by repairs and excluded from the valid denominator; comparison is sampling-aware. | Detector exceptions and sandbox hardening need further work. |
 | Optimisation | Repair limits, maximum iterations, early acceptance, non-regression guard, cached dashboard data | `workflow.py`, `experiment.py`, `ui/app_data.py` | Unbounded regeneration is prevented. | No parallel generation, persistent cache, or background execution. |
-| Black-box Testing | 139 passing tests including integration and AppTest tests | `tests/integration/`, `tests/ui/` | External workflow and page behaviour are exercised. | Full live Ollama failure presentation and cross-process persistence need additional tests. |
+| Black-box Testing | 145 passing tests including integration and AppTest tests | `tests/integration/`, `tests/ui/` | External workflow and page behaviour are exercised. | Full live Ollama failure presentation and cross-process persistence need additional tests. |
 | White-box Testing | Detector, prompt, assignment, comparison, calibration, storage, interaction, export, and experiment unit tests | `tests/unit/` | Core internal rules and persistence invariants are directly tested. | No property-based suite, full sandbox, or causal interaction experiment. |
 | Experimental Simulation | Three conditions, repetitions, bounded iterative calibration, metrics, JSONL logs | `services/generation/experiment.py`, `scripts/run_generation_experiment.py` | The repository can execute the intended prompting-condition comparison. | Existing evidence is mainly one repetition per condition, so RQ3 is not yet answered conclusively. |
 

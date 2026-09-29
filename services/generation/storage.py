@@ -162,6 +162,11 @@ def iteration_from_dict(payload: dict[str, object]) -> IterationResult:
         },
         model=payload.get("model"),
         context_length=payload.get("context_length"),
+        temperature=(
+            float(payload["temperature"])
+            if payload.get("temperature") is not None
+            else None
+        ),
         target_standard_errors={
             str(key): float(value)
             for key, value in payload.get("target_standard_errors", {}).items()

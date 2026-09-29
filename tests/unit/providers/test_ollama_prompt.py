@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from urllib.error import URLError
 
@@ -35,3 +37,29 @@ def test_ollama_connection_failure_is_reported_as_runtime_error(monkeypatch):
         OllamaProvider(base_url="http://localhost:11434")._generate_one(
             "prompt", "classify_temperature", 1
         )
+
+
+def test_ollama_temperature_is_forwarded_to_generation_request(monkeypatch):
+    captured = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return b'{"response":"def classify_temperature(temp):\\n    return \'cold\'"}'
+
+    def generate(request, timeout):
+        captured.update(json.loads(request.data.decode("utf-8")))
+        return Response()
+
+    monkeypatch.setattr("services.providers.ollama.urlopen", generate)
+
+    OllamaProvider(temperature=0.35)._generate_one(
+        "prompt", "classify_temperature", 1
+    )
+
+    assert captured["options"]["temperature"] == 0.35

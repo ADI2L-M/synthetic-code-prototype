@@ -85,6 +85,27 @@ def test_detector_exception_is_not_silently_converted_to_prevalence(monkeypatch)
         )
 
 
+def test_generation_progress_callback_reports_submission_and_profile_phases():
+    task = load_tasks()[0]
+    updates: list[tuple[str, int, int]] = []
+
+    run_iteration(
+        task=task,
+        target_profile={"magic_number": 0.1},
+        batch_size=2,
+        iteration_number=1,
+        tolerance=0.1,
+        provider=DemoProvider(),
+        progress_callback=lambda message, completed, total: updates.append(
+            (message, completed, total)
+        ),
+    )
+
+    assert updates[0] == ("Preparing submission 1 of 2", 0, 2)
+    assert updates[-1] == ("Calculating prevalence and profile alignment", 2, 2)
+    assert any("Completed submission 2 of 2" in message for message, _, _ in updates)
+
+
 def test_failed_submissions_are_excluded_from_denominator():
     task = load_tasks()[0]
     passed = validate_source(DemoProvider().generate(task, 1)[0], task)

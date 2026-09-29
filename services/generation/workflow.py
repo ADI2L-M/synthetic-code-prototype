@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from detectors.core.registry import detect_defects
 from detectors.research.registry import RESEARCH_DETECTORS, detect_research_defects
 from models.types import IterationResult, ProgrammingTask, SubmissionResult
@@ -7,6 +9,7 @@ from services.generation.analysis import (
     observed_profile,
 )
 from services.generation.assignment import plan_defect_assignments, stable_seed
+from services.generation.jobs import GenerationCancelled
 from services.generation.prompt_builder import (
     DEFECT_REQUIRED_SIGNATURES,
     GENERATION_AVOIDANCE_HINTS,
@@ -245,10 +248,13 @@ def run_iteration(
     provider: GenerationProvider | None = None,
     model: str | None = None,
     context_length: int | None = None,
+    temperature: float | None = None,
     max_repair_attempts: int = 0,
     target_standard_errors: dict[str, float] | None = None,
     condition: str = TASK_AWARE_CONDITION,
     seed_namespace: str = "",
+    progress_callback: Callable[[str, int, int], None] | None = None,
+    cancel_check: Callable[[], bool] | None = None,
 ) -> IterationResult:
     """Run one generation and analysis iteration."""
     active_constraints = dict(constraints or {})
@@ -284,7 +290,18 @@ def run_iteration(
     )
     submissions: list[SubmissionResult] = []
 
+    def check_cancelled() -> None:
+        if cancel_check is not None and cancel_check():
+            raise GenerationCancelled("Generation cancelled by user.")
+
     for submission_id in range(1, batch_size + 1):
+        check_cancelled()
+        if progress_callback is not None:
+            progress_callback(
+                f"Preparing submission {submission_id} of {batch_size}",
+                submission_id - 1,
+                batch_size,
+            )
         if guided:
             mandatory_defects = _mandatory_category_assignments(
                 task, target_profile, submission_id, active_constraints
@@ -316,7 +333,15 @@ def run_iteration(
         unexpected_defects: tuple[str, ...] = ()
         attempt_count = 0
         for attempt in range(1, max_repair_attempts + 2):
+            check_cancelled()
             attempt_count = attempt
+            if progress_callback is not None:
+                progress_callback(
+                    f"Generating submission {submission_id} of {batch_size} "
+                    f"(attempt {attempt}/{max_repair_attempts + 1})",
+                    submission_id - 1,
+                    batch_size,
+                )
             prompt_builder = getattr(source_provider, "build_prompt", None)
             prompt = (
                 prompt_builder(task, attempt_specification)
@@ -358,7 +383,14 @@ def run_iteration(
                     f"Generation provider returned no source for submission {submission_id}."
                 )
             source = sources[0]
+            check_cancelled()
             validation = validate_source(source, task)
+            if progress_callback is not None:
+                progress_callback(
+                    f"Validating submission {submission_id} of {batch_size}",
+                    submission_id - 1,
+                    batch_size,
+                )
             defects = (
                 _detect_submission_defects(source, detection_ids)
                 if validation.status == "PASS"
@@ -423,7 +455,15 @@ def run_iteration(
                 missing_categories,
             )
         )
+        if progress_callback is not None:
+            progress_callback(
+                f"Completed submission {submission_id} of {batch_size}",
+                submission_id,
+                batch_size,
+            )
 
+    if progress_callback is not None:
+        progress_callback("Calculating prevalence and profile alignment", batch_size, batch_size)
     observed = observed_profile(submissions, defect_ids)
     counts, valid_denominator = observed_counts(submissions, defect_ids)
     comparison = compare_profiles(
@@ -450,6 +490,7 @@ def run_iteration(
         planned_assignment_counts=assignment_plan.planned_counts,
         model=model,
         context_length=context_length,
+        temperature=temperature,
         target_standard_errors=dict(target_standard_errors or {}),
         condition=condition,
     )

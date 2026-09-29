@@ -31,6 +31,7 @@ def _iteration(iteration_number: int = 1) -> IterationResult:
         ],
         observed_profile={"magic_number": 1.0},
         comparison=[],
+        temperature=0.2,
     )
 
 
@@ -46,6 +47,7 @@ def test_sqlite_round_trip_persists_iteration_and_submission_rows(tmp_path):
     assert [item.iteration for item in loaded] == [1]
     assert loaded[0].submissions[0].source_code.startswith("def classify")
     assert loaded[0].submissions[0].assigned_defects == ("magic_number",)
+    assert loaded[0].temperature == 0.2
     assert persisted_submission_count(run_id, database) == 1
 
 

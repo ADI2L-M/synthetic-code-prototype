@@ -16,7 +16,7 @@ load_dotenv()
 
 OLLAMA_CONTEXT_LENGTH = 16_384
 OLLAMA_OUTPUT_TOKENS = 1_200
-OLLAMA_TEMPERATURE = 0
+OLLAMA_TEMPERATURE = 0.2
 
 class OllamaModel(Enum):
     """List of available Ollama models"""
@@ -34,12 +34,16 @@ class OllamaProvider(GenerationProvider):
         model: OllamaModel = OllamaModel.QW25_CODER_1_5B,
         base_url: str = "http://localhost:11434",
         timeout: int = 180,
+        temperature: float = OLLAMA_TEMPERATURE,
     ) -> None:
         self.model = model or os.getenv("OLLAMA_MODEL", "qwen2.5-coder:1.5b")
         self.base_url = (
             base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         ).rstrip("/")
         self.timeout = timeout
+        if temperature < 0:
+            raise ValueError("temperature cannot be negative")
+        self.temperature = float(temperature)
 
     def generate(
         self,
@@ -69,7 +73,7 @@ class OllamaProvider(GenerationProvider):
             "prompt": prompt,
             "stream": False,
             "options": {
-                "temperature": OLLAMA_TEMPERATURE,
+                "temperature": self.temperature,
                 "seed": seed,
                 "num_ctx": OLLAMA_CONTEXT_LENGTH,
                 "num_predict": OLLAMA_OUTPUT_TOKENS,

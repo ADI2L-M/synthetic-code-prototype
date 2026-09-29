@@ -88,6 +88,7 @@ class IterationResult:
     planned_assignment_counts: dict[str, int] = field(default_factory=dict)
     model: str | None = None
     context_length: int | None = None
+    temperature: float | None = None
     target_standard_errors: dict[str, float] = field(default_factory=dict)
     condition: str = "task_aware_non_adaptive"
 
