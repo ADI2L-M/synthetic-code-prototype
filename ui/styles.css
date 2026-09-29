@@ -1,8 +1,8 @@
 [data-testid="stMainBlockContainer"] {
     width: calc(100% - 2rem);
     max-width: 1180px;
-    margin: 3.5rem auto 2rem;
-    padding: 2rem 2.25rem 2.5rem;
+    margin: 3.5rem auto 3rem;
+    padding: 0 2.25rem 4rem;
     border: none !important;
     border-radius: 0 !important;
     background: transparent !important;
