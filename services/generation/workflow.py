@@ -9,6 +9,7 @@ from services.generation.analysis import (
 from services.generation.assignment import plan_defect_assignments, stable_seed
 from services.generation.prompt_builder import (
     DEFECT_REQUIRED_SIGNATURES,
+    GENERATION_AVOIDANCE_HINTS,
     TASK_INDEPENDENT_DEFECTS,
     TASK_SPECIFIC_PATTERNS,
     applicable_defect_names,
@@ -133,6 +134,7 @@ def _repair_specification(
     validation_message: str,
     missing_categories: tuple[str, ...],
     missing_defects: tuple[str, ...],
+    unexpected_defects: tuple[str, ...],
 ) -> str:
     missing_text = ", ".join(missing_categories) or "none"
     assigned_text = ", ".join(
@@ -140,6 +142,9 @@ def _repair_specification(
     ) or "no intentional defect style; repair functional correctness only"
     missing_defect_text = ", ".join(
         defect.replace("_", " ") for defect in missing_defects
+    ) or "none"
+    unexpected_defect_text = ", ".join(
+        defect.replace("_", " ") for defect in unexpected_defects
     ) or "none"
     task_patterns = []
     for defect in missing_defects or assigned_defects:
@@ -158,6 +163,13 @@ def _repair_specification(
     )
     if signature_text:
         pattern_text += "\n\nREQUIRED OBSERVABLE SIGNATURES\n" + signature_text
+    avoidance_text = "\n".join(
+        f"- {defect.replace('_', ' ')}: "
+        + GENERATION_AVOIDANCE_HINTS.get(
+            defect, "remove this unassigned style from the source."
+        )
+        for defect in unexpected_defects
+    ) or "- none"
     return (
         "REVISION REQUEST\n\n"
         f"Implement {task.function_name}(...) for this task: {task.description}\n\n"
@@ -167,6 +179,7 @@ def _repair_specification(
         + (validation_message or "The previous source was not accepted.")
         + f"\nMissing categories: {missing_text}\n"
         + f"Missing selected defect styles: {missing_defect_text}\n"
+        + f"Unassigned detected styles to remove: {unexpected_defect_text}\n"
         + f"Required selected styles: {assigned_text}\n\n"
         + "ADAPT THIS STYLE PATTERN INSIDE THE FUNCTION\n"
         + pattern_text
@@ -175,7 +188,11 @@ def _repair_specification(
         + "\n\nREPAIR RULES\n"
         "- Keep every required behavior and add all missing return paths.\n"
         "- Add every missing selected defect style listed above; do not omit it.\n"
+        "- Remove every unassigned detected style listed above.\n"
         "- Use the style pattern inside the required function; do not copy it as a separate example.\n"
+        + "\nUNASSIGNED STYLE REMOVAL GUIDANCE\n"
+        + avoidance_text
+        + "\n"
         "- Return only the function definition. Do not include print(), input(), tests, a test harness, comments outside the function, Markdown, or explanations."
     )
 
@@ -268,13 +285,16 @@ def run_iteration(
     submissions: list[SubmissionResult] = []
 
     for submission_id in range(1, batch_size + 1):
-        assigned_defects = (
-            _mandatory_category_assignments(
+        if guided:
+            mandatory_defects = _mandatory_category_assignments(
                 task, target_profile, submission_id, active_constraints
             )
-            if guided
-            else ()
-        )
+            planned_defects = assignment_plan.by_submission.get(submission_id, ())
+            assigned_defects = tuple(
+                dict.fromkeys(planned_defects + mandatory_defects)
+            )
+        else:
+            assigned_defects = ()
         submission_specification = (
             build_submission_specification(task, assigned_defects, active_constraints)
             if guided
@@ -293,6 +313,7 @@ def run_iteration(
         defects: dict[str, bool] = {}
         missing_categories: tuple[str, ...] = ()
         missing_defects: tuple[str, ...] = ()
+        unexpected_defects: tuple[str, ...] = ()
         attempt_count = 0
         for attempt in range(1, max_repair_attempts + 2):
             attempt_count = attempt
@@ -361,7 +382,17 @@ def run_iteration(
                 for defect in assigned_defects
                 if not defects.get(defect, False)
             )
-            if validation.status == "PASS" and not missing_categories:
+            unexpected_defects = tuple(
+                defect
+                for defect, present in defects.items()
+                if guided and present and defect not in assigned_defects
+            )
+            if (
+                validation.status == "PASS"
+                and not missing_categories
+                and not missing_defects
+                and not unexpected_defects
+            ):
                 break
             if attempt <= max_repair_attempts:
                 attempt_specification = _repair_specification(
@@ -371,6 +402,7 @@ def run_iteration(
                     validation.failure_message,
                     missing_categories,
                     missing_defects,
+                    unexpected_defects,
                 )
 
         assert validation is not None
@@ -384,7 +416,10 @@ def run_iteration(
                 prompt,
                 generation_seed,
                 attempt_count,
-                validation.status == "PASS" and not missing_categories,
+                validation.status == "PASS"
+                and not missing_categories
+                and not missing_defects
+                and not unexpected_defects,
                 missing_categories,
             )
         )

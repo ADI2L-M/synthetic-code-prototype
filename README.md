@@ -113,6 +113,21 @@ Run a local Ollama experiment with:
 python scripts/run_generation_experiment.py --task T1 --model qwen2.5-coder:1.5b
 ```
 
+To run T1, T2, and T3 sequentially from PowerShell:
+
+```powershell
+.\scripts\run_all_generation_experiments.ps1
+```
+
+The batch size and model can be changed without editing the script:
+
+```powershell
+.\scripts\run_all_generation_experiments.ps1 -BatchSize 100 -Model qwen2.5-coder:1.5b
+```
+
+The script continues to the next task after a failure. Add `-StopOnError` to
+stop at the first failed experiment.
+
 The command compares functional pass rate, task-independent coverage,
 task-dependent coverage, category-requirement rate, mean absolute profile
 error, root mean square profile error, and the proportion of defect rows within

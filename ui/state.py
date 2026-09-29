@@ -4,11 +4,21 @@ from typing import cast
 import streamlit as st
 
 from models.types import IterationResult
+from services.generation.storage import (
+    create_run,
+    latest_run_id,
+    load_iterations,
+    save_iteration,
+)
 
 
 def initialise_state() -> None:
+    if "generation_run_id" not in st.session_state:
+        st.session_state.generation_run_id = latest_run_id() or create_run()
     if "iterations" not in st.session_state:
-        st.session_state.iterations = []
+        st.session_state.iterations = load_iterations(
+            st.session_state.generation_run_id
+        )
     if "constraints_by_task" not in st.session_state:
         st.session_state.constraints_by_task = {}
     if "calibration_requested" not in st.session_state:
@@ -34,6 +44,7 @@ def next_iteration_number(task_id: str) -> int:
 
 def append_iteration(iteration: IterationResult) -> None:
     all_iterations().append(iteration)
+    save_iteration(st.session_state.generation_run_id, iteration)
 
 
 def constraints_for(task_id: str) -> dict[str, str]:

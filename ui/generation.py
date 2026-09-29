@@ -10,11 +10,17 @@ import streamlit as st
 
 from models.types import IterationResult, ProgrammingTask
 from services.generation.analytics import (
+    category_summary_rows,
+    detector_interaction_rows,
     defect_analytics_rows,
     generation_quality,
     iteration_history_rows,
 )
-from services.generation.export import iteration_export_archive
+from services.generation.experiment import load_experiment_logs
+from services.generation.export import (
+    calibrated_artifact_export_archive,
+    iteration_export_archive,
+)
 from ui.research_dashboard import target_dataframe
 from ui.state import request_calibration as _request_calibration
 
@@ -297,6 +303,65 @@ def _render_iteration_explorer(
         _render_iteration_overlay(selected)
 
 
+def _render_experiment_log_browser(task_id: str) -> None:
+    """Show compact condition summaries from persisted CLI experiment logs."""
+    records = [
+        record
+        for record in load_experiment_logs()
+        if record.get("config", {}).get("task_id") == task_id
+    ]
+    st.subheader("Experiment history")
+    if not records:
+        st.info("No logged experiments are available for this task.")
+        return
+    labels = [
+        f"{record['experiment_id']} · {record['_log_file']}"
+        for record in records
+    ]
+    selected = records[
+        labels.index(
+            st.selectbox(
+                "Experiment record",
+                labels,
+                index=len(labels) - 1,
+                key=f"generation_experiment_log_{task_id}",
+            )
+        )
+    ]
+    rows = []
+    for condition, metrics in selected.get("condition_summary", {}).items():
+        rows.append(
+            {
+                "Condition": condition,
+                "Functional pass rate": metrics.get("functional_pass_rate"),
+                "Task-independent coverage": metrics.get("independent_coverage"),
+                "Task-dependent coverage": metrics.get("dependent_coverage"),
+                "Mean absolute profile error": metrics.get(
+                    "mean_absolute_profile_error"
+                ),
+                "Within-tolerance rate": metrics.get("within_tolerance_rate"),
+            }
+        )
+    st.caption(
+        f"{selected['experiment_id']} · {selected['_log_file']} · "
+        f"one JSONL record at line {selected['_line_number']}"
+    )
+    st.dataframe(
+        pd.DataFrame(rows),
+        hide_index=True,
+        width="stretch",
+        column_config={
+            "Functional pass rate": st.column_config.NumberColumn(format="percent"),
+            "Task-independent coverage": st.column_config.NumberColumn(format="percent"),
+            "Task-dependent coverage": st.column_config.NumberColumn(format="percent"),
+            "Mean absolute profile error": st.column_config.NumberColumn(
+                format="percent"
+            ),
+            "Within-tolerance rate": st.column_config.NumberColumn(format="percent"),
+        },
+    )
+
+
 def _render_analytics(
     current: IterationResult | None,
     history: list[IterationResult] | None = None,
@@ -306,6 +371,53 @@ def _render_analytics(
         return
     quality = generation_quality(current)
     status = "Accepted" if current.accepted else "Needs review"
+    with st.container(border=True):
+        st.subheader("Iteratively calibrated artefact")
+        st.caption(
+            "This is the latest batch retained by the non-regression guard. "
+            "Calibration may be repeated from this artefact; a candidate that "
+            "reduces functional validity or either defect category is rejected."
+        )
+        artifact_metrics = [
+            ("Artefact status", status),
+            ("Selected iteration", str(current.iteration)),
+            (
+                "Valid submissions",
+                f"{quality['valid_submissions']}/{quality['total_submissions']}",
+            ),
+            ("Profile rows in tolerance", f"{sum(row.status == 'Within tolerance' for row in current.comparison)}/{len(current.comparison)}"),
+        ]
+        columns = st.columns(4, gap="small")
+        for column, (label, value) in zip(columns, artifact_metrics):
+            with column:
+                st.metric(label, value, border=True)
+        st.caption(
+            f"{current.task_name} · {current.model or 'model unavailable'} · "
+            f"context {current.context_length or 'unknown'} · "
+            f"relative tolerance ±{current.tolerance:.0%}"
+        )
+        st.download_button(
+            "Export calibrated artefact",
+            data=calibrated_artifact_export_archive(current, history or [current]),
+            file_name=(
+                f"{current.task_id.lower()}_calibrated_artifact_"
+                f"iteration_{current.iteration}.zip"
+            ),
+            mime="application/zip",
+            icon=":material/download:",
+            width="stretch",
+            key=f"export_calibrated_artifact_{current.task_id}_{current.iteration}",
+        )
+        if not current.accepted:
+            st.button(
+                "Apply calibration and regenerate",
+                type="primary",
+                icon=":material/autorenew:",
+                width="stretch",
+                key="apply_generation_calibration",
+                on_click=_request_calibration,
+            )
+
     st.subheader("Generation quality")
     st.caption(
         "Observed prevalence uses only functionally valid submissions. Profile "
@@ -314,48 +426,117 @@ def _render_analytics(
     )
     quality_metrics = [
         ("Functional pass rate", f"{quality['functional_pass_rate']:.0%}"),
-        (
-            "Category requirement",
-            f"{quality['category_requirement_rate']:.0%}",
-        ),
-        (
-            "Valid denominator",
-            f"{quality['valid_submissions']}/{quality['total_submissions']}",
-        ),
-        ("Average attempts", f"{quality['average_attempts']:.1f}"),
+        ("Category requirement", f"{quality['category_requirement_rate']:.0%}"),
+        ("Task-independent coverage", f"{quality['independent_coverage']:.0%}"),
+        ("Task-dependent coverage", f"{quality['dependent_coverage']:.0%}"),
     ]
     columns = st.columns(4, gap="small")
     for column, (label, value) in zip(columns, quality_metrics):
         with column:
             st.metric(label, value, border=True)
 
-    st.subheader("Defect generation profile")
-    analytics_rows = defect_analytics_rows(current)
-    profile = pd.DataFrame(analytics_rows).set_index("Defect")[["Target", "Observed"]]
-    st.bar_chart(profile, y_label="Prevalence", x_label="Defect")
+    st.subheader("Category coverage")
     st.dataframe(
-        pd.DataFrame(analytics_rows),
+        pd.DataFrame(category_summary_rows(current)),
         hide_index=True,
         width="stretch",
         column_config={
-            "Target": st.column_config.ProgressColumn(
+            "Submission coverage": st.column_config.ProgressColumn(
                 min_value=0, max_value=1, format="percent"
             ),
-            "Observed": st.column_config.ProgressColumn(
-                min_value=0, max_value=1, format="percent"
-            ),
-            "Target standard error": st.column_config.NumberColumn(
-                format="percent"
-            ),
-            "Observed 95% low": st.column_config.NumberColumn(format="percent"),
-            "Observed 95% high": st.column_config.NumberColumn(format="percent"),
-            "Decision margin": st.column_config.NumberColumn(format="percent"),
-            "Difference": st.column_config.NumberColumn(format="percent"),
+            "Target mean": st.column_config.NumberColumn(format="percent"),
+            "Observed mean": st.column_config.NumberColumn(format="percent"),
         },
     )
 
-    st.subheader("Profile status")
-    st.caption(f"{status} · relative tolerance ±{current.tolerance:.0%}")
+    st.subheader("Defect profile alignment")
+    analytics_rows = defect_analytics_rows(current)
+    filter_options = [
+        "All defects",
+        "Task-independent",
+        "Task-dependent",
+        "Outside tolerance",
+    ]
+    defect_filter = st.selectbox(
+        "Show",
+        filter_options,
+        key=f"analytics_defect_filter_{current.task_id}",
+    )
+    visible_rows = analytics_rows
+    if defect_filter in {"Task-independent", "Task-dependent"}:
+        visible_rows = [
+            row for row in analytics_rows if row["Category"] == defect_filter
+        ]
+    elif defect_filter == "Outside tolerance":
+        visible_rows = [
+            row for row in analytics_rows if row["Status"] != "Within tolerance"
+        ]
+    if not visible_rows:
+        st.info("No defects match this filter.")
+    else:
+        profile = pd.DataFrame(visible_rows).set_index("Defect")[["Target", "Observed"]]
+        st.bar_chart(profile, y_label="Prevalence", x_label="Defect")
+        st.dataframe(
+            pd.DataFrame(visible_rows)[
+                [
+                    "Defect",
+                    "Category",
+                    "Target",
+                    "Observed",
+                    "Difference",
+                    "Status",
+                    "Action",
+                ]
+            ],
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "Target": st.column_config.ProgressColumn(
+                    min_value=0, max_value=1, format="percent"
+                ),
+                "Observed": st.column_config.ProgressColumn(
+                    min_value=0, max_value=1, format="percent"
+                ),
+                "Difference": st.column_config.NumberColumn(format="percent"),
+            },
+        )
+        with st.expander("Detailed uncertainty and detector counts"):
+            st.dataframe(
+                pd.DataFrame(visible_rows)[
+                    [
+                        "Defect",
+                        "Guided",
+                        "Detected (valid)",
+                        "Valid denominator",
+                        "Target standard error",
+                        "Observed 95% low",
+                        "Observed 95% high",
+                        "Decision margin",
+                    ]
+                ],
+                hide_index=True,
+                width="stretch",
+                column_config={
+                    "Target standard error": st.column_config.NumberColumn(
+                        format="percent"
+                    ),
+                    "Observed 95% low": st.column_config.NumberColumn(
+                        format="percent"
+                    ),
+                    "Observed 95% high": st.column_config.NumberColumn(
+                        format="percent"
+                    ),
+                    "Decision margin": st.column_config.NumberColumn(
+                        format="percent"
+                    ),
+                },
+            )
+
+    st.subheader("Calibration trace")
+    st.caption(
+        f"{status} · relative tolerance ±{current.tolerance:.0%} · "
+        f"{len(history or [current])} retained iteration(s)"
+    )
     if current.constraints:
         st.subheader("Active calibration adjustments")
         st.dataframe(
@@ -372,7 +553,6 @@ def _render_analytics(
             width="stretch",
         )
     if history and len(history) > 1:
-        st.subheader("Calibration history")
         st.dataframe(
             pd.DataFrame(iteration_history_rows(history)),
             hide_index=True,
@@ -385,15 +565,26 @@ def _render_analytics(
                 "Average attempts": st.column_config.NumberColumn(format="%.1f"),
             },
         )
-    if not current.accepted:
-        st.button(
-            "Apply calibration and regenerate",
-            type="primary",
-            icon=":material/autorenew:",
-            width="stretch",
-            key="apply_generation_calibration",
-            on_click=_request_calibration,
-        )
+    with st.expander("Defect interaction"):
+        interaction_rows = detector_interaction_rows(current)
+        if not interaction_rows:
+            st.info("At least two target defects are required for interaction analysis.")
+        else:
+            st.caption(
+                "Co-occurrence is calculated only among functionally valid "
+                "submissions and is shown from highest to lowest count."
+            )
+            st.dataframe(
+                pd.DataFrame(interaction_rows[:20]),
+                hide_index=True,
+                width="stretch",
+                column_config={
+                    "Co-occurrence rate": st.column_config.NumberColumn(
+                        format="percent"
+                    )
+                },
+            )
+    _render_experiment_log_browser(current.task_id)
 
 
 def render_generation(

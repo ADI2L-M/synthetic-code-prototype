@@ -16,7 +16,7 @@ load_dotenv()
 
 OLLAMA_CONTEXT_LENGTH = 16_384
 OLLAMA_OUTPUT_TOKENS = 1_200
-OLLAMA_TEMPERATURE = 0.3
+OLLAMA_TEMPERATURE = 0
 
 class OllamaModel(Enum):
     """List of available Ollama models"""
@@ -134,7 +134,7 @@ class OllamaProvider(GenerationProvider):
             "- Copy the key syntax and control-flow shape of every task-specific valid pattern\n"
             "  shown for the assigned defects inside the required function; do not replace it\n"
             "  with a different defect style.\n"
-            "- Attempt to include every assigned style without breaking functional correctness.\n"
+            "- Include every assigned style without breaking functional correctness.\n"
             "- Do not intentionally introduce defect styles that were not assigned.\n"
         )
         return f"""{role_instruction}

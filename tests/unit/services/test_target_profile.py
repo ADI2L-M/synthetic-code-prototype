@@ -1,3 +1,7 @@
+import json
+
+import pytest
+
 from services.research.target_profile import (
     build_empirical_target_profile,
     load_empirical_target_values,
@@ -46,3 +50,19 @@ def test_load_empirical_target_values_reads_flat_generation_profile(tmp_path):
     )
 
     assert load_empirical_target_values(path, "T2") == {"magic_number": 0.1}
+
+
+def test_load_empirical_target_values_reports_missing_task(tmp_path):
+    path = tmp_path / "profile.json"
+    path.write_text('{"prototype_tasks": {}}', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="No empirical target profile"):
+        load_empirical_target_values(path, "T2")
+
+
+def test_load_empirical_target_values_preserves_malformed_profile_error(tmp_path):
+    path = tmp_path / "profile.json"
+    path.write_text("not-json", encoding="utf-8")
+
+    with pytest.raises(json.JSONDecodeError):
+        load_empirical_target_values(path, "T2")

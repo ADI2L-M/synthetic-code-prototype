@@ -1,544 +1,520 @@
 # Section 3: Design Artefact Evaluation
 
-## Evaluation verdict
+## Evaluation basis and scope
 
-The prototype is a working research prototype for generating functionally correct synthetic Python submissions and comparing their detected defect profiles against authentic CS1 submissions.
+This report evaluates the repository as it exists on 29 September 2026. It uses the evaluation prompt supplied for Section 3 and distinguishes implemented behaviour from intended or proposed behaviour. The report does not treat a passing software test as proof that the research claims are externally valid.
 
-The core workflow is implemented:
+The artefact is an iteratively calibrated synthetic-generation framework for functionally correct novice Python code:
 
-> authentic defect profile → task-aware prompt → Ollama generation → functional validation → AST defect detection → synthetic profile → comparison → calibration → regeneration
+```text
+authentic submissions
+    -> functional eligibility and AST detection
+    -> task-family prevalence profile
+    -> prototype-task target profile
+    -> task-aware prompt and defect assignment
+    -> local LLM generation
+    -> functional validation
+    -> AST defect detection
+    -> synthetic prevalence and uncertainty-aware comparison
+    -> optional calibration or automated iterative calibration
+    -> retained synthetic artefact and experiment log
+```
 
-The prototype is not yet a complete experimental evaluation framework. The main missing capabilities are:
+### Verification snapshot
 
-- automated comparison between baseline, non-adaptive, and adaptive prompting;
-- persistent experiment/run storage;
-- automatic stopping or convergence criteria;
-- stronger detector validation for rare or absent defects;
-- formal measurement of defect interaction;
-- resolution of current Ruff/static-analysis issues.
+| Evidence | Current result | Interpretation |
+|---|---:|---|
+| Automated repository tests | 139 passed | Current automated implementation behaviour is passing. |
+| Ruff | `All checks passed!` | No current Ruff findings were reported by the verification command. |
+| Controlled detector fixtures | 34/34 passed across 17 active detectors | The controlled positive/negative detector suite passes. |
+| Manually reviewed detector labels | 1,332 | Evidence exists for detector-readiness assessment. |
+| Detector readiness | 15 validated; 2 pilot-validated | The catalogue is not fully at the configured evidence threshold. |
+| Experiment logs | 5 JSONL files | Baseline, task-aware, and iterative conditions have been executed for T1-T3, with one additional T1 log. |
 
-Current repository evidence:
-
-- Full test suite: **116 passed**.
-- Active controlled detector fixtures: **34/34 passed**.
-- Manual detector labels: **1,332**.
-- Active detector-catalogue validation status: **pilot validated**.
-- Ruff: **31 reported errors**, primarily wildcard compatibility imports and import-order errors.
-
-The test results demonstrate implementation behaviour, but they do not by themselves establish the scientific validity of the synthetic benchmark or prove that the LLM reproduces authentic defect distributions.
+The results support the claim that this is a working research prototype. They do not yet establish that the synthetic code is statistically equivalent to authentic student code, that all detectors are fully validated, or that the approach generalises beyond the selected tasks, models, and local Ollama environment.
 
 ## A. Prototype overview
 
 ### Intended purpose
 
-The prototype generates synthetic novice Python code for three prototype tasks:
+The prototype generates synthetic novice Python submissions for three task families while preserving functional correctness and measuring task-independent and task-dependent defect styles:
 
-- **T1: Conditional logic** — `classify_temperature`;
-- **T2: List processing** — `total_scores`;
-- **T3: Numeric iteration** — `sum_to_n`.
+| Prototype task | Task family | Function | Main task-dependent defect scope |
+|---|---|---|---|
+| T1 | Conditional logic | `classify_temperature(temp)` | Redundant conditionals and conditional-structure defects |
+| T2 | List processing | `total_scores(scores)` | Redundant indexing, misleading iterator names, duplicate expressions, augmentable assignments |
+| T3 | Numeric iteration | `sum_to_n(n)` | `while_as_for` and augmentable assignments |
 
-Generated submissions are required to remain functionally correct while exhibiting selected task-independent and task-dependent defect styles.
-
-The prototype evaluates:
-
-- functional correctness;
-- detected defect categories;
-- target-versus-observed prevalence;
-- defect-category coverage;
-- calibration performance across iterations.
+The target profile is derived from authentic CS1 submissions. The primary estimator is the equal-task-weighted arithmetic mean of eligible task-level prevalence. The stored profile also includes pooled prevalence, task minimum and maximum, standard deviation, eligible task count, valid submission count, and affected submission count.
 
 ### Current end-to-end workflow
 
-1. Authentic submissions are filtered for functional correctness.
-2. Authentic submissions are grouped into task families.
-3. Research AST/token detectors analyse valid submissions.
-4. Task-level defect prevalence is calculated.
-5. Prototype-task target profiles are produced using arithmetic means across related authentic tasks.
-6. The user selects a prototype task, model, batch size, tolerance, and Ollama URL.
-7. The system constructs a task-aware prompt.
-8. Ollama generates one submission at a time.
-9. Each submission is functionally tested.
-10. Valid submissions are analysed by the shared research detectors.
-11. The synthetic defect profile is calculated from valid submissions only.
-12. The synthetic profile is compared with the empirical target.
-13. Calibration constraints can be applied manually.
-14. A new iteration can be generated.
-15. Generated code and metadata can be exported as a ZIP archive.
+1. Authentic submissions are functionally filtered and mapped to prototype-task families.
+2. Parseable, functionally eligible submissions are analysed with the research detector registry.
+3. Task-level prevalence reports and grouped prototype-task reports are written as JSON.
+4. `build_empirical_target_profile()` averages eligible task-level prevalence and omits defects that are not applicable to a prototype task.
+5. The Streamlit user selects T1, T2, or T3, a local Ollama model, batch size, tolerance, and endpoint.
+6. `plan_defect_assignments()` creates reproducible fractional assignments, including rare-defect assignments with expected counts below one.
+7. `build_generation_specification()` constructs a task-family brief, and `build_submission_specification()` constructs a per-submission brief.
+8. Ollama produces one submission per request. The active provider uses a 16,384-token context, 1,200-token output limit, temperature 0, and a deterministic seed derived from task, iteration, submission, and condition information.
+9. Each submission is functionally validated in a timed subprocess.
+10. A failed or incomplete submission can receive up to two repairs, giving three total attempts.
+11. Functionally valid submissions are analysed with the same research AST/token detectors used for authentic prevalence.
+12. Observed prevalence uses only functionally valid submissions as its denominator.
+13. `compare_profiles()` compares target and observed prevalence using target-relative tolerance plus a sampling-aware margin when counts are available.
+14. The Streamlit user can manually apply calibration and regenerate.
+15. The experiment runner can automatically compare baseline, task-aware non-adaptive, and task-aware iterative conditions, with repetitions and a maximum iteration limit.
+16. The retained Streamlit artefact and its calibration lineage can be exported as a ZIP archive. CLI experiments are written as compact timestamped JSONL records.
 
-Primary evidence:
+### Technologies, libraries, and models
 
-- `services/generation/workflow.py`
-- `services/generation/prototype_runner.py`
-- `services/research/prevalence_runner.py`
-- `services/research/target_profile.py`
-- `README.md`
+- Python and the standard-library `ast`, `tokenize`, `subprocess`, `urllib`, `json`, and `zipfile` modules.
+- Streamlit for the multi-page research interface.
+- pandas for tabular display and transformation.
+- Ollama's local HTTP API for LLM generation.
+- pytest for unit, integration, and AppTest UI verification.
+- Ruff for static checks.
+- JSON, JSONL, CSV, XLSX, and ZIP research artefacts.
+- Configured UI models: `qwen2.5-coder:1.5b`, `deepseek-coder:1.3b`, and `granite-code:3b`.
+- `google-genai` is listed in `requirements.txt`, but it is not used by the current generation path.
 
-### Technologies and models
+### Main modules
 
-The repository uses:
-
-- Python;
-- Streamlit;
-- pandas;
-- Altair and Matplotlib;
-- Ollama through HTTP requests;
-- Python `ast` and `tokenize`;
-- pytest;
-- Ruff;
-- JSON, CSV, XLSX, and ZIP-based export files.
-
-The configured Ollama models are:
-
-- `qwen2.5-coder:1.5b`;
-- `deepseek-coder:1.3b`;
-- `granite-code:3b`.
-
-The provider uses a 16,384-token context length, a 1,200-token output limit, and temperature 0.3. Although `google-genai` is listed in `requirements.txt`, no current generation path uses it.
-
-### Main components
-
-| Component | Main location |
+| Concern | Evidence |
 |---|---|
-| Streamlit entry point | `app.py` |
-| Home page | `app_pages/home.py` |
-| Generation page | `app_pages/generation.py` |
-| Generation interface | `ui/generation.py` |
+| Streamlit entry point and navigation | `app.py` |
+| Home page | `app_pages/home.py`, `ui/home.py` |
+| Generation page | `app_pages/generation.py`, `ui/generation.py` |
+| Authentic detection page | `app_pages/defect_detection.py`, `ui/research_dashboard.py` |
 | Session-state iteration storage | `ui/state.py` |
-| Prototype tasks | `services/generation/prototype_tasks.py` |
+| Prototype task contracts | `services/generation/prototype_tasks.py` |
+| Defect assignment | `services/generation/assignment.py` |
 | Prompt construction | `services/generation/prompt_builder.py` |
-| Ollama interaction | `services/providers/ollama.py` |
-| Generation workflow | `services/generation/workflow.py` |
-| Functional validation | `services/generation/validator.py` |
-| Research detectors | `detectors/research/` |
-| Profile comparison | `services/generation/analysis.py` |
+| Generation and repairs | `services/generation/workflow.py`, `services/generation/prototype_runner.py` |
+| Local model adapter | `services/providers/ollama.py` |
+| Functional validation | `services/generation/validator.py`, `services/generation/validation_runner.py` |
+| Research detector registry | `detectors/research/registry.py` and `detectors/research/` |
+| Prevalence and profile comparison | `services/generation/analysis.py`, `services/research/prevalence.py` |
+| Empirical target construction | `services/research/target_profile.py` |
 | Calibration | `services/generation/calibrator.py` |
+| Automated experiment runner | `services/generation/experiment.py`, `scripts/run_generation_experiment.py` |
+| Sequential task runner | `scripts/run_all_generation_experiments.ps1` |
 | Export | `services/generation/export.py` |
+| Tests | `tests/unit/`, `tests/integration/`, `tests/ui/` |
 
-### Implemented versus not implemented
+### Framework implementation status
 
-| Framework element | Status |
-|---|---|
-| Context-aware target profile | Implemented |
-| Task-specific prompt construction | Implemented |
-| Local LLM generation | Implemented |
-| Functional validation | Implemented |
-| AST-based defect detection | Implemented |
-| Synthetic profile construction | Implemented |
-| Target comparison | Implemented |
-| Manual iterative calibration | Implemented |
-| Non-regression protection during calibration | Implemented |
-| Automatic convergence loop | Not implemented |
-| Persistent experiment database/log | Not implemented |
-| Automated baseline comparison | Not implemented |
-| Multi-run statistical experiment orchestration | Not implemented |
-| Fully validated detector catalogue | Not yet complete |
+| Conceptual element | Status | Evidence |
+|---|---|---|
+| Context-aware empirical target profile | Implemented | `services/research/target_profile.py`; stored in `research-notes/authentic-submission-outputs/empirical-target-profile.json` |
+| Task-family eligibility and omission of non-applicable defects | Implemented | `services/research/eligibility.py`, `target_profile.py` |
+| Task-aware generation constraints | Implemented | `prompt_builder.py`, `assignment.py`, `workflow.py` |
+| Local LLM generation | Implemented | `services/providers/ollama.py` |
+| Functional correctness gate | Implemented | `validator.py`, `validation_runner.py` |
+| Reusable research detectors | Implemented | `detectors/research/registry.py` |
+| Synthetic prevalence profile | Implemented | `services/generation/analysis.py` |
+| Uncertainty-aware target comparison | Implemented | `compare_profiles()` |
+| Manual Streamlit calibration | Implemented | `app_pages/generation.py`, `ui/generation.py` |
+| Non-regressive calibration guard | Implemented | `calibrator.py` |
+| Automated baseline comparison | Implemented in service/CLI | `experiment.py`, `run_generation_experiment.py`; not exposed as a Streamlit experiment screen |
+| Automated iterative calibration | Implemented in service/CLI | `run_experiment()` with `task_aware_iterative` |
+| Persistent compact experiment logging | Implemented for CLI experiments | Timestamped JSONL logs under `research-notes/synthetic-generation-experiments/` |
+| Persistent Streamlit iteration history | Implemented | Local SQLite storage persists runs, iterations, submissions, prompts, validation, and detector results. |
+| Fully automatic UI convergence loop | Not implemented | The user manually triggers the next Streamlit calibration iteration. |
+| Complete detector validation for all active detectors | Not yet complete | Two detectors remain pilot-validated by the current review evidence; the validation workflow itself is implemented. |
 
 ## B. Functionality
 
-| Functionality | Status | Evidence and behaviour |
-|---|---|---|
-| Load target profile | Implemented | `load_empirical_target_values()` loads empirical target values. |
-| Construct empirical profile | Implemented | `build_empirical_target_profile()` uses the arithmetic mean of task-level prevalence values. |
-| Select prototype task | Implemented | `load_prototype_tasks()` and the generation sidebar provide T1–T3 selection. |
-| Configure generation | Implemented | `render_generation_sidebar()` provides model, batch size, tolerance, and Ollama URL controls. |
-| Construct prompts | Implemented | `build_generation_specification()` and `build_submission_specification()` construct task-aware prompts. |
-| Use target prevalence | Partially implemented | Prevalence affects assignment planning and comparison, but numerical prevalence is deliberately omitted from the LLM prompt. |
-| Generate code | Implemented | `OllamaProvider.generate()` sends requests to the local Ollama API. |
-| Repair failed output | Implemented | `run_iteration()` allows up to three total generation attempts per submission. |
-| Functional testing | Implemented | `validate_source()` executes generated code against task test cases in a subprocess. |
-| Defect detection | Implemented | `detect_research_defects()` dispatches to the 17 active research detectors. |
-| Synthetic profile | Implemented | `observed_profile()` calculates defect prevalence using valid submissions only. |
-| Profile comparison | Implemented | `compare_profiles()` records target, observed value, difference, confidence interval, status, and action. |
-| Calibration | Implemented | `calibration_constraints()` creates adjustment instructions from profile discrepancies. |
-| Calibration protection | Implemented | `calibration_is_non_regressive()` rejects candidates that reduce functional or category coverage. |
-| Repeated generation | Partially implemented | The interface supports manual iterations stored in Streamlit session state. |
-| Baseline comparison | Not implemented | No dedicated automated baseline/non-adaptive/adaptive experiment runner was found. |
-| Export | Implemented | `iteration_export_archive()` exports generated source files and a manifest. |
-| Visualisation | Implemented | The generation and research dashboards show results, comparisons, iteration history, and task reports. |
+| Functionality | Status | Relevant implementation | Behaviour |
+|---|---|---|---|
+| Load authentic research outputs | Implemented | `services/research/dashboard.py`, `ui/app_data.py` | Loads the prepared reports and profile used by the application. |
+| Build task-level prevalence | Implemented | `task_prevalence()` | Uses valid and defect-eligible submissions only. |
+| Build family prevalence | Implemented | `family_prevalence()` | Equal-weights eligible tasks and also reports pooled prevalence. |
+| Build prototype target | Implemented | `build_empirical_target_profile()` | Converts grouped prevalence into T1/T2/T3 generation-ready values and omits non-applicable defects. |
+| Select task | Implemented | `load_prototype_tasks()`, `render_generation_sidebar()` | Provides T1, T2, and T3 task contracts. |
+| Plan rare assignments | Implemented | `plan_defect_assignments()` | Uses fractional expected quotas and reproducible stable seeds. |
+| Build task prompt | Implemented | `build_generation_specification()` | Lists functional requirements and all applicable defect names without embedding prevalence percentages. |
+| Build submission prompt | Implemented | `build_submission_specification()` | Adds assigned defect briefs, observable signatures, task-specific patterns, category requirements, and unassigned-style avoidance guidance. |
+| Build baseline prompt | Implemented | `build_baseline_specification()` | Gives the task contract without defect-generation guidance. |
+| Call local LLM | Implemented | `OllamaProvider._generate_one()` | Sends a non-streaming `/api/generate` request and extracts Python source. |
+| Repair output | Implemented | `_repair_specification()`, `run_iteration()` | Requests correction of functional failures, missing assigned defects/categories, and unexpected defects. |
+| Functional testing | Implemented | `validate_source()` | Executes submissions in a timed subprocess and compares return values or expected exceptions. |
+| Detect defects | Implemented | `detect_research_defects()` | Runs the research detector registry on parsed source. |
+| Construct synthetic profile | Implemented | `observed_profile()`, `observed_counts()` | Counts each defect over functionally valid submissions. |
+| Compare profiles | Implemented | `compare_profiles()` | Stores difference, target standard error, Wilson interval, decision margin, status, and recommended action. |
+| Calibrate manually | Implemented | `calibration_constraints()`, Streamlit generation page | Converts Increase/Reduce/Maintain actions into the next prompt constraints. |
+| Protect against regression | Implemented | `calibration_is_non_regressive()` | Requires the next candidate to preserve functional pass rate, independent coverage, dependent coverage, and category requirement rate. |
+| Repeat generation | Implemented in two forms | Streamlit session state and `run_experiment()` | Streamlit repeats on user action; CLI experiments repeat automatically up to the configured limit. |
+| Baseline comparison | Implemented | `BASELINE_CONDITION`, `run_experiment()` | Supports baseline, task-aware non-adaptive, and task-aware iterative conditions. |
+| Export code | Implemented | `iteration_export_archive()` | Exports source files, a manifest, and a lossless `iteration.json` payload. |
+| Export calibrated artefact | Implemented | `calibrated_artifact_export_archive()` | Exports the selected batch, calibration lineage, and replayable payload. |
+| Visualise results | Implemented | `ui/generation.py`, `ui/research_dashboard.py` | Displays task details, prompts, code, functional outcomes, profile alignment, category coverage, and calibration history. |
 
-Generated submissions that remain invalid after three attempts are retained in the iteration result but excluded from the observed defect-profile denominator.
+Generated submissions that remain invalid or incomplete after the repair budget are still recorded for review but do not contribute to the observed prevalence denominator.
 
-## C. Usability
+## C. Usability evaluation
 
-### User workflow
+### User operation
 
-The user operates the prototype through Streamlit:
+The current Streamlit workflow is:
 
-1. Open the Home page.
+1. Open Home, which is the default page.
 2. Navigate to Generation.
-3. Select a prototype task.
-4. Select an Ollama model.
-5. Set batch size and tolerance.
-6. Generate a batch.
-7. Inspect the programming task, prompt, results, and analytics tabs.
-8. Apply calibration and generate another iteration if required.
-9. Open individual submissions in an overlay card.
-10. Export an iteration as a ZIP file.
+3. Select a prototype task, local model, batch size, tolerance, and Ollama URL.
+4. Generate a batch.
+5. Inspect the Programming task, Target profile, Prompt, Results, and Analytics tabs.
+6. Review functional validation, assigned defects, detected defects, source code, and prompts.
+7. Inspect individual iterations in an overlay card.
+8. Export an iteration or the retained calibrated artefact.
+9. Use the calibration action when the profile needs improvement.
 
 ### Usability strengths
 
-The interface provides:
-
-- separate Home, Generation, and Defect Detection pages;
-- clear generation controls in the sidebar;
-- programming task, target profile, prompt, results, and analytics tabs;
-- source-code visibility;
-- functional validation results;
-- detected and assigned defect visibility;
-- category coverage metrics;
-- iteration history;
-- calibration status;
-- code export.
+- Home, Generation, and Defect detection are separate navigable application pages.
+- Generation controls are separated into the sidebar, leaving the main area for research evidence.
+- The Programming task tab is first, followed by target profile, prompt, results, and analytics.
+- Exact per-submission prompts are visible after generation.
+- Generated code and functional-test failures are visible per submission.
+- Analytics separates category coverage from defect-level profile alignment.
+- Defect alignment can be filtered by category or defects outside tolerance.
+- Detailed uncertainty and detector counts are available in an expander.
+- The Analytics tab explicitly identifies the retained iteratively calibrated artefact.
+- Calibrated outputs can be exported with their lineage rather than only as anonymous source files.
 
 ### Usability limitations
 
-- Generation depends on a locally running Ollama service.
-- Generation is synchronous; there is no dedicated background job queue.
-- Iterations are stored only in Streamlit session state.
-- Closing or restarting the application does not provide persistent iteration history.
-- There is no integrated experiment comparison screen.
-- The user must manually initiate calibration and regeneration.
-- The interface does not automatically determine when profile alignment has converged.
-- Older `ui/sections/` modules duplicate parts of the current generation UI and may increase maintenance confusion.
+- The local Ollama service must be available at the configured endpoint.
+- Generation is synchronous and can be slow for larger batches or repeated repairs.
+- Iteration history is persisted in the local SQLite store, but there is not yet a multi-user or remote database.
+- The Analytics tab provides a compact browser for JSONL experiment records; it does not yet provide repeated-run uncertainty plots.
+- Experiment conditions, repetitions, maximum iterations, and repair budgets are configured in the CLI rather than in the Generation UI.
+- The user must explicitly request calibration in Streamlit.
+- There is no automatic convergence recommendation in the UI.
+- The UI presents three configured models; it does not discover installed Ollama models dynamically.
 
 ## D. Static analysis
 
-### Modularity
+### Modularity and separation of concerns
 
-The project has a layered structure containing UI, generation services, research services, detector registries, domain models, providers, and tests. This separation is visible in `models/`, `services/`, and `detectors/`.
+The current architecture has a sensible separation between domain models, UI, generation services, providers, research processing, detector implementations, and tests. Prompt generation is not embedded in the Streamlit page. Functional validation and prevalence comparison are also separate from UI rendering.
 
-### Separation of concerns
+The shared `run_iteration()` function is the key integration boundary. Both the interactive Streamlit wrapper and the experiment runner use the same generation, validation, detector, and comparison mechanics. Their orchestration differs, but the lower-level evaluation principle is shared.
 
-Prompt construction, generation, validation, detection, profile aggregation, calibration, and UI rendering are separated into different modules. This is a strength of the current design.
+### Configuration and traceability
 
-### Configuration
+The active defect catalogue is `config/defect_specifications.json`, with 17 configured defects. Task-specific YAML files are retained under `research-notes/task-def-yaml/`, and detector-validation records are under `research-notes/detector-validation/`. Prototype task contracts are defined in Python in `services/generation/prototype_tasks.py`.
 
-The main research configuration is stored in:
+Within an iteration, traceability is strong:
 
-- `config/defect_specifications.json`;
-- `research-notes/defect_definitions_yaml/`.
+```text
+target profile
+    -> assignment plan and selected defect styles
+    -> exact captured prompt
+    -> generated source
+    -> validation result
+    -> detector output
+    -> observed counts and prevalence
+    -> comparison and calibration action
+```
 
-A maintainability issue remains: `prompt_builder.py` includes additional prompt-only task-independent defect names such as `non_descriptive_naming` and `unused_variable`, while the active research detector catalogue is based on 17 configured defects. These sources should be reconciled.
+`IterationResult` and `SubmissionResult` preserve target values, constraints, prompts, seeds, source code, validation, detected defects, attempt count, and category status.
 
-### Duplication
+### Static strengths
 
-Static duplication exists in:
+- Business logic is separated from the Streamlit presentation.
+- The same detector registry is reused for authentic and synthetic submissions.
+- Experiment configuration is explicit through `ExperimentConfig`.
+- The calibrated-artifact manifest improves provenance of exported batches.
+- Current Ruff verification is clean.
 
-- compatibility facades under `detectors/`;
-- compatibility service modules under `services/`;
-- older UI sections under `ui/sections/`;
-- demo data and current empirical data paths.
+### Static limitations
 
-### Error handling and execution safety
-
-Error handling exists for Ollama HTTP errors, connection failures, empty model responses, subprocess timeouts, malformed validation output, and invalid generated code.
-
-Generated code is executed using Python `exec()` inside a subprocess. The timeout limits execution duration, but this is not a complete security sandbox.
-
-### Dependency management
-
-`requirements.txt` lists the main dependencies, but versions are not pinned. This limits reproducibility across machines and environments.
-
-### Reproducibility
-
-Positive features include:
-
-- stable SHA-256-based seed generation;
-- recorded generation seed;
-- recorded model;
-- recorded prompt;
-- recorded generation attempts;
-- recorded target profile and tolerance;
-- exported manifest metadata.
-
-Limitations include:
-
-- no persistent run database;
-- no environment lockfile;
-- no model-version capture;
-- no automatic storage of complete experiment configurations;
-- Streamlit session state is temporary.
-
-### Traceability
-
-Traceability is reasonably strong within one iteration:
-
-`target profile → assignment plan → prompt → source code → functional validation → detections → comparison → calibration constraints`
-
-The `IterationResult` model preserves most of this information. The main weakness is that experimental runs are not persistently stored outside the current Streamlit session.
+- `requirements.txt` does not pin dependency versions.
+- Model versions and Ollama runtime versions are not captured in experiment records.
+- Several compatibility or legacy modules remain alongside the newer `services/generation`, `services/research`, and `services/providers` structure.
+- `ui/sections/` contains older UI-oriented modules that may confuse future maintenance even though the current page uses `ui/generation.py`.
+- The functional validator executes generated code with `exec()` in a timed subprocess. The subprocess and timeout reduce risk but are not a complete security sandbox.
+- The target-profile JSON still labels its detector source as `preliminary_raw_detector_estimates`, even though a separate detector-readiness report now provides pilot validation evidence. These evidence-status descriptions should be reconciled before final research reporting.
+- The active prompt catalogue and task-specific patterns are partly configured in Python and partly in JSON/YAML, increasing the risk of configuration drift.
 
 ## E. Dynamic analysis
 
-### One generation run
+### One interactive generation
 
-`run_iteration()`:
+`app_pages/generation.py` loads dashboard data and calls `run_prototype_iteration()`. The wrapper calls `run_iteration()` with the selected task, target profile, batch size, model, context length, tolerance, target standard errors, and active constraints.
 
-1. creates defect assignments;
-2. builds a task-specific prompt;
-3. calls the LLM;
-4. validates the returned source code;
-5. requests a repair generation when necessary;
-6. detects defects after functional success;
-7. records source, validation, defects, prompt, seed, attempts, and category status.
+For each submission, `run_iteration()`:
 
-### Failed functional validation
+1. selects mandatory task-independent and task-dependent styles;
+2. adds target-driven assignments from the assignment plan;
+3. builds the exact submission brief;
+4. calls the provider with a reproducible seed;
+5. validates the returned source;
+6. runs detector analysis only when functional validation passes;
+7. checks assigned styles, required categories, and unexpected styles;
+8. issues a repair request when required, up to the attempt limit;
+9. stores all evidence in `SubmissionResult`.
 
-If a generated submission fails:
+### Functional failure
 
-- the failure is recorded;
-- a repair prompt may be issued;
-- up to three total generation attempts are allowed;
-- if all attempts fail, the submission remains recorded as invalid;
-- invalid submissions are excluded from the observed defect-profile denominator.
+When generated code fails to parse, raises an unexpected exception, returns an incorrect value, or times out, validation returns `FAIL`. The workflow can send a revision request. If all attempts fail, the submission remains visible but is excluded from the valid denominator used for prevalence.
 
-### Defect detection
+### Detection behaviour
 
-Defect detection uses the shared research detector registry. Detection is based on parsed AST/token structures rather than LLM self-reporting.
+For parseable valid source, the research registry returns detector results containing presence, count, locations, evidence, and notes. In the generation workflow the submission stores Boolean defect presence for the relevant defect IDs. Parse-invalid source is not passed to the research detectors for prevalence.
 
-A parse failure is recorded by the detector pipeline and does not produce a valid defect observation.
+Unexpected detector exceptions are allowed to surface as run failures rather than being silently converted into prevalence values. The current policy is explicit failure and requires the caller to retry or inspect the error; it is not a recovery or sandbox policy.
 
 ### Profile comparison
 
-The comparison process records target prevalence, observed prevalence, difference, observed count, valid denominator, Wilson interval, target standard error, allowed difference, status, and recommended action.
+For each target defect, the comparison stores:
 
-The tolerance is not simply a fixed percentage-point difference. The implementation uses a target-relative tolerance combined with a sampling-aware margin.
+- target prevalence;
+- observed prevalence;
+- signed difference;
+- valid denominator and observed count;
+- target standard error;
+- Wilson 95% interval for the synthetic sample;
+- combined allowed difference;
+- `Within tolerance`, `Underrepresented`, or `Overrepresented` status;
+- `Maintain`, `Increase`, or `Reduce` action.
 
-### Calibration
+When a valid denominator and target standard errors are available, the allowed difference is the larger of target-relative tolerance and the combined 95% sampling margin. Consequently, a 10% setting is not interpreted as a universal 10 percentage-point interval.
 
-Calibration translates discrepancy actions into `Increase`, `Reduce`, and `Maintain` constraints. The next iteration uses these constraints. A candidate iteration is rejected if it causes regression in functional pass rate, independent-defect coverage, dependent-defect coverage, or category-requirement rate.
+### Calibration behaviour
 
-### Multiple iterations
+Streamlit calibration is optional and user initiated. The current comparison is converted into constraints, a new batch is generated, and the candidate is rejected if it decreases any of the four protected quality dimensions:
 
-Manual repeated iterations are supported and displayed in the Analytics tab. Automatic repeated execution until convergence is not implemented.
+- functional pass rate;
+- task-independent coverage;
+- task-dependent coverage;
+- category requirement rate.
 
-## F. Optimisation
+The CLI experiment runner performs the same kind of iterative comparison automatically for `task_aware_iterative`, stopping when the candidate is accepted, when the non-regression guard is triggered, or when the maximum iteration count is reached.
 
-| Optimisation area | Status |
+## F. Optimisation and resource use
+
+| Mechanism | Status and evidence |
 |---|---|
-| Maximum repair attempts | Implemented; maximum three total attempts per submission |
-| Configurable batch size | Implemented; UI allows 1–50 |
-| Defect assignment planning | Implemented; uses fractional stochastic allocation |
-| Avoiding excessive defect assignments | Implemented; assignment cap exists |
-| Cached data loading | Implemented through cached loaders |
-| Subprocess timeout | Implemented |
-| Provider batching | Not used in the active workflow; submissions are generated individually |
-| Early stopping | Not implemented |
-| Automatic convergence detection | Not implemented |
-| Persistent result caching | Not implemented |
-| Parallel generation | Not implemented |
-| Automatic experiment scheduling | Not implemented |
+| Configurable sample size | Implemented; Streamlit allows 1-50, CLI accepts `--batch-size`. |
+| Repair limit | Implemented; default two repairs, three total attempts. |
+| Iteration limit | Implemented in experiment runner; default maximum three iterative iterations. |
+| Early acceptance | Implemented in experiment runner when all profile rows are within tolerance. |
+| Non-regressive stop | Implemented in experiment runner and Streamlit calibration path. |
+| Stable assignment and generation seeds | Implemented in `assignment.py` and `OllamaProvider`. |
+| Cached dashboard loading | Implemented through `@st.cache_data`. |
+| Subprocess timeout | Implemented for functional validation. |
+| Provider batching | Not used as a multi-submission model request; submissions are requested individually. |
+| Parallel generation | Not implemented. |
+| Persistent result cache | Implemented for Streamlit run history through local SQLite; cross-process caching is not implemented. |
+| Automatic UI convergence loop | Not implemented. |
+| Experiment scheduling/background jobs | Not implemented. |
 
-The system reduces unnecessary calls by repairing each submission only until it becomes functionally correct and category-compliant, or until the retry limit is reached.
+The main resource-saving mechanism is bounded repair and iteration control. The current architecture prioritises traceability and per-submission inspection over throughput.
 
 ## G. Black-box testing
 
-The latest full test execution produced:
+Black-box evidence is strongest in integration tests and Streamlit `AppTest` tests because those tests exercise externally observable outcomes through public workflow or UI entry points.
 
-```text
-116 passed in 31.00s
-```
+| Test ID or group | Input/condition | Expected external behaviour | Repository evidence | Result |
+|---|---|---|---|---|
+| `test_demo_generation_validates_and_detects_defects` | Demo provider and a prototype task | Valid source passes and selected defects are detected | `tests/integration/test_workflow.py` | Passed in the 139-test run |
+| `test_failed_submissions_are_excluded_from_denominator` | One valid and one failed submission | Observed profile uses only valid submissions | `tests/integration/test_workflow.py` | Passed |
+| `test_comparison_and_tolerance_actions` | Target and observed profile with discrepancy | Status and action are produced | `tests/integration/test_workflow.py` | Passed |
+| `test_sampling_aware_comparison_records_counts_and_wilson_interval` | Counts and denominator supplied | Comparison contains sampling interval and decision margin | `tests/integration/test_workflow.py` | Passed |
+| `test_calibration_rejects_regression_in_mandatory_category_coverage` | Candidate loses category coverage | Candidate is rejected by non-regression guard | `tests/integration/test_workflow.py` | Passed |
+| `test_calibration_allows_equal_or_better_quality` | Candidate is equal or better on protected dimensions | Candidate is accepted by guard | `tests/integration/test_workflow.py` | Passed |
+| `test_home_is_the_default_view` | App initialisation | Home is the first view | `tests/ui/test_app.py` | Passed |
+| `test_generation_view_exposes_main_controls` | Generation page | Task, model, batch, tolerance, and generation controls are visible | `tests/ui/test_app.py` | Passed |
+| `test_generation_main_content_has_task_and_prompt_tabs` | Generation page and tab changes | Programming task and prompt tabs render expected content | `tests/ui/test_app.py` | Passed |
+| `test_defect_detection_is_a_separate_complementary_view` | Defect detection page | Detection is separated from generation controls | `tests/ui/test_app.py` | Passed |
+| `test_authentic_task_browser_exposes_lab_12_q2_report` | Detection page with T2 and Lab 12 Q2 | Authentic task report is discoverable | `tests/ui/test_app.py` | Passed |
+| Research-pipeline integration tests | Authentic observations including parse failures and unknown correctness | Eligibility and raw detection are preserved or excluded as specified | `tests/integration/test_research_pipeline.py` | Passed |
 
-### Existing black-box tests
+### Black-box gaps
 
-| Test ID | Behaviour tested | Evidence | Result |
-|---|---|---|---|
-| `test_demo_generation_validates_and_detects_defects` | A generated/demo submission is functionally validated and analysed | `tests/integration/test_workflow.py` | Passed |
-| `test_failed_submissions_are_excluded_from_denominator` | Invalid submissions do not contribute to prevalence | `tests/integration/test_workflow.py` | Passed |
-| `test_comparison_and_tolerance_actions` | Profile discrepancies produce actions | `tests/integration/test_workflow.py` | Passed |
-| `test_sampling_aware_comparison_records_counts_and_wilson_interval` | Comparison records sampling-aware statistics | `tests/integration/test_workflow.py` | Passed |
-| `test_calibration_changes_constraints_not_target_profile` | Calibration modifies constraints rather than the target profile | `tests/integration/test_workflow.py` | Passed |
-| `test_calibration_rejects_regression_in_mandatory_category_coverage` | Worse calibration candidates are rejected | `tests/integration/test_workflow.py` | Passed |
-| `test_home_is_default_page` | Home is the initial application page | `tests/ui/test_app.py` | Passed |
-| `test_generation_view_exposes_main_controls` | Generation controls are visible | `tests/ui/test_app.py` | Passed |
-| `test_generation_view_has_task_prompt_results_and_analytics_tabs` | Main generation tabs are available | `tests/ui/test_app.py` | Passed |
-| `test_detector_dashboard_is_separate_from_generation` | Defect detection is a separate application view | `tests/ui/test_app.py` | Passed |
-| `test_controlled_fixtures_cover_every_detector_and_pass` | Controlled detector cases are executed | `tests/unit/services/test_detector_validation.py` | Passed |
-| `test_iteration_export_contains_source_files_and_manifest` | Generated output can be exported | `tests/unit/services/test_generation_export.py` | Passed |
+The repository does not currently provide dedicated black-box tests for:
 
-### Black-box tests not currently demonstrated
-
-No dedicated black-box tests were found for:
-
-- a missing empirical target profile;
-- an invalid target-profile schema;
-- an unavailable Ollama model;
-- a live Ollama connection failure;
-- automated baseline-versus-adaptive comparison;
-- automatic convergence;
-- comparison of repeated independent experiment runs.
+- missing or malformed empirical profile files in the Streamlit path;
+- unavailable Ollama model or network failure through the UI;
+- a full browser-level presentation of an Ollama network/model failure;
+- recovery across separate application processes or database corruption;
+- automated statistical comparison of multiple independent repetitions.
 
 ## H. White-box testing
 
-| Component | Internal behaviour to test | Existing evidence |
+White-box coverage verifies internal rules, detector structures, and edge cases.
+
+| Component | Internal behaviour tested | Evidence |
 |---|---|---|
-| `build_generation_specification()` | Correct task contract, defect categories, examples, and calibration constraints | `test_programming_task_brief_redacts_prevalence_and_lists_task_dependent_defects()` |
-| `build_submission_specification()` | Only assigned defect guidance is included | `test_submission_prompt_contains_only_assigned_defect_guidance()` |
-| Ollama prompt construction | Assigned defects are presented as hard requirements | `test_ollama_prompt_marks_assigned_defects_as_hard_requirements()` |
-| `validate_source()` | Correct execution, failure, timeout, and malformed-output handling | Validator and prototype-generation tests |
-| `detect_research_defects()` | Correct detector registration and dispatch | `test_research_registry_covers_all_catalog_defects()` |
-| Individual AST detectors | Positive and negative structural cases | `tests/unit/detectors/test_research_detectors.py` |
-| `redundant_comparison` detector | Boolean comparison definition and false-positive rejection | `tests/unit/detectors/test_research_redundant_comparison.py` |
-| `task_prevalence()` | Only valid and eligible submissions are included | `tests/unit/services/test_prevalence.py` |
-| `family_prevalence()` | Equal task weighting and non-applicable handling | `tests/unit/services/test_prevalence.py` |
-| `build_empirical_target_profile()` | Target construction and omission of non-applicable defects | `tests/unit/services/test_target_profile.py` |
-| Assignment planner | Reproducibility and rare-defect fractional allocation | `tests/unit/services/test_assignment.py` |
-| Calibration guard | Non-regressive candidate acceptance | `tests/integration/test_workflow.py` |
-| Export | Source and manifest completeness | `tests/unit/services/test_generation_export.py` |
+| `plan_defect_assignments()` | Stable, balanced, fractional assignment for rare defects | `tests/unit/services/test_assignment.py` |
+| `build_generation_specification()` | Task contract, category lists, prevalence redaction | `tests/unit/services/test_prototype_generation.py` |
+| `build_submission_specification()` | Assigned guidance, required signatures, avoidance of unassigned styles | `tests/unit/services/test_prototype_generation.py` |
+| `OllamaProvider._build_prompt()` | Baseline and guided instruction construction | `tests/unit/providers/test_ollama_prompt.py`, prototype-generation tests |
+| `validate_source()` and runner | Correct results, failures, exception handling, and timeout path | `services/generation/validator.py`, integration tests |
+| Research detector registry | Catalogue coverage, selected dispatch, parse-failure records | `tests/unit/detectors/test_research_detectors.py` |
+| Individual AST detectors | Positive and negative structural patterns | `tests/unit/detectors/test_research_detectors.py` |
+| `redundant_comparison` detector | Boolean-comparison scope and false-positive rejection | `tests/unit/detectors/test_research_redundant_comparison.py` |
+| `task_prevalence()` and `family_prevalence()` | Valid/eligible denominator, equal task weighting, non-applicable omission | `tests/unit/services/test_prevalence.py` |
+| `build_empirical_target_profile()` | Flat values and omission of non-applicable defects | `tests/unit/services/test_target_profile.py` |
+| `compare_profiles()` | Relative tolerance, sampling intervals, rare and zero observations | `tests/integration/test_workflow.py` |
+| `calibration_is_non_regressive()` | Functional and category coverage protection | `tests/integration/test_workflow.py` |
+| `run_experiment()` | Conditions, iteration records, compact JSONL output, input validation | `tests/unit/services/test_generation_experiment.py` |
+| Export functions | Source files, manifests, and calibrated lineage | `tests/unit/services/test_generation_export.py` |
+| Detector readiness metrics | Confusion metrics, pending/pilot/validated status, label loading | `tests/unit/services/test_detector_validation.py`, `test_validation_metrics.py` |
 
-### Detector-validation limitation
+### White-box gaps
 
-The detector validation artifact reports:
-
-- 15 active detectors as validated;
-- `empty_if` and `redundant_not` as pilot validated;
-- overall active-catalogue status as pilot validated;
-- `redundant_for` excluded from the active catalogue because there are no positive reviewed authentic examples.
-
-The active detector implementation therefore has strong controlled-fixture evidence, but two active detectors still need more authentic positive examples. `redundant_for` is retained only as an exploratory detector and is not used for the primary prevalence benchmark.
+- The invariant tests cover bounded Wilson intervals, comparison action consistency, and assignment-plan caps, but there is no property-based test suite.
+- Detector tests are controlled structural examples; they do not cover all semantic variations in authentic code.
+- Unsafe imports/calls are rejected before execution and non-terminating code is timed out, but this is not a complete sandbox against every malicious or resource-exhaustive program.
+- Export replay is tested through `load_iteration_export_archive()`, but a full regenerated experiment replay is not yet tested.
+- Detector co-occurrence is implemented and tested; causal interaction effects, such as whether one injected style changes another detector's result, remain unevaluated.
 
 ## I. Experimental simulation capability
 
-### Implemented conditions
+### Conditions
 
-The repository currently supports:
+The experiment service implements three conditions:
 
-1. task-aware generation using empirical task profiles;
-2. manual iterative calibration;
-3. repeated generation using the selected model and batch size.
+1. `non_adaptive_baseline`: task-only prompt, no intentional defect assignment.
+2. `task_aware_non_adaptive`: target-aware assignment and defect guidance, without iterative constraint updates.
+3. `task_aware_iterative`: target-aware generation followed by calibration constraints and bounded regeneration.
 
-### Not implemented
-
-There is no dedicated implementation for:
-
-- a non-adaptive baseline condition;
-- an automatically controlled task-aware non-iterative condition;
-- a fully automated iterative condition;
-- randomised repeated experimental runs;
-- statistical comparison between conditions;
-- persistent experiment-level result aggregation.
-
-The prototype supports the mechanics needed for the experiment but not the complete experimental orchestration required to answer RQ3 directly.
+These conditions share `run_iteration()` for generation, validation, detection, and comparison. The experiment service adds orchestration, repetition, condition summaries, stop reasons, and JSONL logging.
 
 ### Configurable parameters
 
-The interface supports:
+`ExperimentConfig` supports:
 
-- prototype task;
-- Ollama model;
+- task ID;
+- target profile;
 - batch size;
-- relative tolerance;
-- Ollama URL.
+- tolerance;
+- model and context length;
+- repetitions;
+- maximum iterative iterations;
+- maximum repair attempts;
+- selected conditions;
+- target standard errors.
 
-The provider additionally fixes context length, temperature, and output-token limits.
+The command-line entry point additionally accepts the profile path, Ollama URL, experiment ID, log path, and condition list. `run_all_generation_experiments.ps1` runs T1, T2, and T3 sequentially.
 
-### Generations and metrics
+### Metrics and storage
 
-The system can generate a configurable batch of 1–50 submissions. Each submission can require up to three generation attempts, including repair attempts.
-
-Available metrics include:
+The experiment runner records:
 
 - functional pass rate;
-- valid and invalid submissions;
-- average attempts;
-- independent-defect coverage;
-- dependent-defect coverage;
-- category-requirement rate;
-- guided and detected defect counts;
-- target and observed prevalence;
-- profile difference;
-- Wilson confidence intervals;
-- target standard error;
-- tolerance status;
-- recommended action;
-- iteration history.
+- task-independent coverage;
+- task-dependent coverage;
+- category requirement rate for guided conditions;
+- mean absolute profile error;
+- root mean square profile error;
+- within-tolerance rate;
+- valid and total submission counts;
+- iteration-level profile comparisons;
+- out-of-tolerance defects;
+- zero-observed defects;
+- selected iteration;
+- stop reason;
+- constraints used in each iteration.
 
-The repository contains empirical authentic profiles and generated iteration structures, but no persistent controlled experiment dataset comparing baseline, task-aware non-adaptive, and iteratively calibrated prompting.
+It deliberately does not store source code or prompts in the compact experiment log. Source and prompt inspection remains available in the interactive Streamlit session and calibrated-artefact export.
 
-## J. Evaluation gaps
+### Existing experiment evidence
 
-### Priority 1: experimental comparison
+Five JSONL experiment logs are present under `research-notes/synthetic-generation-experiments/`. The following summary is descriptive, not a statistical conclusion, because the recorded runs use one repetition per condition.
 
-Implement an experiment runner that executes and stores:
+| Log | Task | Model | Batch | Condition pattern | Key observed result |
+|---|---|---|---:|---|---|
+| `experiment-log.jsonl` | T1 | qwen2.5-coder:1.5b | 10 | baseline, task-aware, iterative | Iterative functional pass rate 1.00; dependent coverage 0.30; within-tolerance rate 0.92. |
+| `experiment-log-290926124333.jsonl` | T1 | qwen2.5-coder:1.5b | 10 | baseline, task-aware, iterative | Iterative dependent coverage 0.22 and functional pass rate 0.90. |
+| `experiment-log-290926131306.jsonl` | T1 | qwen2.5-coder:1.5b | 50 | baseline, task-aware, iterative | Iterative dependent coverage 0.06; functional pass rate 1.00. |
+| `experiment-log-290926135158.jsonl` | T2 | qwen2.5-coder:1.5b | 50 | baseline, task-aware, iterative | Task-aware non-adaptive dependent coverage 0.42; iterative dependent coverage 0.42. |
+| `experiment-log-290926144358.jsonl` | T3 | qwen2.5-coder:1.5b | 50 | baseline, task-aware, iterative | Task-aware iterative dependent coverage 0.10; functional pass rate 1.00. |
 
-1. non-adaptive baseline;
-2. task-aware prompting without calibration;
-3. task-aware prompting with iterative calibration.
+These logs demonstrate that the experimental mechanism is executable and that task-aware prompting changes category coverage relative to the baseline. They also demonstrate that one run is insufficient to claim stable improvement: iterative calibration does not improve every metric in every recorded task and batch-size configuration.
 
-Each condition should use identical tasks, batch sizes, models, controlled seeds, and repeated independent runs.
+## J. Evaluation gaps and priorities
 
-### Priority 2: persistent experiment logging
+### Priority 1: Complete detector validation and evidence-status reconciliation
 
-Store, for every run:
+The controlled fixture report passes 34/34 cases, and the gold-label readiness report contains 1,332 labels. Fifteen active detectors meet the pilot count and metric criteria. `empty_if` and `redundant_not` are still pilot-validated because they have fewer than 20 positive reviewed examples. Detector readiness should be reported separately from controlled-fixture correctness, and the target profile metadata should be updated to reflect the latest validation status.
 
-- experiment ID;
-- condition;
-- task;
-- model and model version;
-- prompt version;
-- seed;
-- batch size;
-- temperature;
-- target-profile version;
-- detector version;
-- validation results;
-- defect results;
-- calibration history.
+### Priority 2: Evaluate the full experiment with repeated runs
 
-The current Streamlit session state is insufficient for research-grade reproducibility.
+The current JSONL examples use one repetition per condition. RQ3 requires repeated runs, confidence intervals or another uncertainty treatment for condition-level comparisons, and a pre-specified primary metric. The current runner supports repetitions, but a repeated study has not yet been demonstrated in the repository evidence.
 
-### Priority 3: convergence and stopping criteria
+### Priority 3: Define convergence and selection criteria before final experiments
 
-Define an explicit stopping rule, such as:
+The runner stops at acceptance, non-regressive guard, or maximum iterations. This is a practical stopping mechanism, but it is not a full convergence analysis. The research evaluation should predefine whether the primary objective is within-tolerance rate, mean absolute profile error, category coverage, or a multi-objective rule.
 
-- all measurable defect categories within tolerance;
-- no improvement after a fixed number of iterations;
-- maximum iteration limit;
-- no regression in functional correctness or category coverage.
+### Priority 4: Distinguish assignment compliance from authentic-style prevalence
 
-### Priority 4: detector validity
+The guided workflow deliberately assigns styles and requires at least one defect from each category. This is useful for testing controllability, but it introduces intervention. The baseline, task-aware non-adaptive, and iterative conditions must be interpreted as different prompting treatments rather than as equally natural samples.
 
-Complete authentic manual validation for `empty_if`, `redundant_not`, and any active detector with few authentic positive examples. `redundant_for` should remain excluded unless positive authentic evidence is later identified.
+### Priority 5: Measure defect interactions
 
-### Priority 5: defect interaction
+The Analytics tab now reports valid-submission defect co-occurrence pairs through `detector_interaction_rows()`. This addresses descriptive interaction measurement. It does not establish causality or show whether intentionally assigning one style changes another style's detector result; that remains a future experiment.
 
-Measure defect co-occurrence and interaction between task-independent and task-dependent defects. The current analysis treats defects primarily as independent binary categories.
+### Priority 6: Strengthen reproducibility
 
-### Priority 6: prompt and configuration consistency
+The project records seeds, prompts, model name, context length, target profile, tolerance, experiment configuration, and persistent local iteration state. It does not yet record model digest, Ollama version, or a pinned Python/dependency lockfile. These should be captured for a final experiment package.
 
-Reconcile the 17-defect active research catalogue, exploratory detector definitions, prompt-only defect names, legacy repositories, legacy UI modules, YAML definitions, and JSON specifications.
+### Priority 7: Improve Streamlit experiment analysis
 
-### Priority 7: secure execution
-
-Generated code is executed with `exec()` in a subprocess. A stronger sandbox would be required before running untrusted code outside a controlled local research environment.
-
-### Priority 8: static quality
-
-Resolve the 31 Ruff errors, especially wildcard imports in compatibility facades and module-level imports after path manipulation in `scripts/validate_detectors.py`.
+The Analytics tab now presents the retained calibrated artefact, its lineage, and a browser for available JSONL experiment records. A future complementary improvement is to compare repeated conditions with uncertainty plots and distinguish selected iterations from rejected candidates across runs.
 
 ## K. Section 3 evidence summary
 
 | Evaluation Area | Evidence Present | Relevant File/Function | Main Finding | Limitation |
 |---|---|---|---|---|
-| Functionality | Full generation, validation, detection, comparison, calibration, and export workflow | `run_iteration()`, `validate_source()`, `compare_profiles()` | Core prototype workflow is implemented | No complete automated experiment runner |
-| Usability | Streamlit pages, sidebar controls, tabs, source display, analytics, export | `ui/generation.py`, `ui/home.py` | Usable interactive research prototype | Session-only storage and manual calibration |
-| Static Analysis | Layered modules, domain models, detector registry, provider abstraction | `models/`, `services/`, `detectors/` | Reasonable modular design | 31 Ruff errors, legacy duplication, unpinned dependencies |
-| Dynamic Analysis | Functional retries, detector execution, profile comparison, calibration guard | `services/generation/workflow.py` | Runtime behaviour is explicitly represented | No automated convergence or persistent runs |
-| Optimisation | Retry limit, caching, fractional assignment, timeout, configurable batch size | `assignment.py`, `validator.py`, `ui/generation.py` | Basic resource controls exist | No parallelism, early stopping, or persistent caching |
-| Black-box Testing | 116 passing tests including workflow and UI tests | `tests/integration/`, `tests/ui/` | Main observable behaviours are tested | No live Ollama or baseline experiment tests |
-| White-box Testing | Unit tests for prompt builder, detectors, prevalence, assignment, calibration, and export | `tests/unit/` | Internal logic has substantial coverage | Some detector validity remains preliminary |
-| Experimental Simulation | Configurable tasks, models, batches, iterations, metrics, and export | `prototype_runner.py`, `analytics.py`, `export.py` | Prototype supports manual simulation iterations | No baseline/adaptive comparison or persistent experiment dataset |
+| Functionality | End-to-end generation, validation, detection, comparison, calibration, export, and experiment services | `services/generation/workflow.py`, `experiment.py`, `ui/generation.py` | The principal artefact workflow is implemented. | Streamlit and CLI expose different orchestration layers. |
+| Usability | AppTest coverage and organised Streamlit pages/tabs | `app.py`, `app_pages/`, `ui/generation.py`, `tests/ui/test_app.py` | The user can configure, inspect, calibrate, export, and browse experiment records. | No multi-user store or repeated-run uncertainty dashboard. |
+| Static Analysis | Layered modules, `IterationResult` traceability, clean Ruff verification | `models/types.py`, `services/`, `detectors/`, `ruff check .` | Separation of concerns and current code quality are acceptable for a prototype. | Dependencies are unpinned and legacy/compatibility modules remain. |
+| Dynamic Analysis | Integration tests and workflow implementation | `run_iteration()`, `validate_source()`, `compare_profiles()` | Invalid code is bounded by repairs and excluded from the valid denominator; comparison is sampling-aware. | Detector exceptions and sandbox hardening need further work. |
+| Optimisation | Repair limits, maximum iterations, early acceptance, non-regression guard, cached dashboard data | `workflow.py`, `experiment.py`, `ui/app_data.py` | Unbounded regeneration is prevented. | No parallel generation, persistent cache, or background execution. |
+| Black-box Testing | 139 passing tests including integration and AppTest tests | `tests/integration/`, `tests/ui/` | External workflow and page behaviour are exercised. | Full live Ollama failure presentation and cross-process persistence need additional tests. |
+| White-box Testing | Detector, prompt, assignment, comparison, calibration, storage, interaction, export, and experiment unit tests | `tests/unit/` | Core internal rules and persistence invariants are directly tested. | No property-based suite, full sandbox, or causal interaction experiment. |
+| Experimental Simulation | Three conditions, repetitions, bounded iterative calibration, metrics, JSONL logs | `services/generation/experiment.py`, `scripts/run_generation_experiment.py` | The repository can execute the intended prompting-condition comparison. | Existing evidence is mainly one repetition per condition, so RQ3 is not yet answered conclusively. |
 
-## Overall conclusion
+## Descriptive and literature-informed interpretation
 
-The artefact is sufficiently implemented to evaluate the feasibility of task-aware synthetic-code generation and iterative defect-profile calibration.
+The artefact is best described as a functioning design-science research prototype rather than a validated production benchmark. Its principal contribution is an operational chain connecting authentic defect evidence to task-aware synthetic generation and then back to measurable prevalence comparison. The reusable detector registry, functional gate, target-relative and sampling-aware comparison, calibration guard, and experiment runner make the chain executable and inspectable.
 
-It currently demonstrates:
+The evaluation should therefore make three distinctions explicit:
 
-- functional synthetic code generation;
-- empirical target-profile construction;
-- shared AST-based defect detection;
-- sampling-aware profile comparison;
-- manual iterative calibration;
-- interactive inspection and export.
+1. **Artefact correctness**: whether the implemented workflow executes as specified. Current tests and fixtures provide positive evidence for this.
+2. **Detector validity**: whether the structural detectors correspond to the project's operational defect definitions. Current evidence is pilot-level, with two detectors needing more positive review examples.
+3. **Synthetic benchmark validity**: whether generated code is sufficiently similar to authentic code for the intended research use. The current experiment logs are preliminary evidence only and do not establish this claim.
 
-For the design-science evaluation, it should be described as a **functional research prototype**, not yet as a fully validated experimental framework. The next major development should be a persistent experiment runner that compares baseline, task-aware, and iteratively calibrated prompting under controlled repeated runs.
+Suggested local literature placeholders to verify before final submission:
+
+- `[A3-conceptualize-artefacts.pdf, page to verify]` for the definition and evaluation of design artefacts.
+- `[A4-designing-system.pdf, page to verify]` for design-science evaluation strategy and artefact assessment.
+- `[A2-literature-review.pdf, page to verify]` for the literature context on code quality, novice programming, or synthetic data generation.
+- `[A1-introduction.pdf, page to verify]` for the research motivation and problem context.
+
+These placeholders are intentionally not presented as complete bibliographic citations because the repository stores course reading PDFs rather than a resolved reference list. Page numbers and author-year details should be confirmed from the source PDFs before they are inserted into the academic draft.
+
+## Relationship to the research questions
+
+### RQ1: Classification of authentic defect types
+
+The repository implements the operational basis for RQ1: defect definitions are catalogued in `config/defect_specifications.json` and YAML research notes; task applicability is encoded in the catalogue; authentic task reports are produced by `run_prevalence_reports()`; and grouped profiles use eligible task-level prevalence. The resulting target profile distinguishes task-independent defects from task-dependent defects and records non-applicable defects as omitted rather than zero.
+
+The remaining RQ1 limitation is detector validity. The classification is operationally implemented, but the final empirical claim requires completing review evidence for the pilot-validated detectors and explaining the sampling and task-family mapping decisions.
+
+### RQ2: Incorporating empirical profiles into task-aware prompting
+
+The repository implements this mechanism through target profiles, assignment planning, per-submission briefs, task-specific patterns, observable defect signatures, and category requirements. Numeric prevalence is used to plan assignments and compare outputs, while the prompt describes the selected styles rather than exposing target percentages directly. This is an intentional prompt-design decision, but it means prevalence control is mediated by assignment and calibration rather than by the LLM interpreting percentages.
+
+The remaining RQ2 limitation is empirical reliability across model sizes and tasks. The logs show meaningful task-aware category coverage, but task-dependent coverage remains uneven, especially for T1 and T3.
+
+### RQ3: Effect of iterative task-aware refinement
+
+The repository implements the comparison mechanism through three prompting conditions, configurable repetitions, bounded iterative calibration, non-regressive selection, metrics, and JSONL logs. Existing logs show that iterative calibration sometimes improves functional validity, dependent coverage, or within-tolerance rate, but not consistently across the small set of one-repetition runs. Therefore, the current artefact supports an RQ3 experiment but does not yet provide sufficient repeated evidence to answer RQ3 conclusively.
+
+## Overall evaluation conclusion
+
+The prototype has reached a substantial and testable artefact state. The generation feature, reusable detector service, empirical target profiles, functional gate, calibration logic, experiment runner, logging, export, and Streamlit analytics are present and connected at the core workflow level. The most important next step is not adding another generation feature; it is strengthening the evaluation evidence: complete detector review where required, run repeated controlled experiments, record environment/model provenance, and interpret iterative improvement against pre-specified metrics and uncertainty.

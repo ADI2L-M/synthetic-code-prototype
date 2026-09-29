@@ -51,7 +51,7 @@ class ExperimentConfig:
     experiment_id: str
     task_id: str
     target_profile: dict[str, float]
-    batch_size: int = 10
+    batch_size: int = 50
     tolerance: float = 0.10
     model: str | None = None
     context_length: int | None = None
@@ -239,6 +239,35 @@ def append_experiment_log(
         log_file.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
+def load_experiment_logs(
+    directory: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Load valid experiment records for the Streamlit history browser."""
+    directory = directory or EXPERIMENT_LOG_DIRECTORY
+    if not directory.exists():
+        return []
+    records: list[dict[str, Any]] = []
+    for path in sorted(directory.glob("experiment-log*.jsonl")):
+        with path.open(encoding="utf-8") as log_file:
+            for line_number, line in enumerate(log_file, start=1):
+                if not line.strip():
+                    continue
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if record.get("record_type") != "synthetic_generation_experiment":
+                    continue
+                records.append(
+                    {
+                        **record,
+                        "_log_file": path.name,
+                        "_line_number": line_number,
+                    }
+                )
+    return records
+
+
 def run_experiment(
     config: ExperimentConfig,
     provider_factory: ProviderFactory,
@@ -340,5 +369,6 @@ __all__ = [
     "TASK_AWARE_CONDITION",
     "append_experiment_log",
     "experiment_log_path",
+    "load_experiment_logs",
     "run_experiment",
 ]

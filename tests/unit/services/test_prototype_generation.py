@@ -1,7 +1,9 @@
 from detectors.research.registry import detect_research_defects
+from services.generation.assignment import plan_defect_assignments
 from services.generation.prompt_builder import (
     TASK_SPECIFIC_PATTERNS,
     build_generation_specification,
+    build_submission_specification,
 )
 from services.generation.prototype_tasks import load_prototype_tasks
 from services.generation.validator import validate_source
@@ -45,8 +47,9 @@ class RepairingProvider:
         return [(
             "def classify_temperature(temp):\n"
             "    x = temp\n"
-            "    is_cold = x < 10\n"
-            "    if is_cold == True:\n"
+            "    if x < 10:\n"
+            "        return 'cold'\n"
+            "    elif x < 10:\n"
             "        return 'cold'\n"
             "    if x < 25:\n"
             "        return 'mild'\n"
@@ -147,6 +150,25 @@ def test_submission_prompt_contains_only_assigned_defect_guidance():
     assert "IMPORTANT NOTE:" in prompt
     assert "Implementing coding style is mandatory" in prompt
     assert "100% target" not in prompt
+    assert "UNASSIGNED DEFECTS TO AVOID" in prompt
+
+
+def test_generation_submission_briefs_include_target_driven_assignments():
+    provider = RecordingProvider()
+    target = {"magic_number": 0.6, "inappropriate_formatting": 0.6}
+    result = run_iteration(
+        task=load_prototype_tasks()["T1"],
+        target_profile=target,
+        batch_size=5,
+        iteration_number=1,
+        tolerance=0.1,
+        provider=provider,
+    )
+    plan = plan_defect_assignments("T1", target, 5, 1)
+
+    for submission_id, planned in plan.by_submission.items():
+        assigned = result.submissions[submission_id - 1].assigned_defects
+        assert set(planned).issubset(assigned)
 
 
 def test_ollama_prompt_marks_assigned_defects_as_hard_requirements():
@@ -176,6 +198,18 @@ def test_programming_task_brief_redacts_prevalence_and_lists_task_dependent_defe
     assert "POTENTIAL TASK-INDEPENDENT DEFECTS" in brief
     assert "magic number" in brief
     assert "%" not in brief
+
+
+def test_t1_task_pattern_uses_named_thresholds_when_magic_number_is_unassigned():
+    brief = build_submission_specification(
+        load_prototype_tasks()["T1"],
+        ("inappropriate_formatting", "duplicate_if"),
+    )
+
+    assert "COLD_LIMIT = 10" in brief
+    assert "MILD_LIMIT = 24" in brief
+    assert "if temp<COLD_LIMIT:" in brief
+    assert "if temp<10:" not in brief
 
 
 def test_t1_task_specific_patterns_are_functional_and_detector_visible():

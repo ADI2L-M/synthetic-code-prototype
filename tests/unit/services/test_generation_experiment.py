@@ -9,6 +9,7 @@ from services.generation.experiment import (
     ITERATIVE_CONDITION,
     TASK_AWARE_CONDITION,
     experiment_log_path,
+    load_experiment_logs,
     run_experiment,
 )
 from services.generation.prototype_tasks import load_prototype_tasks
@@ -131,3 +132,40 @@ def test_experiment_rejects_negative_repair_budget(tmp_path):
 
     with pytest.raises(ValueError, match="max_repair_attempts"):
         run_experiment(config, ConventionalProvider, log_path=tmp_path / "log.jsonl")
+
+
+def test_experiment_supports_repeated_runs_for_comparison(tmp_path):
+    config = ExperimentConfig(
+        experiment_id="repeated-experiment",
+        task_id="T1",
+        target_profile={"built_in_name": 0.1},
+        batch_size=1,
+        repetitions=2,
+        conditions=(TASK_AWARE_CONDITION,),
+    )
+
+    result = run_experiment(
+        config,
+        provider_factory=ConventionalProvider,
+        log_path=tmp_path / "log.jsonl",
+    )
+
+    assert len(result.runs) == 2
+    assert {run.repetition for run in result.runs} == {1, 2}
+
+
+def test_experiment_log_browser_skips_malformed_lines(tmp_path):
+    path = tmp_path / "experiment-log-1.jsonl"
+    path.write_text(
+        "not-json\n"
+        '{"record_type":"other"}\n'
+        '{"record_type":"synthetic_generation_experiment",'
+        '"experiment_id":"one","config":{"task_id":"T1"}}\n',
+        encoding="utf-8",
+    )
+
+    records = load_experiment_logs(tmp_path)
+
+    assert len(records) == 1
+    assert records[0]["experiment_id"] == "one"
+    assert records[0]["_log_file"] == path.name

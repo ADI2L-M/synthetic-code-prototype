@@ -2,6 +2,13 @@ from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
 
+from models.types import (
+    IterationResult,
+    ProfileComparison,
+    SubmissionResult,
+    ValidationResult,
+)
+
 APP_PATH = Path(__file__).resolve().parents[2] / "app.py"
 DETECTION_TAB = ":material/analytics: Defect detection"
 HOME_TAB = ":material/home: Home"
@@ -16,6 +23,37 @@ def _app() -> AppTest:
 
 def _open_page(app: AppTest, page: str) -> AppTest:
     return app.switch_page(page).run()
+
+
+def _stored_iteration() -> IterationResult:
+    return IterationResult(
+        iteration=1,
+        task_id="T1",
+        task_name="Temperature Classification",
+        target_profile={"magic_number": 0.5},
+        tolerance=0.1,
+        constraints={},
+        specification="task specification",
+        submissions=[
+            SubmissionResult(
+                submission_id=1,
+                source_code="def classify_temperature(temp):\n    return 'cold'\n",
+                validation=ValidationResult("PASS", 1, 0),
+                defects={"magic_number": True},
+            )
+        ],
+        observed_profile={"magic_number": 1.0},
+        comparison=[
+            ProfileComparison(
+                defect="magic_number",
+                target=0.5,
+                observed=1.0,
+                difference=0.5,
+                status="Overrepresented",
+                action="Reduce",
+            )
+        ],
+    )
 
 
 def test_home_is_the_default_view():
@@ -66,6 +104,17 @@ def test_generation_main_content_has_task_and_prompt_tabs():
     app.session_state["generation_content_tabs"] = ":material/description: Prompt"
     app.run()
     assert any("exact provider prompts" in item.value for item in app.info)
+
+
+def test_generation_analytics_browses_persisted_experiment_logs():
+    app = _open_page(_app(), GENERATION_PAGE)
+    app.session_state["iterations"] = [_stored_iteration()]
+    app.session_state["generation_content_tabs"] = ":material/insights: Analytics"
+    app.run()
+
+    assert not app.exception
+    assert any("Experiment history" in item.value for item in app.subheader)
+    assert app.selectbox(key="generation_experiment_log_T1")
 
 
 def test_home_is_accessible_as_a_separate_application_view():

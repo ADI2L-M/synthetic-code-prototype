@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from itertools import combinations
 from statistics import mean
 
 from models.types import IterationResult
@@ -100,6 +101,75 @@ def generation_quality(iteration: IterationResult) -> dict[str, float | int]:
         if total
         else 0.0,
     }
+
+
+def category_summary_rows(iteration: IterationResult) -> list[dict[str, object]]:
+    """Summarise alignment and coverage for the two defect categories.
+
+    The category coverage values are submission-level measures: a valid
+    submission is covered when it contains at least one detected defect from
+    the category.  Profile alignment remains defect-level and is reported as
+    the number of category rows within the calibrated decision margin.
+    """
+    quality = generation_quality(iteration)
+    rows = defect_analytics_rows(iteration)
+    valid = int(quality["valid_submissions"])
+    for category, coverage_key in (
+        ("Task-independent", "independent_coverage"),
+        ("Task-dependent", "dependent_coverage"),
+    ):
+        category_rows = [row for row in rows if row["Category"] == category]
+        in_tolerance = sum(
+            row["Status"] == "Within tolerance" for row in category_rows
+        )
+        rows_count = len(category_rows)
+        target_mean = (
+            sum(float(row["Target"]) for row in category_rows) / rows_count
+            if rows_count
+            else 0.0
+        )
+        observed_mean = (
+            sum(float(row["Observed"]) for row in category_rows) / rows_count
+            if rows_count
+            else 0.0
+        )
+        rows.append(
+            {
+                "Category": category,
+                "Valid submissions": valid,
+                "Submission coverage": float(quality[coverage_key]),
+                "Target mean": target_mean,
+                "Observed mean": observed_mean,
+                "Profile rows in tolerance": f"{in_tolerance}/{rows_count}",
+            }
+        )
+    return rows[-2:]
+
+
+def detector_interaction_rows(iteration: IterationResult) -> list[dict[str, object]]:
+    """Return valid-submission defect co-occurrence counts and rates."""
+    valid = _valid_submissions(iteration)
+    defects = tuple(iteration.target_profile)
+    rows: list[dict[str, object]] = []
+    for first, second in combinations(defects, 2):
+        count = sum(
+            submission.defects.get(first, False)
+            and submission.defects.get(second, False)
+            for submission in valid
+        )
+        rows.append(
+            {
+                "Defect A": first.replace("_", " ").title(),
+                "Defect B": second.replace("_", " ").title(),
+                "Co-occurrence count": count,
+                "Valid denominator": len(valid),
+                "Co-occurrence rate": count / len(valid) if valid else 0.0,
+            }
+        )
+    return sorted(
+        rows,
+        key=lambda row: (-int(row["Co-occurrence count"]), row["Defect A"], row["Defect B"]),
+    )
 
 
 def iteration_history_rows(
