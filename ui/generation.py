@@ -13,8 +13,8 @@ import streamlit as st
 from models.types import IterationResult, ProgrammingTask
 from services.generation.analytics import (
     category_summary_rows,
-    detector_interaction_rows,
     defect_analytics_rows,
+    detector_interaction_rows,
     generation_quality,
     iteration_history_rows,
 )
@@ -28,8 +28,10 @@ from services.providers.ollama import OLLAMA_TEMPERATURE
 from ui.research_dashboard import render_target_profile_tables
 from ui.state import (
     begin_generation,
-    generation_summary,
     generation_in_progress,
+    generation_summary,
+)
+from ui.state import (
     request_calibration as _request_calibration,
 )
 
@@ -101,7 +103,7 @@ def render_generation_job_dialog(
         if job.done:
             try:
                 result = job.result()
-            except Exception as error:
+            except Exception as error:  # noqa: BLE001 - surface worker failures in UI
                 on_complete(None, error)
             else:
                 on_complete(result, None)

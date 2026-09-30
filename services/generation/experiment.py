@@ -3,19 +3,20 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from math import sqrt
 from pathlib import Path
 from statistics import mean
-from typing import Any, Callable
+from typing import Any
 
 from models.types import IterationResult
+from services.generation.analytics import generation_quality
 from services.generation.calibrator import (
     calibration_constraints,
     calibration_is_non_regressive,
 )
-from services.generation.analytics import generation_quality
 from services.generation.prototype_tasks import load_prototype_task
 from services.generation.workflow import (
     BASELINE_CONDITION,
@@ -35,7 +36,7 @@ EXPERIMENT_LOG_DIRECTORY = (
 
 def experiment_log_path(now: datetime | None = None) -> Path:
     """Return a timestamped JSONL path using local time."""
-    timestamp = (now or datetime.now()).strftime("%d%m%y%H%M%S")
+    timestamp = (now or datetime.now().astimezone()).strftime("%d%m%y%H%M%S")
     return EXPERIMENT_LOG_DIRECTORY / f"experiment-log-{timestamp}.jsonl"
 
 
@@ -55,6 +56,7 @@ class ExperimentConfig:
     tolerance: float = 0.10
     model: str | None = None
     context_length: int | None = None
+    temperature: float | None = None
     repetitions: int = 1
     max_iterations: int = 3
     max_repair_attempts: int = 2
@@ -207,6 +209,27 @@ def _condition_summary(runs: list[ExperimentRun]) -> dict[str, dict[str, float]]
     return summary
 
 
+def _profile_selection_key(iteration: IterationResult) -> tuple[float, ...]:
+    """Rank eligible iterations by profile alignment and quality coverage."""
+    errors = [abs(row.difference) for row in iteration.comparison]
+    mean_absolute_error = mean(errors) if errors else 0.0
+    within_tolerance = (
+        sum(row.status == "Within tolerance" for row in iteration.comparison)
+        / len(iteration.comparison)
+        if iteration.comparison
+        else 1.0
+    )
+    quality = generation_quality(iteration)
+    return (
+        -mean_absolute_error,
+        within_tolerance,
+        float(quality["category_requirement_rate"]),
+        float(quality["dependent_coverage"]),
+        float(quality["independent_coverage"]),
+        float(quality["functional_pass_rate"]),
+    )
+
+
 def append_experiment_log(
     result: ExperimentResult,
     path: Path | None = None,
@@ -216,7 +239,7 @@ def append_experiment_log(
     path.parent.mkdir(parents=True, exist_ok=True)
     record = {
         "record_type": "synthetic_generation_experiment",
-        "schema_version": 1,
+        "schema_version": 2,
         "experiment_id": result.experiment_id,
         "created_at_utc": result.created_at_utc,
         "config": {
@@ -225,6 +248,7 @@ def append_experiment_log(
             "tolerance": result.config.tolerance,
             "model": result.config.model,
             "context_length": result.config.context_length,
+            "temperature": result.config.temperature,
             "repetitions": result.config.repetitions,
             "max_iterations": result.config.max_iterations,
             "max_repair_attempts": result.config.max_repair_attempts,
@@ -282,6 +306,8 @@ def run_experiment(
         raise ValueError("max_iterations must be at least 1")
     if config.max_repair_attempts < 0:
         raise ValueError("max_repair_attempts cannot be negative")
+    if config.temperature is not None and config.temperature < 0:
+        raise ValueError("temperature cannot be negative")
     unknown = set(config.conditions).difference(GENERATION_CONDITIONS)
     if unknown:
         raise ValueError(f"Unknown experiment conditions: {sorted(unknown)}")
@@ -293,12 +319,16 @@ def run_experiment(
         )
         for repetition in range(1, config.repetitions + 1):
             run_id = f"{config.experiment_id}:{condition}:{repetition}"
-            seed_namespace = run_id
+            # Match the initial random draw across task-aware conditions so
+            # iterative calibration is compared with non-adaptive prompting
+            # from the same starting batch.
+            seed_namespace = f"{config.experiment_id}:repetition:{repetition}"
             constraints: dict[str, str] = {}
             iterations: list[IterationResult] = []
             selected_iteration_index = 0
-            stop_reason = "maximum_iterations"
-            previous: IterationResult | None = None
+            stop_reason = "single_iteration"
+            initial_iteration: IterationResult | None = None
+            best_selection_key: tuple[float, ...] | None = None
 
             for iteration_number in range(1, iteration_limit + 1):
                 iteration = run_iteration(
@@ -311,6 +341,7 @@ def run_experiment(
                     provider=provider_factory(),
                     model=config.model,
                     context_length=config.context_length,
+                    temperature=config.temperature,
                     max_repair_attempts=config.max_repair_attempts,
                     target_standard_errors=config.target_standard_errors,
                     condition=condition,
@@ -321,19 +352,35 @@ def run_experiment(
                 if condition != ITERATIVE_CONDITION:
                     stop_reason = "single_iteration"
                     break
-                if iteration.accepted:
+
+                if initial_iteration is None:
+                    initial_iteration = iteration
+                    selected_iteration_index = 0
+                    best_selection_key = _profile_selection_key(iteration)
+                    if iteration.accepted:
+                        stop_reason = "within_tolerance"
+                        break
+                elif iteration.accepted:
+                    # A batch that reaches the prevalence objective is
+                    # accepted immediately; no further calibration is needed.
                     selected_iteration_index = len(iterations) - 1
                     stop_reason = "within_tolerance"
                     break
-                if previous is not None and not calibration_is_non_regressive(
-                    previous, iteration
-                ):
-                    selected_iteration_index = len(iterations) - 2
-                    stop_reason = "non_regressive_guard"
-                    break
-                previous = iteration
-                selected_iteration_index = len(iterations) - 1
+                elif calibration_is_non_regressive(initial_iteration, iteration):
+                    candidate_key = _profile_selection_key(iteration)
+                    if best_selection_key is None or candidate_key > best_selection_key:
+                        selected_iteration_index = len(iterations) - 1
+                        best_selection_key = candidate_key
+
+                # Calibrate the next iteration from the latest observed batch,
+                # even when its profile is worse than the previous batch.
                 constraints = calibration_constraints(iteration.comparison)
+
+            if (
+                condition == ITERATIVE_CONDITION
+                and stop_reason != "within_tolerance"
+            ):
+                stop_reason = "maximum_iterations"
 
             runs.append(
                 ExperimentRun(
@@ -362,11 +409,11 @@ __all__ = [
     "BASELINE_CONDITION",
     "DEFAULT_EXPERIMENT_LOG",
     "EXPERIMENT_LOG_DIRECTORY",
+    "ITERATIVE_CONDITION",
+    "TASK_AWARE_CONDITION",
     "ExperimentConfig",
     "ExperimentResult",
     "ExperimentRun",
-    "ITERATIVE_CONDITION",
-    "TASK_AWARE_CONDITION",
     "append_experiment_log",
     "experiment_log_path",
     "load_experiment_logs",

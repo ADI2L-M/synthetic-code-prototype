@@ -1,6 +1,6 @@
+from dataclasses import replace
 from pathlib import Path
 from time import sleep
-from dataclasses import replace
 
 from streamlit.testing.v1 import AppTest
 

@@ -1,7 +1,7 @@
 import json
+from urllib.error import URLError
 
 import pytest
-from urllib.error import URLError
 
 from models.types import ProgrammingTask
 from models.types import TestCase as TaskTestCase
@@ -25,6 +25,28 @@ def test_ollama_prompt_includes_generation_instructions():
     assert "Include at least one assigned task-independent defect" in prompt
     assert "Copy the key syntax and control-flow shape" in prompt
     assert "Return only executable Python source code" in prompt
+
+
+def test_ollama_baseline_repair_prompt_does_not_add_defect_guidance():
+    task = ProgrammingTask(
+        id="T1",
+        name="Temperature Classification",
+        description="Classify a temperature.",
+        function_name="classify_temperature",
+        contexts=["conditional_logic"],
+        functional_requirements=["Return a category string."],
+        test_cases=[TaskTestCase(args=[10], expected="mild")],
+    )
+
+    prompt = OllamaProvider.build_prompt(
+        task,
+        "PROMPTING CONDITION: NON-ADAPTIVE BASELINE\n\nREVISION REQUEST\n\n"
+        "Repair functional correctness only.",
+    )
+
+    assert "Follow only the programming task and functional requirements." in prompt
+    assert "Include at least one assigned task-independent defect" not in prompt
+    assert "Include at least one assigned task-dependent defect" not in prompt
 
 
 def test_ollama_connection_failure_is_reported_as_runtime_error(monkeypatch):

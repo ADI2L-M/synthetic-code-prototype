@@ -1,3 +1,3 @@
 """Compatibility facade; use :mod:`services.research.prevalence`."""
 
-from services.research.prevalence import *  # noqa: F403
+from services.research.prevalence import *

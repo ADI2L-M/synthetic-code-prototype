@@ -2,7 +2,7 @@
 
 ## Evaluation basis and scope
 
-This report evaluates the repository as it exists on 29 September 2026. It uses the evaluation prompt supplied for Section 3 and distinguishes implemented behaviour from intended or proposed behaviour. The report does not treat a passing software test as proof that the research claims are externally valid.
+This report evaluates the repository as it exists on 1 October 2026. It uses the evaluation prompt supplied for Section 3 and distinguishes implemented behaviour from intended or proposed behaviour. The report does not treat a passing software test as proof that the research claims are externally valid.
 
 The artefact is an iteratively calibrated synthetic-generation framework for functionally correct novice Python code:
 
@@ -24,12 +24,12 @@ authentic submissions
 
 | Evidence | Current result | Interpretation |
 |---|---:|---|
-| Automated repository tests | 145 passed | Current automated implementation behaviour is passing. |
-| Ruff | `All checks passed!` | No current Ruff findings were reported by the verification command. |
+| Automated repository tests | 150 passed | Current automated implementation behaviour is passing. |
+| Ruff | `All checks passed!` | The current Ruff verification reports no findings. |
 | Controlled detector fixtures | 34/34 passed across 17 active detectors | The controlled positive/negative detector suite passes. |
 | Manually reviewed detector labels | 1,332 | Evidence exists for detector-readiness assessment. |
 | Detector readiness | 15 validated; 2 pilot-validated | The catalogue is not fully at the configured evidence threshold. |
-| Experiment logs | 5 JSONL files | Baseline, task-aware, and iterative conditions have been executed for T1-T3, with one additional T1 log. |
+| Experiment logs | 12 JSONL files, 13 records | Baseline, task-aware, and iterative conditions have been executed across T1-T3. The latest completed suite contains one record per task, three repetitions per condition, batch size 20, temperature 0.2, and up to three iterative generations. |
 
 The results support the claim that this is a working research prototype. They do not yet establish that the synthetic code is statistically equivalent to authentic student code, that all detectors are fully validated, or that the approach generalises beyond the selected tasks, models, and local Ollama environment.
 
@@ -56,14 +56,14 @@ The target profile is derived from authentic CS1 submissions. The primary estima
 5. The Streamlit user selects T1, T2, or T3, a local Ollama model, batch size, tolerance, and endpoint.
 6. `plan_defect_assignments()` creates reproducible fractional assignments, including rare-defect assignments with expected counts below one.
 7. `build_generation_specification()` constructs a task-family brief, and `build_submission_specification()` constructs a per-submission brief.
-8. Ollama produces one submission per request. The active provider uses a 16,384-token context, 1,200-token output limit, temperature 0, and a deterministic seed derived from task, iteration, submission, and condition information.
+8. Ollama produces one submission per request. The active provider uses a 16,384-token context, 1,200-token output limit, default temperature 0.2, and a deterministic seed derived from experiment repetition, task, iteration, submission, and repair-attempt information. Initial batches use a matched seed namespace across the baseline and task-aware conditions.
 9. Each submission is functionally validated in a timed subprocess.
-10. A failed or incomplete submission can receive up to two repairs, giving three total attempts.
+10. A failed or incomplete submission can receive up to two repairs, giving three total attempts. The workflow retains the best attempt according to functional validity and unresolved repair requirements rather than automatically accepting the last attempt.
 11. Functionally valid submissions are analysed with the same research AST/token detectors used for authentic prevalence.
 12. Observed prevalence uses only functionally valid submissions as its denominator.
 13. `compare_profiles()` compares target and observed prevalence using target-relative tolerance plus a sampling-aware margin when counts are available.
 14. The Streamlit user can manually apply calibration and regenerate.
-15. The experiment runner can automatically compare baseline, task-aware non-adaptive, and task-aware iterative conditions, with repetitions and a maximum iteration limit.
+15. The experiment runner can automatically compare baseline, task-aware non-adaptive, and task-aware iterative conditions, with repetitions, a maximum iteration limit, repair limits, temperature, and explicit condition selection.
 16. The retained Streamlit artefact and its calibration lineage can be exported as a ZIP archive. CLI experiments are written as compact timestamped JSONL records.
 
 ### Technologies, libraries, and models
@@ -117,8 +117,8 @@ The target profile is derived from authentic CS1 submissions. The primary estima
 | Manual Streamlit calibration | Implemented | `app_pages/generation.py`, `ui/generation.py` |
 | Non-regressive calibration guard | Implemented | `calibrator.py` |
 | Automated baseline comparison | Implemented in service/CLI | `experiment.py`, `run_generation_experiment.py`; not exposed as a Streamlit experiment screen |
-| Automated iterative calibration | Implemented in service/CLI | `run_experiment()` with `task_aware_iterative` |
-| Persistent compact experiment logging | Implemented for CLI experiments | Timestamped JSONL logs under `research-notes/synthetic-generation-experiments/` |
+| Automated iterative calibration | Implemented in service/CLI | `run_experiment()` with `task_aware_iterative`; evaluates all configured iterations unless an iteration reaches the tolerance objective, then retains the best eligible iteration. |
+| Persistent compact experiment logging | Implemented for CLI experiments | Schema-versioned timestamped JSONL logs store configuration, condition summaries, per-iteration metrics, constraints, selected iteration, out-of-tolerance defects, and zero-observed defects. |
 | Persistent Streamlit iteration history | Implemented | Local SQLite storage persists runs, iterations, submissions, prompts, validation, and detector results. |
 | Fully automatic UI convergence loop | Not implemented | The user manually triggers the next Streamlit calibration iteration. |
 | Complete detector validation for all active detectors | Not yet complete | Two detectors remain pilot-validated by the current review evidence; the validation workflow itself is implemented. |
@@ -181,7 +181,7 @@ phase, and provides a cancellation action.
 - The Programming task tab is first, followed by target profile, prompt, results, and analytics.
 - Exact per-submission prompts are visible after generation.
 - Generation exposes a live viewport overlay and disables conflicting controls
-  while the synchronous model request is running.
+  while the background generation job is running.
 - Generated code and functional-test failures are visible per submission.
 - Analytics separates category coverage from defect-level profile alignment.
 - Defect alignment can be filtered by category or defects outside tolerance.
@@ -192,7 +192,7 @@ phase, and provides a cancellation action.
 ### Usability limitations
 
 - The local Ollama service must be available at the configured endpoint.
-- Generation is synchronous and can be slow for larger batches or repeated repairs.
+- Generation runs in a background job but can still be slow for larger batches or repeated repairs.
 - Iteration history is persisted in the local SQLite store, but there is not yet a multi-user or remote database.
 - The Analytics tab provides a compact browser for JSONL experiment records; it does not yet provide repeated-run uncertainty plots.
 - Experiment conditions, repetitions, maximum iterations, and repair budgets are configured in the CLI rather than in the Generation UI.
@@ -233,7 +233,7 @@ target profile
 - The same detector registry is reused for authentic and synthetic submissions.
 - Experiment configuration is explicit through `ExperimentConfig`.
 - The calibrated-artifact manifest improves provenance of exported batches.
-- Current Ruff verification is clean.
+- The current test suite and Ruff verification pass after the latest workflow and maintenance updates.
 
 ### Static limitations
 
@@ -298,7 +298,7 @@ Streamlit calibration is optional and user initiated. The current comparison is 
 - task-dependent coverage;
 - category requirement rate.
 
-The CLI experiment runner performs the same kind of iterative comparison automatically for `task_aware_iterative`, stopping when the candidate is accepted, when the non-regression guard is triggered, or when the maximum iteration count is reached.
+The CLI experiment runner performs the same kind of iterative comparison automatically for `task_aware_iterative`. It evaluates every configured iteration unless a batch reaches the tolerance objective early. When the objective is not reached, it continues calibration from the latest observed batch even if that batch is worse than the current best. The initial batch is the quality floor: a later batch can replace it only when it preserves functional validity, task-independent coverage, task-dependent coverage, and category-requirement coverage. Among eligible batches, the runner retains the best profile-aligned iteration, with within-tolerance and coverage measures used as tie-breakers.
 
 ## F. Optimisation and resource use
 
@@ -308,7 +308,7 @@ The CLI experiment runner performs the same kind of iterative comparison automat
 | Repair limit | Implemented; default two repairs, three total attempts. |
 | Iteration limit | Implemented in experiment runner; default maximum three iterative iterations. |
 | Early acceptance | Implemented in experiment runner when all profile rows are within tolerance. |
-| Non-regressive stop | Implemented in experiment runner and Streamlit calibration path. |
+| Non-regressive selection guard | Implemented in experiment runner and Streamlit calibration path; it prevents a worse calibrated batch from replacing the retained batch but does not prematurely stop the configured iterative evaluation. |
 | Stable assignment and generation seeds | Implemented in `assignment.py` and `OllamaProvider`. |
 | Cached dashboard loading | Implemented through `@st.cache_data`. |
 | Subprocess timeout | Implemented for functional validation. |
@@ -316,7 +316,7 @@ The CLI experiment runner performs the same kind of iterative comparison automat
 | Parallel generation | Not implemented. |
 | Persistent result cache | Implemented for Streamlit run history through local SQLite; cross-process caching is not implemented. |
 | Automatic UI convergence loop | Not implemented. |
-| Experiment scheduling/background jobs | Not implemented. |
+| Experiment scheduling/parallel jobs | Not implemented; the Streamlit page has a background generation job, but there is no experiment scheduler or parallel batch-generation service. |
 
 The main resource-saving mechanism is bounded repair and iteration control. The current architecture prioritises traceability and per-submission inspection over throughput.
 
@@ -326,7 +326,7 @@ Black-box evidence is strongest in integration tests and Streamlit `AppTest` tes
 
 | Test ID or group | Input/condition | Expected external behaviour | Repository evidence | Result |
 |---|---|---|---|---|
-| `test_demo_generation_validates_and_detects_defects` | Demo provider and a prototype task | Valid source passes and selected defects are detected | `tests/integration/test_workflow.py` | Passed in the 145-test run |
+| `test_demo_generation_validates_and_detects_defects` | Demo provider and a prototype task | Valid source passes and selected defects are detected | `tests/integration/test_workflow.py` | Passed in the 150-test run |
 | `test_failed_submissions_are_excluded_from_denominator` | One valid and one failed submission | Observed profile uses only valid submissions | `tests/integration/test_workflow.py` | Passed |
 | `test_comparison_and_tolerance_actions` | Target and observed profile with discrepancy | Status and action are produced | `tests/integration/test_workflow.py` | Passed |
 | `test_sampling_aware_comparison_records_counts_and_wilson_interval` | Counts and denominator supplied | Comparison contains sampling interval and decision margin | `tests/integration/test_workflow.py` | Passed |
@@ -391,6 +391,170 @@ The experiment service implements three conditions:
 
 These conditions share `run_iteration()` for generation, validation, detection, and comparison. The experiment service adds orchestration, repetition, condition summaries, stop reasons, and JSONL logging.
 
+### Testing protocol and prompt treatment
+
+Each experiment uses the same prototype-task contract, functional evaluator,
+research detector registry, target profile, batch size, tolerance, model,
+context length, temperature, and repair budget for all conditions. For each
+repetition, the initial random seed namespace is matched across the baseline
+and task-aware conditions. This controls the assignment/generation draw as far
+as the condition-specific prompt permits. The task-aware iterative condition
+then receives new iteration numbers and calibration constraints, so later
+iterations are intentionally different treatments.
+
+The testing sequence for each generated submission is:
+
+1. Send one prompt to the local Ollama `/api/generate` endpoint.
+2. Extract the required Python function from the response.
+3. Execute the function against every task evaluator case in a timed subprocess.
+4. If the source fails or does not meet the assigned-style requirements, issue
+   up to two revision requests. The workflow retains the best attempt by
+   functional validity and unresolved repair requirements, rather than always
+   accepting the last attempt.
+5. Run the reusable research AST/token detector registry only for functionally
+   valid submissions.
+6. Compute defect prevalence using the valid-submission denominator, compare it
+   with the empirical target, and aggregate the resulting metrics across
+   repetitions.
+
+The prompts are condition-specific as follows. The provider sends one combined
+plain-text prompt; there is no separate system-message channel in the current
+Ollama adapter.
+
+#### 1. Non-adaptive baseline prompt
+
+The baseline is the control treatment. Its initial specification is built by
+`build_baseline_specification(task)` and contains only the task contract:
+
+```text
+PROMPTING CONDITION: NON-ADAPTIVE BASELINE
+
+Generate a conventional implementation from the task contract only.
+Do not add any generation objective beyond functional correctness.
+
+PROGRAMMING TASK
+[task description]
+
+FUNCTIONAL REQUIREMENTS
+- [functional requirement 1]
+- [functional requirement 2]
+- ...
+
+IMPORTANT
+The program must remain functionally correct.
+```
+
+The Ollama adapter then appends the common execution instructions and the
+functional evaluator cases:
+
+```text
+You are generating one Python submission for a programming task
+from its task contract only.
+
+FUNCTIONAL TEST CASES
+- args=[...]; expected=...
+- args=[...]; expected=...
+
+INSTRUCTIONS
+- Implement the required function.
+- The submission must pass every functional test case above.
+- Follow only the programming task and functional requirements.
+- Return only executable Python source code.
+```
+
+The baseline prompt does not include defect names, defect examples, category
+requirements, target percentages, or calibration actions. Its purpose is to
+measure the defect distribution that emerges from ordinary task-only
+generation.
+
+#### 2. Task-aware non-adaptive prompt
+
+The task-aware non-adaptive condition uses the same task and functional cases,
+but adds task-aware defect guidance. The task-level specification is built by
+`build_generation_specification()`, while every submission receives a separate
+`build_submission_specification()` containing its assigned styles:
+
+```text
+PROGRAMMING TASK
+[task description and functional requirements]
+
+POTENTIAL TASK-INDEPENDENT DEFECTS
+- [applicable names only]
+
+POTENTIAL TASK-DEPENDENT DEFECTS
+- [applicable names only]
+
+GENERATION FOCUS
+Task-dependent structural defects are the primary research focus.
+When a task-dependent defect is assigned in the submission brief,
+implement that exact structure while preserving functional correctness.
+```
+
+The per-submission section then adds:
+
+```text
+MANDATORY SELECTED DEFECTS — implement every listed style
+
+Task-independent:
+- [assigned task-independent defect]
+
+ASSIGNED TASK-DEPENDENT DEFECTS TO PRIORITISE:
+- [assigned task-dependent defect]
+
+MANDATORY CATEGORY REQUIREMENT:
+- Include at least one task-independent defect.
+- Include at least one task-dependent defect.
+
+MANDATORY DEFECT IMPLEMENTATION GUIDANCE
+- [definition or construction hint]
+  Required observable signature: [detector signature]
+  Example pattern: [short contrastive example]
+  Task-specific valid pattern to adapt: [task-specific pattern]
+
+UNASSIGNED DEFECTS TO AVOID
+- [unassigned style guidance]
+```
+
+The assignment planner uses the empirical target profile to select styles and
+plan expected frequencies, but prevalence percentages are deliberately not
+shown to the model. This separates target estimation from prompt execution and
+tests whether structural guidance produces the intended defects.
+
+#### 3. Task-aware iterative prompt
+
+Iteration 1 uses the same task-aware submission prompt as the non-adaptive
+condition. After the batch is validated and compared, the next prompt appends
+calibration actions derived from the latest observed profile:
+
+```text
+CALIBRATION ADJUSTMENTS
+
+These actions update the next iteration's defect emphasis. Follow them
+without breaking functional correctness or the mandatory category requirement.
+- inappropriate formatting: strengthen the generation constraint
+- magic number: reduce the generation constraint
+- duplicate expression: maintain the generation constraint
+```
+
+The iterative condition regenerates and evaluates every configured iteration
+unless a batch reaches the tolerance objective early. If tolerance is not
+reached, calibration continues from the latest observed batch even when that
+batch is worse than the retained batch. The initial batch remains the quality
+floor; a later batch replaces it only when it preserves functional pass rate,
+task-independent coverage, task-dependent coverage, and category-requirement
+coverage. The experiment log records every iteration's prompt constraints,
+metrics, out-of-tolerance defects, selected iteration, and stop reason.
+
+When a submission requires a repair, the shared repair prompt is based on the
+`REVISION REQUEST` template and contains the failed validation, missing
+requirements, previous source, and any required task-specific pattern. For the
+baseline, the `PROMPTING CONDITION: NON-ADAPTIVE BASELINE` marker is preserved
+on the repair prompt, so the Ollama wrapper does not append defect-generation
+guidance. Guided conditions retain their assigned-style and category guidance
+when repaired. The repair budget and attempt-selection rule are held constant
+across conditions; the initial condition prompt remains the primary treatment
+being compared.
+
 ### Configurable parameters
 
 `ExperimentConfig` supports:
@@ -400,6 +564,7 @@ These conditions share `run_iteration()` for generation, validation, detection, 
 - batch size;
 - tolerance;
 - model and context length;
+- generation temperature;
 - repetitions;
 - maximum iterative iterations;
 - maximum repair attempts;
@@ -431,17 +596,36 @@ It deliberately does not store source code or prompts in the compact experiment 
 
 ### Existing experiment evidence
 
-Five JSONL experiment logs are present under `research-notes/synthetic-generation-experiments/`. The following summary is descriptive, not a statistical conclusion, because the recorded runs use one repetition per condition.
+The repository contains 12 JSONL files and 13 experiment records under
+`research-notes/synthetic-generation-experiments/`. The latest completed suite
+contains three records, one for each prototype task. Each record uses
+`qwen2.5-coder:1.5b`, temperature 0.2, batch size 20, three repetitions, and a
+maximum of three iterative generations. The table reports the mean across the
+three repetitions; therefore, values such as 19.67 valid submissions are
+averages of whole-number repetition results, not fractional submissions.
 
-| Log | Task | Model | Batch | Condition pattern | Key observed result |
-|---|---|---|---:|---|---|
-| `experiment-log.jsonl` | T1 | qwen2.5-coder:1.5b | 10 | baseline, task-aware, iterative | Iterative functional pass rate 1.00; dependent coverage 0.30; within-tolerance rate 0.92. |
-| `experiment-log-290926124333.jsonl` | T1 | qwen2.5-coder:1.5b | 10 | baseline, task-aware, iterative | Iterative dependent coverage 0.22 and functional pass rate 0.90. |
-| `experiment-log-290926131306.jsonl` | T1 | qwen2.5-coder:1.5b | 50 | baseline, task-aware, iterative | Iterative dependent coverage 0.06; functional pass rate 1.00. |
-| `experiment-log-290926135158.jsonl` | T2 | qwen2.5-coder:1.5b | 50 | baseline, task-aware, iterative | Task-aware non-adaptive dependent coverage 0.42; iterative dependent coverage 0.42. |
-| `experiment-log-290926144358.jsonl` | T3 | qwen2.5-coder:1.5b | 50 | baseline, task-aware, iterative | Task-aware iterative dependent coverage 0.10; functional pass rate 1.00. |
+| Task | Condition | MAE | Valid submissions | Functional pass | Within tolerance | Independent coverage | Dependent coverage | Selected iterations |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| T1 | Baseline | 0.0984 | 16.33 | 81.7% | 83.3% | 100.0% | 0.0% | 1, 1, 1 |
+| T1 | Task-aware non-adaptive | 0.0870 | 19.67 | 98.3% | 83.3% | 100.0% | 11.8% | 1, 1, 1 |
+| T1 | Task-aware iterative | 0.0866 | 20.00 | 100.0% | 83.3% | 100.0% | 11.7% | 1, 1, 1 |
+| T2 | Baseline | 0.1578 | 20.00 | 100.0% | 45.8% | 3.3% | 0.0% | 1, 1, 1 |
+| T2 | Task-aware non-adaptive | 0.1231 | 20.00 | 100.0% | 70.8% | 80.0% | 48.3% | 1, 1, 1 |
+| T2 | Task-aware iterative | 0.1268 | 20.00 | 100.0% | 66.7% | 81.7% | 51.7% | 1, 1, 1 |
+| T3 | Baseline | 0.2247 | 20.00 | 100.0% | 61.1% | 20.0% | 0.0% | 1, 1, 1 |
+| T3 | Task-aware non-adaptive | 0.2455 | 20.00 | 100.0% | 44.4% | 96.7% | 40.0% | 1, 1, 1 |
+| T3 | Task-aware iterative | 0.2178 | 20.00 | 100.0% | 50.0% | 96.7% | 41.7% | 3, 1, 2 |
 
-These logs demonstrate that the experimental mechanism is executable and that task-aware prompting changes category coverage relative to the baseline. They also demonstrate that one run is insufficient to claim stable improvement: iterative calibration does not improve every metric in every recorded task and batch-size configuration.
+The latest evidence shows three different outcomes. For T1, iterative
+calibration slightly improves profile error and functional validity, but the
+initial batch remains the best selected iteration in every repetition. For T2,
+iterative calibration increases task-dependent coverage but does not improve
+MAE or within-tolerance rate, so the initial batch is retained in every
+repetition. For T3, iterative calibration improves MAE over both baseline and
+non-adaptive task-aware prompting, and selected iterations vary across
+repetitions. These results support the operation of the selection and
+non-regression workflow, but they are preliminary evidence for RQ3 rather than
+a general claim about all models or tasks.
 
 ## J. Evaluation gaps and priorities
 
@@ -449,13 +633,24 @@ These logs demonstrate that the experimental mechanism is executable and that ta
 
 The controlled fixture report passes 34/34 cases, and the gold-label readiness report contains 1,332 labels. Fifteen active detectors meet the pilot count and metric criteria. `empty_if` and `redundant_not` are still pilot-validated because they have fewer than 20 positive reviewed examples. Detector readiness should be reported separately from controlled-fixture correctness, and the target profile metadata should be updated to reflect the latest validation status.
 
-### Priority 2: Evaluate the full experiment with repeated runs
+### Priority 2: Extend the repeated experiment evidence
 
-The current JSONL examples use one repetition per condition. RQ3 requires repeated runs, confidence intervals or another uncertainty treatment for condition-level comparisons, and a pre-specified primary metric. The current runner supports repetitions, but a repeated study has not yet been demonstrated in the repository evidence.
+The latest T1-T3 suite now uses three repetitions per condition, so repeated
+execution is demonstrated in the repository evidence. RQ3 still requires a
+larger pre-specified study across models and, ideally, more independent batches
+per condition before making a general claim. Confidence intervals or another
+uncertainty treatment should be reported for the condition-level comparisons.
 
-### Priority 3: Define convergence and selection criteria before final experiments
+### Priority 3: Pre-specify the primary evaluation objective
 
-The runner stops at acceptance, non-regressive guard, or maximum iterations. This is a practical stopping mechanism, but it is not a full convergence analysis. The research evaluation should predefine whether the primary objective is within-tolerance rate, mean absolute profile error, category coverage, or a multi-objective rule.
+The runner now evaluates all configured iterative generations unless a batch
+reaches the tolerance objective. It then retains the best eligible batch using
+profile error as the primary ranking criterion and within-tolerance and
+coverage measures as tie-breakers, while using the initial batch as a
+non-regression quality floor. This is an explicit operational policy, but the
+research evaluation should still predefine whether the primary reported
+outcome is mean absolute profile error, within-tolerance rate, category
+coverage, or a multi-objective rule.
 
 ### Priority 4: Distinguish assignment compliance from authentic-style prevalence
 
@@ -481,10 +676,10 @@ The Analytics tab now presents the retained calibrated artefact, its lineage, an
 | Usability | AppTest coverage and organised Streamlit pages/tabs | `app.py`, `app_pages/`, `ui/generation.py`, `tests/ui/test_app.py` | The user can configure, inspect, calibrate, export, and browse experiment records. | No multi-user store or repeated-run uncertainty dashboard. |
 | Static Analysis | Layered modules, `IterationResult` traceability, clean Ruff verification | `models/types.py`, `services/`, `detectors/`, `ruff check .` | Separation of concerns and current code quality are acceptable for a prototype. | Dependencies are unpinned and legacy/compatibility modules remain. |
 | Dynamic Analysis | Integration tests and workflow implementation | `run_iteration()`, `validate_source()`, `compare_profiles()` | Invalid code is bounded by repairs and excluded from the valid denominator; comparison is sampling-aware. | Detector exceptions and sandbox hardening need further work. |
-| Optimisation | Repair limits, maximum iterations, early acceptance, non-regression guard, cached dashboard data | `workflow.py`, `experiment.py`, `ui/app_data.py` | Unbounded regeneration is prevented. | No parallel generation, persistent cache, or background execution. |
-| Black-box Testing | 145 passing tests including integration and AppTest tests | `tests/integration/`, `tests/ui/` | External workflow and page behaviour are exercised. | Full live Ollama failure presentation and cross-process persistence need additional tests. |
+| Optimisation | Repair limits, maximum iterations, early acceptance, non-regression guard, cached dashboard data | `workflow.py`, `experiment.py`, `ui/app_data.py` | Unbounded regeneration is prevented. | No parallel generation, cross-process cache, or experiment scheduler. |
+| Black-box Testing | 150 passing tests including integration and AppTest tests | `tests/integration/`, `tests/ui/` | External workflow and page behaviour are exercised. | Full live Ollama failure presentation and cross-process persistence need additional tests. |
 | White-box Testing | Detector, prompt, assignment, comparison, calibration, storage, interaction, export, and experiment unit tests | `tests/unit/` | Core internal rules and persistence invariants are directly tested. | No property-based suite, full sandbox, or causal interaction experiment. |
-| Experimental Simulation | Three conditions, repetitions, bounded iterative calibration, metrics, JSONL logs | `services/generation/experiment.py`, `scripts/run_generation_experiment.py` | The repository can execute the intended prompting-condition comparison. | Existing evidence is mainly one repetition per condition, so RQ3 is not yet answered conclusively. |
+| Experimental Simulation | Three conditions, repetitions, bounded iterative calibration, metrics, JSONL logs | `services/generation/experiment.py`, `scripts/run_generation_experiment.py` | The repository can execute the intended prompting-condition comparison and has a latest three-repetition T1-T3 suite. | Evidence remains limited to one model and one recent batch size, so RQ3 is not yet answered conclusively. |
 
 ## Descriptive and literature-informed interpretation
 
@@ -521,8 +716,8 @@ The remaining RQ2 limitation is empirical reliability across model sizes and tas
 
 ### RQ3: Effect of iterative task-aware refinement
 
-The repository implements the comparison mechanism through three prompting conditions, configurable repetitions, bounded iterative calibration, non-regressive selection, metrics, and JSONL logs. Existing logs show that iterative calibration sometimes improves functional validity, dependent coverage, or within-tolerance rate, but not consistently across the small set of one-repetition runs. Therefore, the current artefact supports an RQ3 experiment but does not yet provide sufficient repeated evidence to answer RQ3 conclusively.
+The repository implements the comparison mechanism through three prompting conditions, configurable repetitions, bounded all-iteration calibration, best-iteration selection, a non-regression quality floor, metrics, and JSONL logs. The latest three-repetition T1-T3 suite shows that iterative calibration improves T1 profile error slightly, improves T3 profile error and dependent coverage, and increases T2 dependent coverage while worsening T2 profile error slightly. Therefore, the current artefact provides preliminary repeated evidence for RQ3, but the evidence is limited to one model, one recent batch size, and three repetitions per task.
 
 ## Overall evaluation conclusion
 
-The prototype has reached a substantial and testable artefact state. The generation feature, reusable detector service, empirical target profiles, functional gate, calibration logic, experiment runner, logging, export, and Streamlit analytics are present and connected at the core workflow level. The most important next step is not adding another generation feature; it is strengthening the evaluation evidence: complete detector review where required, run repeated controlled experiments, record environment/model provenance, and interpret iterative improvement against pre-specified metrics and uncertainty.
+The prototype has reached a substantial and testable artefact state. The generation feature, reusable detector service, empirical target profiles, functional gate, repair-attempt selection, bounded iterative calibration, experiment runner, logging, export, and Streamlit analytics are present and connected at the core workflow level. The latest evaluation demonstrates repeated execution and task-specific differences, but it does not establish general superiority of iterative calibration. The next step is to complete any remaining detector review, expand the repeated experiment across models and batch sizes, record environment/model provenance, and interpret improvement against pre-specified metrics and uncertainty.

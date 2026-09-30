@@ -1,5 +1,6 @@
 import pytest
 
+import services.generation.workflow as generation_workflow
 from detectors.core.registry import detect_defects
 from models.types import IterationResult, SubmissionResult, ValidationResult
 from services.data.loader import load_profiles, load_tasks
@@ -16,7 +17,6 @@ from services.generation.calibrator import (
 )
 from services.generation.validator import validate_source
 from services.generation.workflow import run_iteration
-import services.generation.workflow as generation_workflow
 from services.providers.demo import DemoProvider
 
 

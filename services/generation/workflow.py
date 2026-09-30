@@ -130,6 +130,33 @@ def _missing_defect_categories(
     return tuple(missing)
 
 
+def _repair_quality(
+    validation,
+    missing_categories: tuple[str, ...],
+    missing_defects: tuple[str, ...],
+    unexpected_defects: tuple[str, ...],
+) -> tuple[int, int, int, int, int]:
+    """Rank one generation attempt by repair-requirement compliance.
+
+    Functional validity is the first priority. Among attempts with the same
+    functional status, fewer unresolved requirements are better. The tuple is
+    ordered so that the first acceptable attempt remains preferred when two
+    candidates are otherwise tied.
+    """
+    unresolved = (
+        len(missing_categories)
+        + len(missing_defects)
+        + len(unexpected_defects)
+    )
+    return (
+        int(validation.status == "PASS"),
+        -unresolved,
+        -len(missing_categories),
+        -len(missing_defects),
+        -len(unexpected_defects),
+    )
+
+
 def _repair_specification(
     task: ProgrammingTask,
     assigned_defects: tuple[str, ...],
@@ -138,6 +165,7 @@ def _repair_specification(
     missing_categories: tuple[str, ...],
     missing_defects: tuple[str, ...],
     unexpected_defects: tuple[str, ...],
+    condition: str = TASK_AWARE_CONDITION,
 ) -> str:
     missing_text = ", ".join(missing_categories) or "none"
     assigned_text = ", ".join(
@@ -173,8 +201,14 @@ def _repair_specification(
         )
         for defect in unexpected_defects
     ) or "- none"
+    baseline_marker = (
+        "PROMPTING CONDITION: NON-ADAPTIVE BASELINE\n\n"
+        if condition == BASELINE_CONDITION
+        else ""
+    )
     return (
-        "REVISION REQUEST\n\n"
+        baseline_marker
+        + "REVISION REQUEST\n\n"
         f"Implement {task.function_name}(...) for this task: {task.description}\n\n"
         "FUNCTIONAL REQUIREMENTS\n"
         + "\n".join(f"- {item}" for item in task.functional_requirements)
@@ -332,6 +366,8 @@ def run_iteration(
         missing_defects: tuple[str, ...] = ()
         unexpected_defects: tuple[str, ...] = ()
         attempt_count = 0
+        best_attempt = None
+        best_quality = None
         for attempt in range(1, max_repair_attempts + 2):
             check_cancelled()
             attempt_count = attempt
@@ -419,11 +455,31 @@ def run_iteration(
                 for defect, present in defects.items()
                 if guided and present and defect not in assigned_defects
             )
-            if (
-                validation.status == "PASS"
-                and not missing_categories
-                and not missing_defects
-                and not unexpected_defects
+
+            candidate_quality = _repair_quality(
+                validation,
+                missing_categories,
+                missing_defects,
+                unexpected_defects,
+            )
+            if best_quality is None or candidate_quality > best_quality:
+                best_quality = candidate_quality
+                best_attempt = {
+                    "source": source,
+                    "prompt": prompt,
+                    "validation": validation,
+                    "defects": dict(defects),
+                    "missing_categories": missing_categories,
+                    "missing_defects": missing_defects,
+                    "unexpected_defects": unexpected_defects,
+                }
+
+            if candidate_quality == (
+                1,
+                0,
+                0,
+                0,
+                0,
             ):
                 break
             if attempt <= max_repair_attempts:
@@ -435,9 +491,17 @@ def run_iteration(
                     missing_categories,
                     missing_defects,
                     unexpected_defects,
+                    condition=condition,
                 )
 
-        assert validation is not None
+        assert best_attempt is not None
+        source = best_attempt["source"]
+        prompt = best_attempt["prompt"]
+        validation = best_attempt["validation"]
+        defects = best_attempt["defects"]
+        missing_categories = best_attempt["missing_categories"]
+        missing_defects = best_attempt["missing_defects"]
+        unexpected_defects = best_attempt["unexpected_defects"]
         submissions.append(
             SubmissionResult(
                 submission_id,

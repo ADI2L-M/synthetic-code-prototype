@@ -1,3 +1,3 @@
 """Compatibility facade; use :mod:`services.generation.validation_runner`."""
 
-from services.generation.validation_runner import *  # noqa: F403
+from services.generation.validation_runner import *

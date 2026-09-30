@@ -8,13 +8,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PROFILE = ROOT / "research-notes" / "authentic-submission-outputs" / "empirical-target-profile.json"
 
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-
 
 def _profile_inputs(path: Path, task_id: str) -> tuple[dict[str, float], dict[str, float]]:
     profile = json.loads(path.read_text(encoding="utf-8"))
@@ -38,12 +36,24 @@ def _profile_inputs(path: Path, task_id: str) -> tuple[dict[str, float], dict[st
 
 
 def main() -> None:
+    from services.generation.experiment import (
+        ExperimentConfig,
+        experiment_log_path,
+        run_experiment,
+    )
+    from services.providers.ollama import (
+        OLLAMA_CONTEXT_LENGTH,
+        OLLAMA_TEMPERATURE,
+        OllamaProvider,
+    )
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--task", choices=("T1", "T2", "T3"), required=True)
     parser.add_argument("--model", default="qwen2.5-coder:1.5b")
     parser.add_argument("--base-url", default="http://localhost:11434")
     parser.add_argument("--batch-size", type=int, default=10)
     parser.add_argument("--tolerance", type=float, default=0.10)
+    parser.add_argument("--temperature", type=float, default=OLLAMA_TEMPERATURE)
     parser.add_argument("--repetitions", type=int, default=1)
     parser.add_argument("--max-iterations", type=int, default=3)
     parser.add_argument("--max-repair-attempts", type=int, default=2)
@@ -65,13 +75,6 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    from services.generation.experiment import (
-        ExperimentConfig,
-        experiment_log_path,
-        run_experiment,
-    )
-    from services.providers.ollama import OLLAMA_CONTEXT_LENGTH, OllamaProvider
-
     target_profile, standard_errors = _profile_inputs(args.profile, args.task)
     log_path = args.log or experiment_log_path()
     experiment_id = args.experiment_id or datetime.now(timezone.utc).strftime(
@@ -85,6 +88,7 @@ def main() -> None:
         tolerance=args.tolerance,
         model=args.model,
         context_length=OLLAMA_CONTEXT_LENGTH,
+        temperature=args.temperature,
         repetitions=args.repetitions,
         max_iterations=args.max_iterations,
         max_repair_attempts=args.max_repair_attempts,
@@ -96,6 +100,7 @@ def main() -> None:
         provider_factory=lambda: OllamaProvider(
             model=args.model,
             base_url=args.base_url,
+            temperature=args.temperature,
         ),
         log_path=log_path,
     )

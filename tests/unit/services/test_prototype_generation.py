@@ -1,4 +1,5 @@
 from detectors.research.registry import detect_research_defects
+from models.types import ValidationResult
 from services.generation.assignment import plan_defect_assignments
 from services.generation.prompt_builder import (
     TASK_SPECIFIC_PATTERNS,
@@ -7,7 +8,7 @@ from services.generation.prompt_builder import (
 )
 from services.generation.prototype_tasks import load_prototype_tasks
 from services.generation.validator import validate_source
-from services.generation.workflow import run_iteration
+from services.generation.workflow import _repair_quality, run_iteration
 
 
 class FakeProvider:
@@ -124,6 +125,15 @@ def test_generation_repairs_until_functional_and_both_categories_are_detected():
     assert submission.category_requirements_met is True
     assert submission.missing_defect_categories == ()
     assert "REVISION REQUEST" in provider.calls[1][3]
+
+
+def test_repair_quality_prefers_fewer_unresolved_requirements():
+    valid = ValidationResult("PASS", 1, 0)
+
+    better = _repair_quality(valid, ("task-dependent",), (), ())
+    worse = _repair_quality(valid, (), ("magic_number",), ("built_in_name",))
+
+    assert better > worse
 
 
 def test_submission_prompt_contains_only_assigned_defect_guidance():

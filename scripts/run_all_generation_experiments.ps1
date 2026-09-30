@@ -1,14 +1,46 @@
 param(
     [string[]]$Tasks = @("T1", "T2", "T3"),
     [string]$Model = "qwen2.5-coder:1.5b",
+    [string]$BaseUrl = "http://localhost:11434",
     [int]$BatchSize = 50,
+    [double]$Temperature = 0.2,
+    [double]$Tolerance = 0.10,
     [int]$Repetitions = 1,
     [int]$MaxIterations = 3,
     [int]$MaxRepairAttempts = 2,
+    [string[]]$Conditions = @(
+        "non_adaptive_baseline",
+        "task_aware_non_adaptive",
+        "task_aware_iterative"
+    ),
+    [Alias("h", "?")]
+    [switch]$Help,
     [switch]$StopOnError
 )
 
 $ErrorActionPreference = "Stop"
+
+if ($Help) {
+    Write-Output @"
+Usage:
+  pwsh -File .\scripts\run_all_generation_experiments.ps1 [options]
+
+Options:
+  -Tasks T1,T2,T3
+  -Model qwen2.5-coder:1.5b
+  -BaseUrl http://localhost:11434
+  -BatchSize 100
+  -Temperature 0.2
+  -Tolerance 0.10
+  -Repetitions 3
+  -MaxIterations 3
+  -MaxRepairAttempts 2
+  -Conditions non_adaptive_baseline,task_aware_non_adaptive,task_aware_iterative
+  -StopOnError
+"@
+    exit 0
+}
+
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $VenvPython = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
 
@@ -31,10 +63,14 @@ foreach ($Task in $Tasks) {
     & $Python "scripts/run_generation_experiment.py" `
         "--task" $Task `
         "--model" $Model `
+        "--base-url" $BaseUrl `
         "--batch-size" $BatchSize `
+        "--temperature" $Temperature `
+        "--tolerance" $Tolerance `
         "--repetitions" $Repetitions `
         "--max-iterations" $MaxIterations `
-        "--max-repair-attempts" $MaxRepairAttempts
+        "--max-repair-attempts" $MaxRepairAttempts `
+        "--conditions" $Conditions
 
     if ($LASTEXITCODE -ne 0) {
         $Failures++

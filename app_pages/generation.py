@@ -9,9 +9,9 @@ from services.generation.calibrator import (
     calibration_is_non_regressive,
     calibration_regression_message,
 )
+from services.generation.jobs import GenerationJob
 from services.generation.prototype_runner import run_prototype_iteration
 from services.generation.prototype_tasks import load_prototype_task
-from services.generation.jobs import GenerationJob
 from ui.app_data import load_dashboard_data_cached
 from ui.generation import (
     render_generation,
