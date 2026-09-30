@@ -1,7 +1,10 @@
 # Detector validation
 
-This folder contains the validation artefacts for the 18 research AST
-detectors. The validation has two separate layers:
+This folder contains the validation artefacts for the 17 active research AST
+detectors. The exploratory `redundant_for` detector is retained in the source
+tree and controlled detector tests, but is excluded from the active catalogue
+because no positive authentic examples were found. The validation has two
+separate layers:
 
 1. Controlled fixtures verify that each detector recognises a known positive
    case and rejects a known negative or boundary case.
@@ -51,7 +54,7 @@ From the project root, run:
 ```
 
 This reads `research-notes/data-identification/cs1_labs_responses.xlsx`, runs
-all 18 detectors, and writes:
+the 17 active detectors, and writes:
 
 - `authentic-detector-review.jsonl`: selected cases containing source code,
   detector labels, detector evidence, and blank `manual_label` fields;
@@ -66,6 +69,30 @@ different `--seed` to create a different reproducible sample.
 The runner excludes defects marked `not_applicable` or
 `instruction_confounded` by default. Add `--include-noneligible` only when
 you explicitly need those cases for a separate detector audit.
+
+### AI-assisted first pass
+
+To reduce the manual workload, create a provisional first-pass file:
+
+```text
+.venv\\Scripts\\python.exe scripts/validate_detectors.py --mode assisted
+```
+
+This writes `authentic-detector-assisted-labels.jsonl` and separates cases
+whose specification requires contextual review into
+`authentic-detector-uncertain-cases.jsonl`. The assisted labels are not final
+gold labels; a human must review the uncertainty queue and audit the
+provisional labels before reporting detector validity.
+
+After editing the uncertainty queue, merge the reviewed decisions into the
+complete file:
+
+```text
+.venv\\Scripts\\python.exe scripts/validate_detectors.py --mode merge
+```
+
+This writes `authentic-detector-gold-labels.jsonl`, which can then be scored
+with the manual-validation command below.
 
 Before annotating, make a copy so a later sample regeneration does not erase
 your labels:

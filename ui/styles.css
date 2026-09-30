@@ -1,12 +1,38 @@
 [data-testid="stMainBlockContainer"] {
     width: calc(100% - 2rem);
     max-width: 1180px;
-    margin: 3.5rem auto 2rem;
-    padding: 2rem 2.25rem 2.5rem;
-    border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
-    border-radius: 18px;
-    background: color-mix(in srgb, currentColor 3%, transparent);
-    box-shadow: 0 4px 18px color-mix(in srgb, currentColor 8%, transparent);
+    margin: 3.5rem auto 3rem;
+    padding: 0 2.25rem 4rem;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.st-key-generation_summary,
+.st-key-generation_summary > div,
+.st-key-generation_summary > div > div,
+.st-key-generation_tabs,
+.st-key-generation_tabs > div,
+.st-key-generation_tabs > div > div {
+    background-color: var(
+        --secondary-background-color,
+        var(--st-secondary-background-color, transparent)
+    ) !important;
+    border-color: color-mix(
+        in srgb, var(--text-color, currentColor) 18%, transparent
+    ) !important;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-generation_summary),
+[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-generation_tabs) {
+    background-color: var(
+        --secondary-background-color,
+        var(--st-secondary-background-color, transparent)
+    ) !important;
+    border-color: color-mix(
+        in srgb, var(--text-color, currentColor) 18%, transparent
+    ) !important;
 }
 
 [data-testid="stHeader"] {
@@ -30,6 +56,39 @@
 [data-testid="stTopNav"] [aria-current="page"] {
     color: inherit !important;
     background: color-mix(in srgb, currentColor 12%, transparent) !important;
+}
+
+.generation-job-status {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin-bottom: .25rem;
+    font-size: 1.05rem;
+}
+
+.generation-job-spinner {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: 0 0 1.1rem;
+    border: .18rem solid color-mix(
+        in srgb, var(--primary-color, #2563eb) 24%, transparent
+    );
+    border-top-color: var(--primary-color, #2563eb);
+    border-radius: 50%;
+    animation: generation-job-spin .75s linear infinite;
+}
+
+.generation-job-message {
+    margin: .5rem 0 .35rem;
+    color: var(--text-color, #111827);
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+@keyframes generation-job-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @media (max-width: 760px) {

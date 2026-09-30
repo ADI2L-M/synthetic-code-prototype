@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from models.types import IterationResult
 from services.generation.prototype_tasks import load_prototype_task
 from services.generation.workflow import (
     MAX_SUBMISSION_ATTEMPTS,
     run_iteration,
 )
-from services.providers.ollama import OLLAMA_CONTEXT_LENGTH, OllamaProvider
+from services.providers.ollama import (
+    OLLAMA_CONTEXT_LENGTH,
+    OLLAMA_TEMPERATURE,
+    OllamaProvider,
+)
 
 
 def run_prototype_iteration(
@@ -19,8 +25,13 @@ def run_prototype_iteration(
     tolerance: float,
     model: str,
     base_url: str,
+    temperature: float = OLLAMA_TEMPERATURE,
     constraints: dict[str, str] | None = None,
     target_standard_errors: dict[str, float] | None = None,
+    condition: str = "task_aware_non_adaptive",
+    seed_namespace: str = "",
+    progress_callback: Callable[[str, int, int], None] | None = None,
+    cancel_check: Callable[[], bool] | None = None,
 ) -> IterationResult:
     """Generate and validate one synthetic batch for T1, T2, or T3."""
     task = load_prototype_task(task_id)
@@ -30,10 +41,19 @@ def run_prototype_iteration(
         batch_size=batch_size,
         iteration_number=iteration_number,
         tolerance=tolerance,
-        provider=OllamaProvider(model=model, base_url=base_url),
+        provider=OllamaProvider(
+            model=model,
+            base_url=base_url,
+            temperature=temperature,
+        ),
         model=model,
         context_length=OLLAMA_CONTEXT_LENGTH,
+        temperature=temperature,
         max_repair_attempts=MAX_SUBMISSION_ATTEMPTS - 1,
         constraints=constraints,
         target_standard_errors=target_standard_errors,
+        condition=condition,
+        seed_namespace=seed_namespace,
+        progress_callback=progress_callback,
+        cancel_check=cancel_check,
     )

@@ -62,7 +62,6 @@ def target_dataframe(task: dict[str, Any]) -> pd.DataFrame:
         [
             {
                 "Defect": row["display_name"],
-                "Category": row["category"].replace("_", " ").title(),
                 "Target prevalence": row["target_prevalence"],
                 "Eligible lab tasks": row["eligible_tasks"],
                 "Valid submissions": row["valid_submissions"],
@@ -70,6 +69,44 @@ def target_dataframe(task: dict[str, Any]) -> pd.DataFrame:
             for row in task["target_rows"]
         ]
     )
+
+
+def target_profile_dataframes(task: dict[str, Any]) -> list[tuple[str, pd.DataFrame]]:
+    """Return one target-profile table for each defect classification."""
+
+    tables = []
+    for category, title in (
+        ("task_dependent", "Task-dependent defects"),
+        ("task_independent", "Task-independent defects"),
+    ):
+        category_task = {
+            **task,
+            "target_rows": [
+                row for row in task["target_rows"] if row["category"] == category
+            ],
+        }
+        tables.append((title, target_dataframe(category_task)))
+    return tables
+
+
+def render_target_profile_tables(task: dict[str, Any]) -> None:
+    """Render separated task-dependent and task-independent target tables."""
+
+    for title, dataframe in target_profile_dataframes(task):
+        st.markdown(f"#### {title}")
+        if dataframe.empty:
+            st.caption("No defects are applicable to this prototype task.")
+            continue
+        st.dataframe(
+            dataframe,
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "Target prevalence": st.column_config.ProgressColumn(
+                    min_value=0, max_value=1, format="percent"
+                ),
+            },
+        )
 
 
 def render_profile(task: dict[str, Any], data: dict[str, Any]) -> None:
@@ -80,16 +117,7 @@ def render_profile(task: dict[str, Any], data: dict[str, Any]) -> None:
         "the evidence coverage behind it; pooled prevalence and task-level ranges "
         "remain available in the defect-detection detail view."
     )
-    st.dataframe(
-        target_dataframe(task),
-        hide_index=True,
-        width="stretch",
-        column_config={
-            "Target prevalence": st.column_config.ProgressColumn(
-                min_value=0, max_value=1, format="percent"
-            ),
-        },
-    )
+    render_target_profile_tables(task)
     if task["omitted_not_applicable"]:
         omitted = ", ".join(
             data["defect_catalog"].get(item, {}).get("display_name", item)

@@ -29,7 +29,6 @@ task_independent_low_opportunity:
 task_dependent_defects:
   - while_as_for
   - augmentable_assignment
-  - redundant_for
 
 task_characteristics:
   branching_required: false

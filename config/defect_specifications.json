@@ -300,24 +300,6 @@
       "requires_review": false
     },
     {
-      "defect_id": "T3_D3",
-      "name": "redundant_for",
-      "category": "task_dependent",
-      "task_families": ["numeric_iteration"],
-      "applicable_tasks": ["T3"],
-      "authoritative_definition": "A for loop performs zero or a single iteration, making the loop unnecessary.",
-      "ast_structures": ["For", "statically evaluable iterable", "range"],
-      "positive_condition": "The iterable is statically determinable to contain zero or one element and the loop action is not repetition-dependent.",
-      "exclusions": ["dynamic iterables", "iterables with unknown length", "loops where control flow changes meaning"],
-      "false_positive_risks": ["static evaluation assumptions", "side effects in iterable construction"],
-      "task_context_required": true,
-      "source_text_required": false,
-      "ast_sufficient": false,
-      "expected_evidence": ["loop location", "iterable expression", "static cardinality proof"],
-      "opportunity_level": "low",
-      "requires_review": false
-    },
-    {
       "defect_id": "TD_ASSIGN_01",
       "name": "augmentable_assignment",
       "category": "task_dependent",
@@ -424,7 +406,7 @@
         "magic_number": "high"
       },
       "eligible": ["redundant_if_else", "redundant_comparison", "redundant_not", "duplicate_if", "else_if", "nested_if", "redundant_elif", "empty_if", "inappropriate_formatting", "magic_number", "one_letter_name", "built_in_name"],
-      "not_applicable": ["redundant_indexing", "misleading_iterator_name", "duplicate_expression", "while_as_for", "redundant_for", "augmentable_assignment"],
+      "not_applicable": ["redundant_indexing", "misleading_iterator_name", "duplicate_expression", "while_as_for", "augmentable_assignment"],
       "instruction_confounded": []
     },
     "T2": {
@@ -437,7 +419,7 @@
         "magic_number": "low"
       },
       "eligible": ["redundant_indexing", "misleading_iterator_name", "duplicate_expression", "augmentable_assignment", "inappropriate_formatting", "magic_number", "one_letter_name", "built_in_name"],
-      "not_applicable": ["redundant_if_else", "redundant_comparison", "redundant_not", "duplicate_if", "else_if", "nested_if", "redundant_elif", "empty_if", "while_as_for", "redundant_for"],
+      "not_applicable": ["redundant_if_else", "redundant_comparison", "redundant_not", "duplicate_if", "else_if", "nested_if", "redundant_elif", "empty_if", "while_as_for"],
       "instruction_confounded": []
     },
     "T3": {
@@ -445,10 +427,9 @@
       "opportunity_level": {
         "while_as_for": "normal",
         "augmentable_assignment": "normal",
-        "redundant_for": "low",
         "magic_number": "low"
       },
-      "eligible": ["while_as_for", "augmentable_assignment", "redundant_for", "inappropriate_formatting", "magic_number", "one_letter_name", "built_in_name"],
+      "eligible": ["while_as_for", "augmentable_assignment", "inappropriate_formatting", "magic_number", "one_letter_name", "built_in_name"],
       "not_applicable": ["redundant_if_else", "redundant_comparison", "redundant_not", "duplicate_if", "else_if", "nested_if", "redundant_elif", "empty_if", "redundant_indexing", "misleading_iterator_name", "duplicate_expression"],
       "instruction_confounded": []
     }

@@ -1,6 +1,6 @@
 # Research detector catalogue
 
-`registry.py` exposes the 18 defect names from
+`registry.py` exposes the 17 active defect names from
 `research-notes/defect_definitions_yaml/`. Each detector returns a
 `DetectionResult` containing raw presence, instance count, locations, and
 evidence. Eligibility is applied later by `services/research/eligibility.py`;
@@ -14,7 +14,7 @@ it not applicable.
 | `conditionals.py` | `redundant_if_else`, `redundant_not`, `duplicate_if`, `else_if`, `nested_if`, `redundant_elif`, `empty_if` |
 | `redundant_comparison.py` | `redundant_comparison` |
 | `collections.py` | `redundant_indexing`, `misleading_iterator_name`, `duplicate_expression` |
-| `iteration.py` | `while_as_for`, `redundant_for` |
+| `iteration.py` | `while_as_for` |
 | `assignments.py` | `augmentable_assignment` |
 | `formatting.py` | `inappropriate_formatting` |
 | `magic.py` | `magic_number` |
@@ -40,4 +40,7 @@ it not applicable.
 These are operational detector rules, not replacements for manual validation.
 The validation workflow should sample detections by defect and record
 precision, recall, and F1 before prevalence results are treated as empirical
-findings.
+findings. `redundant_for` remains implemented in `iteration.py` and covered by
+controlled tests as an exploratory detector, but is excluded from the active
+research registry and primary benchmark because no positive authentic examples
+were found.

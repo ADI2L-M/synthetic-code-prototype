@@ -1,3 +1,6 @@
+import pytest
+
+import services.generation.workflow as generation_workflow
 from detectors.core.registry import detect_defects
 from models.types import IterationResult, SubmissionResult, ValidationResult
 from services.data.loader import load_profiles, load_tasks
@@ -33,6 +36,74 @@ def test_demo_generation_validates_and_detects_defects():
     assert detect_defects(source, ["redundant_boolean_comparison"])[
         "redundant_boolean_comparison"
     ]
+
+
+def test_validator_rejects_unsafe_source_before_subprocess_execution():
+    task = load_tasks()[0]
+    source = (
+        "import os\n"
+        "def classify_score(score):\n"
+        "    return os.getcwd()\n"
+    )
+
+    result = validate_source(source, task)
+
+    assert result.status == "FAIL"
+    assert "Unsafe source rejected" in result.failure_message
+
+
+def test_validator_times_out_non_terminating_generated_code():
+    task = load_tasks()[0]
+    source = (
+        "def classify_score(score):\n"
+        "    while True:\n"
+        "        pass\n"
+    )
+
+    result = validate_source(source, task, timeout_seconds=1)
+
+    assert result.status == "FAIL"
+    assert result.timed_out is True
+
+
+def test_detector_exception_is_not_silently_converted_to_prevalence(monkeypatch):
+    task = load_tasks()[0]
+
+    def detector_failure(*args, **kwargs):
+        raise RuntimeError("detector failure")
+
+    monkeypatch.setattr(generation_workflow, "detect_research_defects", detector_failure)
+
+    with pytest.raises(RuntimeError, match="detector failure"):
+        run_iteration(
+            task=task,
+            target_profile={"magic_number": 0.1},
+            batch_size=1,
+            iteration_number=1,
+            tolerance=0.1,
+            provider=DemoProvider(),
+        )
+
+
+def test_generation_progress_callback_reports_submission_and_profile_phases():
+    task = load_tasks()[0]
+    updates: list[tuple[str, int, int]] = []
+
+    run_iteration(
+        task=task,
+        target_profile={"magic_number": 0.1},
+        batch_size=2,
+        iteration_number=1,
+        tolerance=0.1,
+        provider=DemoProvider(),
+        progress_callback=lambda message, completed, total: updates.append(
+            (message, completed, total)
+        ),
+    )
+
+    assert updates[0] == ("Preparing submission 1 of 2", 0, 2)
+    assert updates[-1] == ("Calculating prevalence and profile alignment", 2, 2)
+    assert any("Completed submission 2 of 2" in message for message, _, _ in updates)
 
 
 def test_failed_submissions_are_excluded_from_denominator():

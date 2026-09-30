@@ -1,6 +1,16 @@
+from dataclasses import replace
 from pathlib import Path
+from time import sleep
 
 from streamlit.testing.v1 import AppTest
+
+from models.types import (
+    IterationResult,
+    ProfileComparison,
+    SubmissionResult,
+    ValidationResult,
+)
+from services.generation.jobs import GenerationCancelled, GenerationJob
 
 APP_PATH = Path(__file__).resolve().parents[2] / "app.py"
 DETECTION_TAB = ":material/analytics: Defect detection"
@@ -16,6 +26,37 @@ def _app() -> AppTest:
 
 def _open_page(app: AppTest, page: str) -> AppTest:
     return app.switch_page(page).run()
+
+
+def _stored_iteration() -> IterationResult:
+    return IterationResult(
+        iteration=1,
+        task_id="T1",
+        task_name="Temperature Classification",
+        target_profile={"magic_number": 0.5},
+        tolerance=0.1,
+        constraints={},
+        specification="task specification",
+        submissions=[
+            SubmissionResult(
+                submission_id=1,
+                source_code="def classify_temperature(temp):\n    return 'cold'\n",
+                validation=ValidationResult("PASS", 1, 0),
+                defects={"magic_number": True},
+            )
+        ],
+        observed_profile={"magic_number": 1.0},
+        comparison=[
+            ProfileComparison(
+                defect="magic_number",
+                target=0.5,
+                observed=1.0,
+                difference=0.5,
+                status="Overrepresented",
+                action="Reduce",
+            )
+        ],
+    )
 
 
 def test_home_is_the_default_view():
@@ -49,9 +90,43 @@ def test_generation_view_exposes_main_controls():
         "granite-code:3b",
     ]
     assert app.number_input(key="generation_batch_size").value == 10
+    assert app.slider(key="generation_temperature").value == 0.2
     assert app.slider(key="generation_tolerance").value == 0.10
     assert "generate_batch" in [button.key for button in app.button]
     assert "generate_demo" not in [button.key for button in app.button]
+
+
+def test_stale_generation_state_is_recovered_on_reload():
+    app = _open_page(_app(), GENERATION_PAGE)
+    app.session_state["generation_in_progress"] = True
+    app.run()
+
+    assert not app.exception
+    assert app.button(key="generate_batch").disabled is False
+
+
+def test_generation_dialog_exposes_a_working_cancel_button():
+    def worker(progress, cancel_check):
+        progress("Generating submission 1 of 1", 0, 1)
+        while not cancel_check():
+            sleep(0.001)
+        raise GenerationCancelled("Generation cancelled by user.")
+
+    app = _open_page(_app(), GENERATION_PAGE)
+    app.session_state["generation_in_progress"] = True
+    app.session_state["generation_job"] = GenerationJob(worker)
+    app.session_state["generation_job_context"] = {
+        "task_id": "T1",
+        "calibrating": False,
+        "iteration_number": 1,
+    }
+    app.run()
+
+    assert not app.exception
+    assert app.button(key="generate_batch").disabled is True
+    assert app.button(key="cancel_generation")
+    app.button(key="cancel_generation").click().run()
+    assert not app.exception
 
 
 def test_generation_main_content_has_task_and_prompt_tabs():
@@ -65,7 +140,51 @@ def test_generation_main_content_has_task_and_prompt_tabs():
 
     app.session_state["generation_content_tabs"] = ":material/description: Prompt"
     app.run()
-    assert any("exact provider prompts" in item.value for item in app.info)
+    prompt_text = [item.value for item in app.info] + [item.value for item in app.caption]
+    assert any("exact" in item and "prompts" in item for item in prompt_text)
+
+
+def test_generation_analytics_browses_persisted_experiment_logs():
+    app = _open_page(_app(), GENERATION_PAGE)
+    app.session_state["iterations"] = [_stored_iteration()]
+    app.session_state["generation_content_tabs"] = ":material/insights: Analytics"
+    app.run()
+
+    assert not app.exception
+    assert any("Experiment history" in item.value for item in app.subheader)
+    assert app.selectbox(key="generation_experiment_log_T1")
+
+
+def test_generation_summary_keeps_stored_iteration_metadata():
+    app = _open_page(_app(), GENERATION_PAGE)
+    app.session_state["iterations"] = [
+        replace(
+            _stored_iteration(),
+            model="granite-code:3b",
+            temperature=0.65,
+            tolerance=0.25,
+        )
+    ]
+    app.session_state["generation_summary_by_task"] = {
+        "T1": {
+            "task_name": "Temperature Classification",
+            "model": "granite-code:3b",
+            "batch_size": 1,
+            "temperature": 0.65,
+            "tolerance": 0.25,
+        }
+    }
+    app.session_state["generation_model"] = "qwen2.5-coder:1.5b"
+    app.session_state["generation_temperature"] = 0.2
+    app.session_state["generation_tolerance"] = 0.1
+    app.run()
+
+    assert not app.exception
+    metrics = {item.label: item.value for item in app.metric}
+    assert metrics["Model"] == "granite-code:3b"
+    assert metrics["Batch size"] == "1"
+    assert metrics["LLM temperature"] == "0.65"
+    assert metrics["Tolerance floor"] == "±25%"
 
 
 def test_home_is_accessible_as_a_separate_application_view():

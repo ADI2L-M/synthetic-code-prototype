@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from html import escape
 from typing import Any
 
 import pandas as pd
@@ -10,13 +12,28 @@ import streamlit as st
 
 from models.types import IterationResult, ProgrammingTask
 from services.generation.analytics import (
+    category_summary_rows,
     defect_analytics_rows,
+    detector_interaction_rows,
     generation_quality,
     iteration_history_rows,
 )
-from services.generation.export import iteration_export_archive
-from ui.research_dashboard import target_dataframe
-from ui.state import request_calibration as _request_calibration
+from services.generation.experiment import load_experiment_logs
+from services.generation.export import (
+    calibrated_artifact_export_archive,
+    iteration_export_archive,
+)
+from services.generation.jobs import GenerationJob
+from services.providers.ollama import OLLAMA_TEMPERATURE
+from ui.research_dashboard import render_target_profile_tables
+from ui.state import (
+    begin_generation,
+    generation_in_progress,
+    generation_summary,
+)
+from ui.state import (
+    request_calibration as _request_calibration,
+)
 
 OLLAMA_MODELS = (
     "qwen2.5-coder:1.5b",
@@ -29,14 +46,89 @@ OLLAMA_MODELS = (
 class GenerationControls:
     task_id: str
     model: str
+    temperature: float
     batch_size: int
     tolerance: float
     base_url: str
     generate_requested: bool
 
 
+def _request_calibration_and_begin() -> None:
+    begin_generation()
+    _request_calibration()
+
+
+@st.dialog(
+    "Generation in progress",
+    width="small",
+    dismissible=False,
+    icon=":material/auto_awesome:",
+)
+def render_generation_job_dialog(
+    job: GenerationJob,
+    task_name: str,
+    model: str,
+    temperature: float,
+    batch_size: int,
+    iteration_number: int,
+    on_complete: Callable[[Any, Exception | None], None],
+) -> None:
+    """Render a cancellable native viewport dialog for a background job."""
+
+    @st.fragment(run_every=0.5)
+    def poll_job() -> None:
+        event = job.latest_progress
+        fraction = event.completed / event.total if event.total else 0.0
+        st.markdown(
+            "<div class='generation-job-status'>"
+            "<span class='generation-job-spinner' aria-hidden='true'></span>"
+            "<strong>Generating synthetic submissions</strong>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
+        st.caption(
+            f"{task_name} · {model} · batch {batch_size} · "
+            f"iteration {iteration_number} · temperature {temperature:.2f}"
+        )
+        st.markdown(
+            f"<div class='generation-job-message'>{escape(event.message)}</div>",
+            unsafe_allow_html=True,
+        )
+        st.progress(min(max(fraction, 0.0), 1.0))
+        st.caption(
+            f"{event.completed} of {event.total} submissions complete · "
+            "functional validation and defect checks are applied to each result."
+        )
+
+        if job.done:
+            try:
+                result = job.result()
+            except Exception as error:  # noqa: BLE001 - surface worker failures in UI
+                on_complete(None, error)
+            else:
+                on_complete(result, None)
+            st.rerun(scope="app")
+
+        if job.cancel_requested():
+            st.warning(
+                "Cancellation requested. The current model request will stop "
+                "at its next safe checkpoint."
+            )
+        elif st.button(
+            "Cancel generation",
+            type="secondary",
+            icon=":material/stop_circle:",
+            width="stretch",
+            key="cancel_generation",
+        ):
+            job.cancel()
+
+    poll_job()
+
+
 def render_generation_sidebar(data: dict[str, Any]) -> GenerationControls:
     """Render the generation controls in the sidebar and return their values."""
+    busy = generation_in_progress()
     with st.sidebar:
         st.header(":material/auto_awesome: Generation controls")
         task_id = st.selectbox(
@@ -44,12 +136,28 @@ def render_generation_sidebar(data: dict[str, Any]) -> GenerationControls:
             list(data["prototype_tasks"]),
             format_func=lambda item: data["prototype_tasks"][item]["label"],
             key="generation_task",
+            disabled=busy,
         )
         model = st.selectbox(
             "Model",
             OLLAMA_MODELS,
             index=0,
             key="generation_model",
+            disabled=busy,
+        )
+        temperature = st.slider(
+            "LLM temperature",
+            min_value=0.0,
+            max_value=1.0,
+            value=OLLAMA_TEMPERATURE,
+            step=0.05,
+            format="%.2f",
+            help=(
+                "Higher values increase variation; lower values make generation "
+                "more deterministic."
+            ),
+            key="generation_temperature",
+            disabled=busy,
         )
         batch_size = st.number_input(
             "Submissions to generate",
@@ -58,6 +166,7 @@ def render_generation_sidebar(data: dict[str, Any]) -> GenerationControls:
             value=10,
             step=1,
             key="generation_batch_size",
+            disabled=busy,
         )
         tolerance = st.slider(
             "Minimum relative tolerance",
@@ -67,12 +176,14 @@ def render_generation_sidebar(data: dict[str, Any]) -> GenerationControls:
             step=0.01,
             format="%.2f",
             key="generation_tolerance",
+            disabled=busy,
         )
         with st.expander("Connection settings"):
             base_url = st.text_input(
                 "Ollama URL",
                 value="http://localhost:11434",
                 key="generation_base_url",
+                disabled=busy,
             )
         st.divider()
         generate_requested = st.button(
@@ -81,12 +192,20 @@ def render_generation_sidebar(data: dict[str, Any]) -> GenerationControls:
             icon=":material/play_arrow:",
             width="stretch",
             key="generate_batch",
+            disabled=busy,
+            on_click=begin_generation,
         )
-        st.caption("Generation uses the empirical target profile and validates every submission.")
+        if busy:
+            st.info("Generation is running. Controls are temporarily disabled.")
+        else:
+            st.caption(
+                "Generation uses the empirical target profile and validates every submission."
+            )
 
     return GenerationControls(
         task_id=task_id,
         model=model,
+        temperature=float(temperature),
         batch_size=int(batch_size),
         tolerance=float(tolerance),
         base_url=base_url,
@@ -269,11 +388,13 @@ def _render_iteration_explorer(
         f"Iteration {item.iteration} · {item.model or 'model unavailable'}"
         for item in history
     ]
+    busy = generation_in_progress()
     selected_label = st.selectbox(
         "Iteration to inspect",
         labels,
         index=len(labels) - 1,
         key=f"generation_iteration_selector_{task_id}",
+        disabled=busy,
     )
     selected = history[labels.index(selected_label)]
     with st.container(horizontal=True, horizontal_alignment="distribute"):
@@ -283,6 +404,7 @@ def _render_iteration_explorer(
             on_click=_open_iteration_overlay,
             args=(selected.iteration,),
             key=f"view_iteration_{task_id}_{selected.iteration}",
+            disabled=busy,
         )
         st.download_button(
             "Export iteration code",
@@ -291,10 +413,70 @@ def _render_iteration_explorer(
             mime="application/zip",
             icon=":material/download:",
             key=f"export_iteration_{task_id}_{selected.iteration}",
+            disabled=busy,
         )
 
     if st.session_state.get("generation_overlay_iteration") == selected.iteration:
         _render_iteration_overlay(selected)
+
+
+def _render_experiment_log_browser(task_id: str) -> None:
+    """Show compact condition summaries from persisted CLI experiment logs."""
+    records = [
+        record
+        for record in load_experiment_logs()
+        if record.get("config", {}).get("task_id") == task_id
+    ]
+    st.subheader("Experiment history")
+    if not records:
+        st.info("No logged experiments are available for this task.")
+        return
+    labels = [
+        f"{record['experiment_id']} · {record['_log_file']}"
+        for record in records
+    ]
+    selected = records[
+        labels.index(
+            st.selectbox(
+                "Experiment record",
+                labels,
+                index=len(labels) - 1,
+                key=f"generation_experiment_log_{task_id}",
+            )
+        )
+    ]
+    rows = []
+    for condition, metrics in selected.get("condition_summary", {}).items():
+        rows.append(
+            {
+                "Condition": condition,
+                "Functional pass rate": metrics.get("functional_pass_rate"),
+                "Task-independent coverage": metrics.get("independent_coverage"),
+                "Task-dependent coverage": metrics.get("dependent_coverage"),
+                "Mean absolute profile error": metrics.get(
+                    "mean_absolute_profile_error"
+                ),
+                "Within-tolerance rate": metrics.get("within_tolerance_rate"),
+            }
+        )
+    st.caption(
+        f"{selected['experiment_id']} · {selected['_log_file']} · "
+        f"one JSONL record at line {selected['_line_number']}"
+    )
+    st.dataframe(
+        pd.DataFrame(rows),
+        hide_index=True,
+        width="stretch",
+        column_config={
+            "Functional pass rate": st.column_config.NumberColumn(format="percent"),
+            "Task-independent coverage": st.column_config.NumberColumn(format="percent"),
+            "Task-dependent coverage": st.column_config.NumberColumn(format="percent"),
+            "Mean absolute profile error": st.column_config.NumberColumn(
+                format="percent"
+            ),
+            "Within-tolerance rate": st.column_config.NumberColumn(format="percent"),
+        },
+    )
 
 
 def _render_analytics(
@@ -304,8 +486,58 @@ def _render_analytics(
     if current is None:
         st.info("Analytics will appear after a generation batch is completed.")
         return
+    busy = generation_in_progress()
     quality = generation_quality(current)
     status = "Accepted" if current.accepted else "Needs review"
+    with st.container(border=True):
+        st.subheader("Iteratively calibrated artefact")
+        st.caption(
+            "This is the latest batch retained by the non-regression guard. "
+            "Calibration may be repeated from this artefact; a candidate that "
+            "reduces functional validity or either defect category is rejected."
+        )
+        artifact_metrics = [
+            ("Artefact status", status),
+            ("Selected iteration", str(current.iteration)),
+            (
+                "Valid submissions",
+                f"{quality['valid_submissions']}/{quality['total_submissions']}",
+            ),
+            ("Profile rows in tolerance", f"{sum(row.status == 'Within tolerance' for row in current.comparison)}/{len(current.comparison)}"),
+        ]
+        columns = st.columns(4, gap="small")
+        for column, (label, value) in zip(columns, artifact_metrics):
+            with column:
+                st.metric(label, value, border=True)
+        st.caption(
+            f"{current.task_name} · {current.model or 'model unavailable'} · "
+            f"context {current.context_length or 'unknown'} · "
+            f"relative tolerance ±{current.tolerance:.0%}"
+        )
+        st.download_button(
+            "Export calibrated artefact",
+            data=calibrated_artifact_export_archive(current, history or [current]),
+            file_name=(
+                f"{current.task_id.lower()}_calibrated_artifact_"
+                f"iteration_{current.iteration}.zip"
+            ),
+            mime="application/zip",
+            icon=":material/download:",
+            width="stretch",
+            key=f"export_calibrated_artifact_{current.task_id}_{current.iteration}",
+            disabled=busy,
+        )
+        if not current.accepted:
+            st.button(
+                "Apply calibration and regenerate",
+                type="primary",
+                icon=":material/autorenew:",
+                width="stretch",
+                key="apply_generation_calibration",
+                on_click=_request_calibration_and_begin,
+                disabled=busy,
+            )
+
     st.subheader("Generation quality")
     st.caption(
         "Observed prevalence uses only functionally valid submissions. Profile "
@@ -314,48 +546,132 @@ def _render_analytics(
     )
     quality_metrics = [
         ("Functional pass rate", f"{quality['functional_pass_rate']:.0%}"),
-        (
-            "Category requirement",
-            f"{quality['category_requirement_rate']:.0%}",
-        ),
-        (
-            "Valid denominator",
-            f"{quality['valid_submissions']}/{quality['total_submissions']}",
-        ),
-        ("Average attempts", f"{quality['average_attempts']:.1f}"),
+        ("Category requirement", f"{quality['category_requirement_rate']:.0%}"),
+        ("Task-independent coverage", f"{quality['independent_coverage']:.0%}"),
+        ("Task-dependent coverage", f"{quality['dependent_coverage']:.0%}"),
     ]
     columns = st.columns(4, gap="small")
     for column, (label, value) in zip(columns, quality_metrics):
         with column:
             st.metric(label, value, border=True)
 
-    st.subheader("Defect generation profile")
-    analytics_rows = defect_analytics_rows(current)
-    profile = pd.DataFrame(analytics_rows).set_index("Defect")[["Target", "Observed"]]
-    st.bar_chart(profile, y_label="Prevalence", x_label="Defect")
+    st.subheader("Category coverage")
     st.dataframe(
-        pd.DataFrame(analytics_rows),
+        pd.DataFrame(category_summary_rows(current)),
         hide_index=True,
         width="stretch",
         column_config={
-            "Target": st.column_config.ProgressColumn(
+            "Submission coverage": st.column_config.ProgressColumn(
                 min_value=0, max_value=1, format="percent"
             ),
-            "Observed": st.column_config.ProgressColumn(
-                min_value=0, max_value=1, format="percent"
-            ),
-            "Target standard error": st.column_config.NumberColumn(
-                format="percent"
-            ),
-            "Observed 95% low": st.column_config.NumberColumn(format="percent"),
-            "Observed 95% high": st.column_config.NumberColumn(format="percent"),
-            "Decision margin": st.column_config.NumberColumn(format="percent"),
-            "Difference": st.column_config.NumberColumn(format="percent"),
+            "Target mean": st.column_config.NumberColumn(format="percent"),
+            "Observed mean": st.column_config.NumberColumn(format="percent"),
         },
     )
 
-    st.subheader("Profile status")
-    st.caption(f"{status} · relative tolerance ±{current.tolerance:.0%}")
+    st.subheader("Defect profile alignment")
+    analytics_rows = defect_analytics_rows(current)
+    filter_options = [
+        "All defects",
+        "Task-independent",
+        "Task-dependent",
+        "Outside tolerance",
+    ]
+    defect_filter = st.selectbox(
+        "Show",
+        filter_options,
+        key=f"analytics_defect_filter_{current.task_id}",
+    )
+    visible_rows = analytics_rows
+    if defect_filter in {"Task-independent", "Task-dependent"}:
+        visible_rows = [
+            row for row in analytics_rows if row["Category"] == defect_filter
+        ]
+    elif defect_filter == "Outside tolerance":
+        visible_rows = [
+            row for row in analytics_rows if row["Status"] != "Within tolerance"
+        ]
+    if not visible_rows:
+        st.info("No defects match this filter.")
+    else:
+        profile = pd.DataFrame(visible_rows).set_index("Defect")[["Target", "Observed"]]
+        st.bar_chart(profile, y_label="Prevalence", x_label="Defect")
+        for category, title in (
+            ("Task-dependent", "Task-dependent defects"),
+            ("Task-independent", "Task-independent defects"),
+        ):
+            category_rows = [
+                row for row in visible_rows if row["Category"] == category
+            ]
+            if not category_rows:
+                continue
+            st.markdown(f"#### {title}")
+            dataframe = pd.DataFrame(category_rows).rename(
+                columns={
+                    "Target": "Target prevalence",
+                    "Observed": "Observed prevalence",
+                }
+            )[
+                [
+                    "Defect",
+                    "Target prevalence",
+                    "Observed prevalence",
+                    "Difference",
+                    "Status",
+                    "Action",
+                ]
+            ]
+            st.dataframe(
+                dataframe,
+                hide_index=True,
+                width="stretch",
+                column_config={
+                    "Target prevalence": st.column_config.ProgressColumn(
+                        min_value=0, max_value=1, format="percent"
+                    ),
+                    "Observed prevalence": st.column_config.ProgressColumn(
+                        min_value=0, max_value=1, format="percent"
+                    ),
+                    "Difference": st.column_config.NumberColumn(format="percent"),
+                },
+            )
+        with st.expander("Detailed uncertainty and detector counts"):
+            st.dataframe(
+                pd.DataFrame(visible_rows)[
+                    [
+                        "Defect",
+                        "Guided",
+                        "Detected (valid)",
+                        "Valid denominator",
+                        "Target standard error",
+                        "Observed 95% low",
+                        "Observed 95% high",
+                        "Decision margin",
+                    ]
+                ],
+                hide_index=True,
+                width="stretch",
+                column_config={
+                    "Target standard error": st.column_config.NumberColumn(
+                        format="percent"
+                    ),
+                    "Observed 95% low": st.column_config.NumberColumn(
+                        format="percent"
+                    ),
+                    "Observed 95% high": st.column_config.NumberColumn(
+                        format="percent"
+                    ),
+                    "Decision margin": st.column_config.NumberColumn(
+                        format="percent"
+                    ),
+                },
+            )
+
+    st.subheader("Calibration trace")
+    st.caption(
+        f"{status} · relative tolerance ±{current.tolerance:.0%} · "
+        f"{len(history or [current])} retained iteration(s)"
+    )
     if current.constraints:
         st.subheader("Active calibration adjustments")
         st.dataframe(
@@ -372,7 +688,6 @@ def _render_analytics(
             width="stretch",
         )
     if history and len(history) > 1:
-        st.subheader("Calibration history")
         st.dataframe(
             pd.DataFrame(iteration_history_rows(history)),
             hide_index=True,
@@ -385,50 +700,35 @@ def _render_analytics(
                 "Average attempts": st.column_config.NumberColumn(format="%.1f"),
             },
         )
-    if not current.accepted:
-        st.button(
-            "Apply calibration and regenerate",
-            type="primary",
-            icon=":material/autorenew:",
-            width="stretch",
-            key="apply_generation_calibration",
-            on_click=_request_calibration,
-        )
+    with st.expander("Defect interaction"):
+        interaction_rows = detector_interaction_rows(current)
+        if not interaction_rows:
+            st.info("At least two target defects are required for interaction analysis.")
+        else:
+            st.caption(
+                "Co-occurrence is calculated only among functionally valid "
+                "submissions and is shown from highest to lowest count."
+            )
+            st.dataframe(
+                pd.DataFrame(interaction_rows[:20]),
+                hide_index=True,
+                width="stretch",
+                column_config={
+                    "Co-occurrence rate": st.column_config.NumberColumn(
+                        format="percent"
+                    )
+                },
+            )
+    _render_experiment_log_browser(current.task_id)
 
 
-def render_generation(
-    data: dict[str, Any],
+def _render_generation_tabs(
+    task_data: dict[str, Any],
     controls: GenerationControls,
     current: IterationResult | None,
     task: ProgrammingTask,
-    error: str | None = None,
-    history: list[IterationResult] | None = None,
+    history: list[IterationResult] | None,
 ) -> None:
-    """Render generation inputs, empirical targets, and the latest batch."""
-    task_data = data["prototype_tasks"][controls.task_id]
-    st.caption("SYNTHETIC DATA GENERATION")
-    st.title("Generation")
-    st.write(
-        "Generate functionally correct T1/T2/T3 submissions against the empirical "
-        "prevalence target. Defect detection remains available as a complementary "
-        "research view."
-    )
-
-    metrics = [
-        ("Selected task", task_data["label"]),
-        ("Model", controls.model),
-        ("Batch size", controls.batch_size),
-        ("Tolerance floor", f"±{controls.tolerance:.0%}"),
-    ]
-    for start in range(0, len(metrics), 2):
-        columns = st.columns(2, gap="small")
-        for column, (label, value) in zip(columns, metrics[start : start + 2]):
-            with column:
-                st.metric(label, value, border=True)
-
-    if error:
-        st.error(error)
-
     task_tab, target_tab, prompt_tab, results_tab, analytics_tab = st.tabs(
         [
             ":material/code: Programming task",
@@ -443,16 +743,7 @@ def render_generation(
     with target_tab:
         if target_tab.open:
             st.subheader("Empirical target profile")
-            st.dataframe(
-                target_dataframe(task_data),
-                hide_index=True,
-                width="stretch",
-                column_config={
-                    "Target prevalence": st.column_config.ProgressColumn(
-                        min_value=0, max_value=1, format="percent"
-                    ),
-                },
-            )
+            render_target_profile_tables(task_data)
             st.caption(
                 "Primary target = equal-weighted mean across eligible authentic lab "
                 "tasks. Pooled prevalence and task-level variation are available in "
@@ -475,3 +766,87 @@ def render_generation(
     with analytics_tab:
         if analytics_tab.open:
             _render_analytics(current, history)
+
+
+def render_generation(
+    data: dict[str, Any],
+    controls: GenerationControls,
+    current: IterationResult | None,
+    task: ProgrammingTask,
+    error: str | None = None,
+    history: list[IterationResult] | None = None,
+) -> None:
+    """Render generation inputs, empirical targets, and the latest batch."""
+    task_data = data["prototype_tasks"][controls.task_id]
+
+    # Once an artefact exists, the summary describes that stored artefact. The
+    # sidebar remains a draft for the next generation and must not rewrite the
+    # metadata of the batch currently shown in Results and Analytics.
+    stored_summary = generation_summary(controls.task_id)
+    summary_task = (
+        stored_summary["task_name"]
+        if stored_summary
+        else (current.task_name if current else task_data["label"])
+    )
+    summary_model = (
+        stored_summary["model"]
+        if stored_summary and stored_summary["model"]
+        else (current.model if current and current.model else controls.model)
+    )
+    summary_batch_size = (
+        stored_summary["batch_size"]
+        if stored_summary
+        else (len(current.submissions) if current else controls.batch_size)
+    )
+    summary_temperature = (
+        stored_summary["temperature"]
+        if stored_summary and stored_summary["temperature"] is not None
+        else (
+            current.temperature
+            if current and current.temperature is not None
+            else controls.temperature
+        )
+    )
+    summary_tolerance = (
+        stored_summary["tolerance"]
+        if stored_summary
+        else (current.tolerance if current else controls.tolerance)
+    )
+
+    with st.container(border=True, key="generation_summary"):
+        st.caption("SYNTHETIC DATA GENERATION")
+        st.title("Generation")
+        st.write(
+            "Generate functionally correct T1/T2/T3 submissions against the empirical "
+            "prevalence target. Defect detection remains available as a complementary "
+            "research view."
+        )
+
+        first_row = st.columns(2, gap="small")
+        for column, (label, value) in zip(
+            first_row,
+            (
+                ("Selected task", summary_task),
+                ("Model", summary_model),
+            ),
+        ):
+            with column:
+                st.metric(label, value, border=True)
+
+        second_row = st.columns(3, gap="small")
+        for column, (label, value) in zip(
+            second_row,
+            (
+                ("Batch size", summary_batch_size),
+                ("LLM temperature", f"{summary_temperature:.2f}"),
+                ("Tolerance floor", f"±{summary_tolerance:.0%}"),
+            ),
+        ):
+            with column:
+                st.metric(label, value, border=True)
+
+    if error:
+        st.error(error)
+
+    with st.container(border=True, key="generation_tabs"):
+        _render_generation_tabs(task_data, controls, current, task, history)

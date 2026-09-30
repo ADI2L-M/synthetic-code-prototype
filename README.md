@@ -55,11 +55,15 @@ The legacy demonstration task controls are not exposed.
 ## Empirical research foundation
 
 The authoritative research catalog is formalized in
-`config/defect_specifications.json`. It records all 18 YAML-defined defects,
+`config/defect_specifications.json`. It records the 17 active YAML-defined defects,
 conservative detection rules, exclusions, evidence requirements, and the
 T1/T2/T3 eligibility matrix. Raw detection is intentionally separate from task
 eligibility; low-opportunity defects remain eligible and carry a separate
 opportunity level.
+
+The exploratory `redundant_for` detector remains implemented and covered by
+controlled tests, but is excluded from the active catalogue because no positive
+authentic examples were found in the available T3 submissions.
 
 The research services currently provide:
 
@@ -91,3 +95,45 @@ The dashboard denominator is parseable submissions marked functionally correct
 by the functional-validation dataset. Each prototype task page exposes its
 mapped authentic tasks, detector eligibility, affected counts, task-level
 prevalence, and report paths for auditability.
+
+## Automated synthetic-generation comparison
+
+The experiment runner compares three conditions using the same task, target
+profile, batch size, model, validation tests, and repair budget:
+
+- `non_adaptive_baseline`: task contract only; no intentional defect guidance;
+- `task_aware_non_adaptive`: task-aware defect assignment in one generation
+  pass, with up to the configured repair attempts;
+- `task_aware_iterative`: the task-aware condition followed by bounded,
+  non-regressive calibration iterations.
+
+Run a local Ollama experiment with:
+
+```powershell
+python scripts/run_generation_experiment.py --task T1 --model qwen2.5-coder:1.5b
+```
+
+To run T1, T2, and T3 sequentially from PowerShell:
+
+```powershell
+.\scripts\run_all_generation_experiments.ps1
+```
+
+The batch size and model can be changed without editing the script:
+
+```powershell
+.\scripts\run_all_generation_experiments.ps1 -BatchSize 100 -Model qwen2.5-coder:1.5b
+```
+
+The script continues to the next task after a failure. Add `-StopOnError` to
+stop at the first failed experiment.
+
+The command compares functional pass rate, task-independent coverage,
+task-dependent coverage, category-requirement rate, mean absolute profile
+error, root mean square profile error, and the proportion of defect rows within
+tolerance. It writes one compact JSONL file per experiment using the filename
+pattern `research-notes/synthetic-generation-experiments/experiment-log-DDMMYYHHMMSS.jsonl`.
+The log stores configuration, condition summaries, iteration metrics, per-defect
+comparisons, zero-observed defects, and stop reasons. It intentionally excludes
+generated source and prompts so repeated experiments remain reviewable without
+creating oversized repository files.

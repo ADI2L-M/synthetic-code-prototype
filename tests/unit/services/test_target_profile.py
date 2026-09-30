@@ -1,3 +1,7 @@
+import json
+
+import pytest
+
 from services.research.target_profile import (
     build_empirical_target_profile,
     load_empirical_target_values,
@@ -20,16 +24,6 @@ def _summary() -> dict:
                         "maximum_task_prevalence": 0.3,
                         "standard_deviation": 0.05,
                     },
-                    "redundant_for": {
-                        "task_mean_prevalence": None,
-                        "eligible_task_count": 0,
-                        "valid_submission_count": 0,
-                        "affected_submission_count": 0,
-                        "pooled_prevalence": None,
-                        "minimum_task_prevalence": None,
-                        "maximum_task_prevalence": None,
-                        "standard_deviation": None,
-                    },
                 },
             }
         }
@@ -45,7 +39,7 @@ def test_profile_uses_task_mean_and_omits_non_applicable_defects():
     task_profile = profile["prototype_tasks"]["T1"]
     assert task_profile["target_profile"] == {"magic_number": 0.25}
     assert task_profile["task_independent"]["magic_number"]["pooled_prevalence"] == 0.3
-    assert task_profile["omitted_not_applicable"] == ["redundant_for"]
+    assert task_profile["omitted_not_applicable"] == []
 
 
 def test_load_empirical_target_values_reads_flat_generation_profile(tmp_path):
@@ -56,3 +50,19 @@ def test_load_empirical_target_values_reads_flat_generation_profile(tmp_path):
     )
 
     assert load_empirical_target_values(path, "T2") == {"magic_number": 0.1}
+
+
+def test_load_empirical_target_values_reports_missing_task(tmp_path):
+    path = tmp_path / "profile.json"
+    path.write_text('{"prototype_tasks": {}}', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="No empirical target profile"):
+        load_empirical_target_values(path, "T2")
+
+
+def test_load_empirical_target_values_preserves_malformed_profile_error(tmp_path):
+    path = tmp_path / "profile.json"
+    path.write_text("not-json", encoding="utf-8")
+
+    with pytest.raises(json.JSONDecodeError):
+        load_empirical_target_values(path, "T2")

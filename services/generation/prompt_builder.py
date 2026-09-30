@@ -66,10 +66,6 @@ GENERATION_HINTS = {
         "Use a counter-controlled while loop with a constant update on every "
         "executable path and no break, return, or bypassing continue."
     ),
-    "redundant_for": (
-        "Use a for loop over a statically zero- or one-element iterable where the "
-        "body does not depend on repetition."
-    ),
     "augmentable_assignment": (
         "Write a matching update as ordinary assignment, such as total = total "
         "+ value, instead of using the equivalent augmented assignment."
@@ -89,6 +85,18 @@ GENERATION_HINTS = {
     "built_in_name": (
         "Bind a user-defined variable or function to a Python built-in name, "
         "such as list or sum, without changing the required public function."
+    ),
+}
+
+GENERATION_AVOIDANCE_HINTS = {
+    "inappropriate_formatting": (
+        "Use conventional whitespace: spaces around operators and after commas. "
+        "Do not intentionally omit required spacing. Correct pattern: `if temp < 10:`."
+    ),
+    "magic_number": (
+        "Name meaningful numeric thresholds or domain values with local constants "
+        "instead of embedding them directly in decision logic. Correct pattern: "
+        "`COLD_LIMIT = 10` followed by `if temp < COLD_LIMIT:`."
     ),
 }
 
@@ -158,10 +166,6 @@ GENERATION_EXAMPLES = {
     "while_as_for": {
         "defective": "i = 0\nwhile i < limit:\n    process(i)\n    i += 1",
         "corrected": "for i in range(limit):\n    process(i)",
-    },
-    "redundant_for": {
-        "defective": "for _ in range(1):\n    result = compute(value)",
-        "corrected": "result = compute(value)",
     },
     "augmentable_assignment": {
         "defective": "total = total + value",
@@ -336,6 +340,23 @@ def applicable_defect_names(task: ProgrammingTask, category: str) -> tuple[str, 
     return _task_defect_names(task.id, category)
 
 
+def _task_pattern_without_magic_number(task_id: str, pattern: str) -> str:
+    """Keep task examples functional while avoiding unassigned magic numbers."""
+    if task_id != "T1":
+        return pattern
+    replacements = (
+        ("10", "COLD_LIMIT"),
+        ("24", "MILD_LIMIT"),
+        ("25", "HOT_LIMIT"),
+    )
+    declarations: list[str] = []
+    for literal, name in replacements:
+        if literal in pattern:
+            pattern = pattern.replace(literal, name)
+            declarations.append(f"{name} = {literal}")
+    return "\n".join(declarations + [pattern])
+
+
 def _calibration_section(constraints: dict[str, str] | None) -> str:
     if not constraints:
         return ""
@@ -377,6 +398,19 @@ def build_generation_specification(
     )
 
 
+def build_baseline_specification(task: ProgrammingTask) -> str:
+    """Build the task-only prompt specification for the baseline condition."""
+    return (
+        "PROMPTING CONDITION: NON-ADAPTIVE BASELINE\n\n"
+        "Generate a conventional implementation from the task contract only. "
+        "Do not add any generation objective beyond functional correctness.\n\n"
+        f"PROGRAMMING TASK\n\n{task.description}\n\n"
+        "FUNCTIONAL REQUIREMENTS\n\n"
+        + "\n".join(f"- {item}" for item in task.functional_requirements)
+        + "\n\nIMPORTANT\n\nThe program must remain functionally correct."
+    )
+
+
 def build_submission_specification(
     task: ProgrammingTask,
     assigned_defects: tuple[str, ...],
@@ -406,6 +440,7 @@ def build_submission_specification(
     guidance_defects = tuple(
         dict.fromkeys(assigned_task_independent + assigned_task_dependent)
     )
+    assigned_set = set(guidance_defects)
     guidance_sections: list[str] = []
     for defect in guidance_defects:
         hint = GENERATION_HINTS.get(defect)
@@ -419,12 +454,29 @@ def build_submission_specification(
                 guidance += f" Example pattern:\n    {example}"
             task_pattern = TASK_SPECIFIC_PATTERNS.get((task.id, defect))
             if task_pattern:
+                if "magic_number" not in assigned_set:
+                    task_pattern = _task_pattern_without_magic_number(
+                        task.id, task_pattern
+                    )
                 guidance += (
                     "\n  Task-specific valid pattern to adapt:\n    "
                     + task_pattern.replace("\n", "\n    ")
                 )
             guidance_sections.append(guidance)
     guidance = "\n".join(guidance_sections) or "- Use the task contract to construct the required styles."
+    unassigned_names = tuple(
+        name
+        for name in independent_names + dependent_names
+        if name not in assigned_set
+    )
+    avoidance_sections = []
+    for defect in unassigned_names:
+        hint = GENERATION_AVOIDANCE_HINTS.get(defect)
+        avoidance_sections.append(
+            f"- {defect.replace('_', ' ')}: "
+            + (hint or "do not intentionally create this style.")
+        )
+    avoidance = "\n".join(avoidance_sections) or "- None; all applicable styles are assigned."
     assigned_section = (
         "REFERENCE DEFECT CATALOG — names only; do not implement every item:\n\n"
         "Task-Independent defects:\n\n"
@@ -432,7 +484,7 @@ def build_submission_specification(
         + "\n\n"
         "Task-Dependent defects:\n\n"
         + dependent_section
-        + "\n\nMANDATORY SELECTED DEFECTS — implement these two styles:\n\n"
+        + "\n\nMANDATORY SELECTED DEFECTS — implement every listed style:\n\n"
         + "Task-independent:\n"
         + assigned_task_independent_names
         + "\nASSIGNED TASK-DEPENDENT DEFECTS TO PRIORITISE:\n"
@@ -441,15 +493,16 @@ def build_submission_specification(
         + "- Include at least one task-independent defect.\n"
         + "- Include at least one task-dependent defect.\n"
         + "Include at least one task-independent and at least one task-dependent "
-        "defect. The two selected defects above are the simplest required choices; "
-        "do not substitute another style.\n\n"
+        "defect. Do not substitute another style for a listed assignment.\n\n"
         "MANDATORY DEFECT IMPLEMENTATION GUIDANCE:\n\n"
         + guidance
+        + "\n\nUNASSIGNED DEFECTS TO AVOID:\n\n"
+        + avoidance
         + "\n\nGENERATION PROCEDURE:\n\n"
         "1. Write the complete function so every functional requirement and evaluator "
         "case is satisfied.\n"
-        "2. Add the selected task-independent style without changing behavior.\n"
-        "3. Add the selected task-dependent style without changing behavior.\n"
+        "2. Add every selected task-independent style without changing behavior.\n"
+        "3. Add every selected task-dependent style without changing behavior.\n"
         "4. Recheck every evaluator case and remove any module-level execution."
     )
 

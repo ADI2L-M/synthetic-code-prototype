@@ -6,7 +6,7 @@ def test_empirical_dashboard_loads_all_prototype_tasks():
     data = load_dashboard_data()
 
     assert set(data["prototype_tasks"]) == {"T1", "T2", "T3"}
-    assert data["detector_count"] == 18
+    assert data["detector_count"] == 17
     assert data["prototype_tasks"]["T1"]["authentic_task_count"] == 20
     assert data["prototype_tasks"]["T2"]["authentic_task_count"] == 19
     assert data["prototype_tasks"]["T3"]["authentic_task_count"] == 7
@@ -16,10 +16,7 @@ def test_dashboard_keeps_zero_prevalence_targets_and_omits_not_applicable_defect
     data = load_dashboard_data()
     t3 = data["prototype_tasks"]["T3"]
 
-    redundant_for = next(
-        row for row in t3["target_rows"] if row["defect"] == "redundant_for"
-    )
-    assert redundant_for["target_prevalence"] == 0.0
+    assert all(row["defect"] != "redundant_for" for row in t3["target_rows"])
     assert "redundant_comparison" in t3["omitted_not_applicable"]
 
 

@@ -5,7 +5,7 @@
     "filtered_dataset": "outputs\\authentic-functional-filter\\functionally_correct_submissions.csv",
     "grouping": "research-notes\\data-identification\\cs1_regeneration_task_groups.json",
     "defect_specification": "config\\defect_specifications.json",
-    "detector_count": 18,
+    "detector_count": 17,
     "denominator_definition": "parseable submissions marked functionally correct by the functional-validation dataset",
     "family_estimator": "arithmetic mean of authentic-task prevalence",
     "secondary_estimator": "pooled affected submissions divided by pooled valid submissions"
@@ -1784,19 +1784,6 @@
           "standard_deviation": null,
           "task_prevalence": []
         },
-        "redundant_for": {
-          "task_family": "conditional_logic",
-          "defect": "redundant_for",
-          "eligible_task_count": 0,
-          "valid_submission_count": 0,
-          "affected_submission_count": 0,
-          "task_mean_prevalence": null,
-          "pooled_prevalence": null,
-          "minimum_task_prevalence": null,
-          "maximum_task_prevalence": null,
-          "standard_deviation": null,
-          "task_prevalence": []
-        },
         "augmentable_assignment": {
           "task_family": "conditional_logic",
           "defect": "augmentable_assignment",
@@ -3128,19 +3115,6 @@
           "standard_deviation": null,
           "task_prevalence": []
         },
-        "redundant_for": {
-          "task_family": "list_processing",
-          "defect": "redundant_for",
-          "eligible_task_count": 0,
-          "valid_submission_count": 0,
-          "affected_submission_count": 0,
-          "task_mean_prevalence": null,
-          "pooled_prevalence": null,
-          "minimum_task_prevalence": null,
-          "maximum_task_prevalence": null,
-          "standard_deviation": null,
-          "task_prevalence": []
-        },
         "augmentable_assignment": {
           "task_family": "list_processing",
           "defect": "augmentable_assignment",
@@ -4188,76 +4162,6 @@
               "valid_eligible_submission_count": 323,
               "affected_submission_count": 2,
               "prevalence": 0.006191950464396285
-            }
-          ]
-        },
-        "redundant_for": {
-          "task_family": "numeric_iteration",
-          "defect": "redundant_for",
-          "eligible_task_count": 7,
-          "valid_submission_count": 3859,
-          "affected_submission_count": 0,
-          "task_mean_prevalence": 0.0,
-          "pooled_prevalence": 0.0,
-          "minimum_task_prevalence": 0.0,
-          "maximum_task_prevalence": 0.0,
-          "standard_deviation": 0.0,
-          "task_prevalence": [
-            {
-              "task_id": "Lab 10 Q14",
-              "task_family": "numeric_iteration",
-              "defect": "redundant_for",
-              "valid_eligible_submission_count": 573,
-              "affected_submission_count": 0,
-              "prevalence": 0.0
-            },
-            {
-              "task_id": "Lab 10 Q6",
-              "task_family": "numeric_iteration",
-              "defect": "redundant_for",
-              "valid_eligible_submission_count": 560,
-              "affected_submission_count": 0,
-              "prevalence": 0.0
-            },
-            {
-              "task_id": "Lab 13 Q1",
-              "task_family": "numeric_iteration",
-              "defect": "redundant_for",
-              "valid_eligible_submission_count": 595,
-              "affected_submission_count": 0,
-              "prevalence": 0.0
-            },
-            {
-              "task_id": "Lab 17 Q4",
-              "task_family": "numeric_iteration",
-              "defect": "redundant_for",
-              "valid_eligible_submission_count": 578,
-              "affected_submission_count": 0,
-              "prevalence": 0.0
-            },
-            {
-              "task_id": "Lab 6 Q1",
-              "task_family": "numeric_iteration",
-              "defect": "redundant_for",
-              "valid_eligible_submission_count": 612,
-              "affected_submission_count": 0,
-              "prevalence": 0.0
-            },
-            {
-              "task_id": "Lab 9 Q3",
-              "task_family": "numeric_iteration",
-              "defect": "redundant_for",
-              "valid_eligible_submission_count": 618,
-              "affected_submission_count": 0,
-              "prevalence": 0.0
-            },
-            {
-              "task_id": "Lab 9 Q8",
-              "task_family": "numeric_iteration",
-              "defect": "redundant_for",
-              "valid_eligible_submission_count": 323,
-              "affected_submission_count": 0,
-              "prevalence": 0.0
             }
           ]
         },

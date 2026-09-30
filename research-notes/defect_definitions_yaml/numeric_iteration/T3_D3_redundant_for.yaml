@@ -2,8 +2,12 @@ defect_id: T3_D3
 name: redundant_for
 category: task_dependent
 task_family: numeric_iteration
-applicable_tasks:
-  - T3
+applicable_tasks: []
+research_scope: exploratory_only
+exclusion_reason: >
+  No confirmed positive authentic examples were found in the available T3
+  submissions, so authentic prevalence and recall are not estimable for the
+  primary benchmark.
 source_term: redundant for
 definition: >
   A for loop performs zero or a single iteration, making the loop unnecessary.

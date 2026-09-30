@@ -16,7 +16,7 @@ load_dotenv()
 
 OLLAMA_CONTEXT_LENGTH = 16_384
 OLLAMA_OUTPUT_TOKENS = 1_200
-OLLAMA_TEMPERATURE = 0.3
+OLLAMA_TEMPERATURE = 0.2
 
 class OllamaModel(Enum):
     """List of available Ollama models"""
@@ -34,12 +34,16 @@ class OllamaProvider(GenerationProvider):
         model: OllamaModel = OllamaModel.QW25_CODER_1_5B,
         base_url: str = "http://localhost:11434",
         timeout: int = 180,
+        temperature: float = OLLAMA_TEMPERATURE,
     ) -> None:
         self.model = model or os.getenv("OLLAMA_MODEL", "qwen2.5-coder:1.5b")
         self.base_url = (
             base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         ).rstrip("/")
         self.timeout = timeout
+        if temperature < 0:
+            raise ValueError("temperature cannot be negative")
+        self.temperature = float(temperature)
 
     def generate(
         self,
@@ -69,7 +73,7 @@ class OllamaProvider(GenerationProvider):
             "prompt": prompt,
             "stream": False,
             "options": {
-                "temperature": OLLAMA_TEMPERATURE,
+                "temperature": self.temperature,
                 "seed": seed,
                 "num_ctx": OLLAMA_CONTEXT_LENGTH,
                 "num_predict": OLLAMA_OUTPUT_TOKENS,
@@ -111,7 +115,33 @@ class OllamaProvider(GenerationProvider):
             )
             for case in task.test_cases
         )
-        return f"""You are generating one Python submission for a programming task following certain coding style constraints.
+        baseline = "PROMPTING CONDITION: NON-ADAPTIVE BASELINE" in specification
+        role_instruction = (
+            "You are generating one Python submission for a programming task "
+            "from its task contract only."
+            if baseline
+            else "You are generating one Python submission for a programming task "
+            "following certain coding style constraints."
+        )
+        condition_instructions = (
+            "- Follow only the programming task and functional requirements.\n"
+            if baseline
+            else "- The assigned defect styles above are mandatory guidance for this submission.\n"
+        )
+        defect_instructions = (
+            ""
+            if baseline
+            else "- Include at least one assigned task-independent defect and one assigned\n"
+            "  task-dependent defect.\n"
+            "- The defect guidance is a hard acceptance criterion, not a suggestion. A clean\n"
+            "  standard solution without the assigned styles is incorrect for this dataset.\n"
+            "- Copy the key syntax and control-flow shape of every task-specific valid pattern\n"
+            "  shown for the assigned defects inside the required function; do not replace it\n"
+            "  with a different defect style.\n"
+            "- Include every assigned style without breaking functional correctness.\n"
+            "- Do not intentionally introduce defect styles that were not assigned.\n"
+        )
+        return f"""{role_instruction}
 
 {specification}
 
@@ -122,16 +152,7 @@ INSTRUCTIONS
 - Implement the function named {task.function_name}.
 - The submission must pass every functional test case above.
 - Handle invalid inputs and required exceptions before normal return logic.
-- The assigned defect styles above are mandatory guidance for this submission.
-- Include at least one assigned task-independent defect and one assigned
-  task-dependent defect.
-- The defect guidance is a hard acceptance criterion, not a suggestion. A clean
-  standard solution without the assigned styles is incorrect for this dataset.
-- Copy the key syntax and control-flow shape of every task-specific valid pattern
-  shown for the assigned defects inside the required function; do not replace it
-  with a different defect style.
-- Attempt to include every assigned style without breaking functional correctness.
-- Do not intentionally introduce defect styles that were not assigned.
+{condition_instructions}{defect_instructions}
 - Use readable, conventional multiline Python.
 - Do not use semicolons to compress statements.
 - Return only executable Python source code.

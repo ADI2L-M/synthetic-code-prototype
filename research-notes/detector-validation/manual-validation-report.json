@@ -1,5 +1,5 @@
 {
-  "overall_status": "preliminary",
+  "overall_status": "pilot_validated",
   "criteria": {
     "precision_target": 0.9,
     "recall_target": 0.85,
@@ -10,95 +10,260 @@
   "detectors": [
     {
       "defect": "augmentable_assignment",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "built_in_name",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "duplicate_expression",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "duplicate_if",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "else_if",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "empty_if",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 16,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 16,
+      "negative_labels": 40,
+      "validation_n": 56,
+      "status": "pilot_validated",
+      "reason": "Metrics meet the targets, but more reviewed examples are needed."
     },
     {
       "defect": "inappropriate_formatting",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "magic_number",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "misleading_iterator_name",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "nested_if",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 25,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 25,
+      "negative_labels": 40,
+      "validation_n": 65,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "one_letter_name",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "redundant_comparison",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "redundant_elif",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
-    },
-    {
-      "defect": "redundant_for",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "redundant_if_else",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "redundant_indexing",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     },
     {
       "defect": "redundant_not",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 11,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 11,
+      "negative_labels": 40,
+      "validation_n": 51,
+      "status": "pilot_validated",
+      "reason": "Metrics meet the targets, but more reviewed examples are needed."
     },
     {
       "defect": "while_as_for",
-      "status": "pending",
-      "reason": "No manual validation labels have been recorded."
+      "TP": 40,
+      "FP": 0,
+      "TN": 40,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "positive_labels": 40,
+      "negative_labels": 40,
+      "validation_n": 80,
+      "status": "validated",
+      "reason": "Metrics and minimum reviewed-example counts meet the pilot criteria."
     }
   ],
-  "label_source": "research-notes\\detector-validation\\gold-labels.template.jsonl",
-  "label_count": 0
+  "label_source": "research-notes\\detector-validation\\authentic-detector-gold-labels.jsonl",
+  "label_count": 1332
 }
