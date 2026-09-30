@@ -87,6 +87,7 @@ def main() -> None:
         batch_size=args.batch_size,
         tolerance=args.tolerance,
         model=args.model,
+        base_url=args.base_url,
         context_length=OLLAMA_CONTEXT_LENGTH,
         temperature=args.temperature,
         repetitions=args.repetitions,

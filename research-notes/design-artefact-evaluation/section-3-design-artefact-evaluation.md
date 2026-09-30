@@ -24,7 +24,7 @@ authentic submissions
 
 | Evidence | Current result | Interpretation |
 |---|---:|---|
-| Automated repository tests | 150 passed | Current automated implementation behaviour is passing. |
+| Automated repository tests | 154 passed | Current automated implementation behaviour is passing. |
 | Ruff | `All checks passed!` | The current Ruff verification reports no findings. |
 | Controlled detector fixtures | 34/34 passed across 17 active detectors | The controlled positive/negative detector suite passes. |
 | Manually reviewed detector labels | 1,332 | Evidence exists for detector-readiness assessment. |
@@ -86,6 +86,7 @@ The target profile is derived from authentic CS1 submissions. The primary estima
 | Home page | `app_pages/home.py`, `ui/home.py` |
 | Generation page | `app_pages/generation.py`, `ui/generation.py` |
 | Authentic detection page | `app_pages/defect_detection.py`, `ui/research_dashboard.py` |
+| Experiment history page | `app_pages/experiments.py`, `services/generation/experiment.py`, `services/generation/storage.py` |
 | Session-state iteration storage | `ui/state.py` |
 | Prototype task contracts | `services/generation/prototype_tasks.py` |
 | Defect assignment | `services/generation/assignment.py` |
@@ -116,10 +117,12 @@ The target profile is derived from authentic CS1 submissions. The primary estima
 | Uncertainty-aware target comparison | Implemented | `compare_profiles()` |
 | Manual Streamlit calibration | Implemented | `app_pages/generation.py`, `ui/generation.py` |
 | Non-regressive calibration guard | Implemented | `calibrator.py` |
-| Automated baseline comparison | Implemented in service/CLI | `experiment.py`, `run_generation_experiment.py`; not exposed as a Streamlit experiment screen |
+| Automated baseline comparison | Implemented in service/CLI and reviewable in the UI | `experiment.py`, `run_generation_experiment.py`, `app_pages/experiments.py` |
 | Automated iterative calibration | Implemented in service/CLI | `run_experiment()` with `task_aware_iterative`; evaluates all configured iterations unless an iteration reaches the tolerance objective, then retains the best eligible iteration. |
 | Persistent compact experiment logging | Implemented for CLI experiments | Schema-versioned timestamped JSONL logs store configuration, condition summaries, per-iteration metrics, constraints, selected iteration, out-of-tolerance defects, and zero-observed defects. |
-| Persistent Streamlit iteration history | Implemented | Local SQLite storage persists runs, iterations, submissions, prompts, validation, and detector results. |
+| Persistent Streamlit run history and lifecycle | Implemented | Local SQLite storage persists run status, configuration metadata, iterations, submissions, prompts, validation, and detector results. |
+| Runtime experiment provenance | Implemented best-effort | JSONL records include Python, platform, Git commit, dirty-worktree state, Ollama version, model digest, base URL, and an explicit unavailable/partial status when the local server cannot provide all fields. |
+| Architecture and product-management documentation | Implemented | `docs/architecture.md`, `docs/product-management.md`, and `docs/experiment-protocol.md` define ownership, scope, lifecycle, and release gates. |
 | Fully automatic UI convergence loop | Not implemented | The user manually triggers the next Streamlit calibration iteration. |
 | Complete detector validation for all active detectors | Not yet complete | Two detectors remain pilot-validated by the current review evidence; the validation workflow itself is implemented. |
 
@@ -194,7 +197,7 @@ phase, and provides a cancellation action.
 - The local Ollama service must be available at the configured endpoint.
 - Generation runs in a background job but can still be slow for larger batches or repeated repairs.
 - Iteration history is persisted in the local SQLite store, but there is not yet a multi-user or remote database.
-- The Analytics tab provides a compact browser for JSONL experiment records; it does not yet provide repeated-run uncertainty plots.
+- The Analytics tab provides batch-level analytics, while the Experiments page provides a dedicated browser for JSONL records, runtime provenance, and interactive SQLite run history; repeated-run uncertainty plots remain future work.
 - Experiment conditions, repetitions, maximum iterations, and repair budgets are configured in the CLI rather than in the Generation UI.
 - The user must explicitly request calibration in Streamlit.
 - There is no automatic convergence recommendation in the UI.
@@ -210,7 +213,7 @@ The shared `run_iteration()` function is the key integration boundary. Both the 
 
 ### Configuration and traceability
 
-The active defect catalogue is `config/defect_specifications.json`, with 17 configured defects. Task-specific YAML files are retained under `research-notes/task-def-yaml/`, and detector-validation records are under `research-notes/detector-validation/`. Prototype task contracts are defined in Python in `services/generation/prototype_tasks.py`.
+The active defect catalogue is `config/defect_specifications.json`, with 17 configured defects. Runtime prototype task contracts, prompt guidance, examples, task-specific patterns, and assignment ordering are versioned in `config/generation_configuration.json` and loaded through `services/generation/configuration.py`. Task-specific YAML files are retained under `research-notes/task-def-yaml/` as research evidence and mapping documentation, not as a second runtime implementation. Detector-validation records are under `research-notes/detector-validation/`.
 
 Within an iteration, traceability is strong:
 
@@ -237,13 +240,15 @@ target profile
 
 ### Static limitations
 
-- `requirements.txt` does not pin dependency versions.
-- Model versions and Ollama runtime versions are not captured in experiment records.
-- Several compatibility or legacy modules remain alongside the newer `services/generation`, `services/research`, and `services/providers` structure.
-- `ui/sections/` contains older UI-oriented modules that may confuse future maintenance even though the current page uses `ui/generation.py`.
+- `requirements.txt` remains the human-maintained dependency declaration; the tested transitive environment is additionally captured in `requirements-lock.txt`.
+- Ollama model digest and server version capture is best-effort because the local service may be offline or the model may be unavailable; records now preserve the returned values and an explicit status/error when capture is incomplete.
+- Unused service and detector compatibility facades, plus the former UI section
+  renderers and their helper modules, have been removed after import-graph
+  verification. The active source tree now contains only the current service,
+  detector, and UI modules.
 - The functional validator executes generated code with `exec()` in a timed subprocess. The subprocess and timeout reduce risk but are not a complete security sandbox.
 - The target-profile JSON still labels its detector source as `preliminary_raw_detector_estimates`, even though a separate detector-readiness report now provides pilot validation evidence. These evidence-status descriptions should be reconciled before final research reporting.
-- The active prompt catalogue and task-specific patterns are partly configured in Python and partly in JSON/YAML, increasing the risk of configuration drift.
+- Runtime generation configuration is now centralized in versioned JSON and loaded through one configuration module; the research-note YAML remains intentionally separate as source evidence rather than executable configuration.
 
 ## E. Dynamic analysis
 
@@ -315,10 +320,25 @@ The CLI experiment runner performs the same kind of iterative comparison automat
 | Provider batching | Not used as a multi-submission model request; submissions are requested individually. |
 | Parallel generation | Not implemented. |
 | Persistent result cache | Implemented for Streamlit run history through local SQLite; cross-process caching is not implemented. |
+| SQLite history query efficiency | Adequate for the current prototype volume; `list_runs()` currently performs a follow-up lookup per returned run and should be consolidated before larger histories are used. |
+| Experiment-log loading | Adequate for the current compact JSONL logs; the UI rereads available records on rerun and should use cached or paginated loading as history grows. |
 | Automatic UI convergence loop | Not implemented. |
 | Experiment scheduling/parallel jobs | Not implemented; the Streamlit page has a background generation job, but there is no experiment scheduler or parallel batch-generation service. |
 
-The main resource-saving mechanism is bounded repair and iteration control. The current architecture prioritises traceability and per-submission inspection over throughput.
+The main resource-saving mechanism is bounded repair and iteration control. The
+current architecture prioritises traceability and per-submission inspection
+over throughput. Ollama inference remains the dominant cost, so database and
+UI micro-optimisations are not expected to materially change generation time
+for the current prototype. They become worthwhile when experiment history or
+interactive run volume grows.
+
+### Optimisation decision
+
+No optimisation is required to establish the current functional research
+workflow. The next low-risk improvements are to consolidate the SQLite history
+query, cache or paginate experiment-log loading, and monitor completeness of
+the best-effort Ollama provenance. Parallel generation and provider-level batching are deferred
+because they would change resource usage and could complicate reproducibility.
 
 ## G. Black-box testing
 
@@ -326,7 +346,7 @@ Black-box evidence is strongest in integration tests and Streamlit `AppTest` tes
 
 | Test ID or group | Input/condition | Expected external behaviour | Repository evidence | Result |
 |---|---|---|---|---|
-| `test_demo_generation_validates_and_detects_defects` | Demo provider and a prototype task | Valid source passes and selected defects are detected | `tests/integration/test_workflow.py` | Passed in the 150-test run |
+| `test_demo_generation_validates_and_detects_defects` | Demo provider and a prototype task | Valid source passes and selected defects are detected | `tests/integration/test_workflow.py` | Passed in the 154-test run |
 | `test_failed_submissions_are_excluded_from_denominator` | One valid and one failed submission | Observed profile uses only valid submissions | `tests/integration/test_workflow.py` | Passed |
 | `test_comparison_and_tolerance_actions` | Target and observed profile with discrepancy | Status and action are produced | `tests/integration/test_workflow.py` | Passed |
 | `test_sampling_aware_comparison_records_counts_and_wilson_interval` | Counts and denominator supplied | Comparison contains sampling interval and decision margin | `tests/integration/test_workflow.py` | Passed |
@@ -662,11 +682,11 @@ The Analytics tab now reports valid-submission defect co-occurrence pairs throug
 
 ### Priority 6: Strengthen reproducibility
 
-The project records seeds, prompts, model name, context length, target profile, tolerance, experiment configuration, and persistent local iteration state. It does not yet record model digest, Ollama version, or a pinned Python/dependency lockfile. These should be captured for a final experiment package.
+The project records seeds, prompts, model name, context length, target profile, tolerance, experiment configuration, runtime provenance, and persistent local iteration state. A tested Python/dependency snapshot is provided in `requirements-lock.txt`; model digests and Ollama runtime versions are captured on a best-effort basis and are explicitly marked incomplete when the service cannot answer.
 
 ### Priority 7: Improve Streamlit experiment analysis
 
-The Analytics tab now presents the retained calibrated artefact, its lineage, and a browser for available JSONL experiment records. A future complementary improvement is to compare repeated conditions with uncertainty plots and distinguish selected iterations from rejected candidates across runs.
+The Analytics tab presents the retained calibrated artefact, its lineage, and batch-level interactions. The dedicated Experiments page now presents JSONL condition summaries, selected/rejected iteration details, runtime provenance, downloads, and interactive SQLite run lifecycle history. A future complementary improvement is to compare repeated conditions with uncertainty plots.
 
 ## K. Section 3 evidence summary
 
@@ -674,10 +694,10 @@ The Analytics tab now presents the retained calibrated artefact, its lineage, an
 |---|---|---|---|---|
 | Functionality | End-to-end generation, validation, detection, comparison, calibration, export, and experiment services | `services/generation/workflow.py`, `experiment.py`, `ui/generation.py` | The principal artefact workflow is implemented. | Streamlit and CLI expose different orchestration layers. |
 | Usability | AppTest coverage and organised Streamlit pages/tabs | `app.py`, `app_pages/`, `ui/generation.py`, `tests/ui/test_app.py` | The user can configure, inspect, calibrate, export, and browse experiment records. | No multi-user store or repeated-run uncertainty dashboard. |
-| Static Analysis | Layered modules, `IterationResult` traceability, clean Ruff verification | `models/types.py`, `services/`, `detectors/`, `ruff check .` | Separation of concerns and current code quality are acceptable for a prototype. | Dependencies are unpinned and legacy/compatibility modules remain. |
+| Static Analysis | Layered modules, centralized runtime configuration, removed unused facades, `IterationResult` traceability, clean Ruff verification, and a pinned environment snapshot | `models/types.py`, `services/generation/configuration.py`, `config/`, `detectors/`, `requirements-lock.txt` | Separation of concerns and current code quality are acceptable for a prototype. | Model/runtime digests are not fully pinned when Ollama cannot provide them. |
 | Dynamic Analysis | Integration tests and workflow implementation | `run_iteration()`, `validate_source()`, `compare_profiles()` | Invalid code is bounded by repairs and excluded from the valid denominator; comparison is sampling-aware. | Detector exceptions and sandbox hardening need further work. |
 | Optimisation | Repair limits, maximum iterations, early acceptance, non-regression guard, cached dashboard data | `workflow.py`, `experiment.py`, `ui/app_data.py` | Unbounded regeneration is prevented. | No parallel generation, cross-process cache, or experiment scheduler. |
-| Black-box Testing | 150 passing tests including integration and AppTest tests | `tests/integration/`, `tests/ui/` | External workflow and page behaviour are exercised. | Full live Ollama failure presentation and cross-process persistence need additional tests. |
+| Black-box Testing | 154 passing tests including integration and AppTest tests | `tests/integration/`, `tests/ui/` | External workflow and page behaviour are exercised. | Full live Ollama failure presentation and cross-process persistence need additional tests. |
 | White-box Testing | Detector, prompt, assignment, comparison, calibration, storage, interaction, export, and experiment unit tests | `tests/unit/` | Core internal rules and persistence invariants are directly tested. | No property-based suite, full sandbox, or causal interaction experiment. |
 | Experimental Simulation | Three conditions, repetitions, bounded iterative calibration, metrics, JSONL logs | `services/generation/experiment.py`, `scripts/run_generation_experiment.py` | The repository can execute the intended prompting-condition comparison and has a latest three-repetition T1-T3 suite. | Evidence remains limited to one model and one recent batch size, so RQ3 is not yet answered conclusively. |
 
@@ -720,4 +740,4 @@ The repository implements the comparison mechanism through three prompting condi
 
 ## Overall evaluation conclusion
 
-The prototype has reached a substantial and testable artefact state. The generation feature, reusable detector service, empirical target profiles, functional gate, repair-attempt selection, bounded iterative calibration, experiment runner, logging, export, and Streamlit analytics are present and connected at the core workflow level. The latest evaluation demonstrates repeated execution and task-specific differences, but it does not establish general superiority of iterative calibration. The next step is to complete any remaining detector review, expand the repeated experiment across models and batch sizes, record environment/model provenance, and interpret improvement against pre-specified metrics and uncertainty.
+The prototype has reached a substantial and testable artefact state. The generation feature, reusable detector service, empirical target profiles, functional gate, repair-attempt selection, bounded iterative calibration, experiment runner, logging, export, and Streamlit analytics are present and connected at the core workflow level. The latest evaluation demonstrates repeated execution and task-specific differences, but it does not establish general superiority of iterative calibration. The next step is to complete any remaining detector review, expand the repeated experiment across models and batch sizes, verify provenance completeness for each run, and interpret improvement against pre-specified metrics and uncertainty. SQLite and experiment-log optimisations are maintenance priorities for larger study volumes, not prerequisites for the current prototype evaluation.

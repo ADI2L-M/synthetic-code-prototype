@@ -1,5 +1,12 @@
 # Synthetic Novice Code Research Prototype
 
+Project architecture, product scope, and the controlled experiment protocol
+are documented in:
+
+- [`docs/architecture.md`](docs/architecture.md)
+- [`docs/product-management.md`](docs/product-management.md)
+- [`docs/experiment-protocol.md`](docs/experiment-protocol.md)
+
 A Streamlit research dashboard for inspecting empirically estimated programming
 defect prevalence from authentic, functionally correct CS1 submissions. The
 current UI is organised around prototype tasks T1, T2, and T3 and their mapped
@@ -12,6 +19,9 @@ authentic Lab/Question reports.
 streamlit run app.py
 ```
 
+For the tested environment, install the pinned snapshot with
+`python -m pip install -r requirements-lock.txt`.
+
 ## Verify the project
 
 ```powershell
@@ -23,7 +33,7 @@ ruff check . --exclude .agents --exclude .claude --exclude .venv
 
 ```text
 app.py                         Thin Streamlit entry point
-app_pages/                     Home, Generation, and Defect detection pages
+app_pages/                     Home, Generation, Defect detection, and Experiments pages
 ui/                            Streamlit presentation modules
   home.py                      Application landing view
   generation.py                Generation controls, tabs, and results
@@ -39,17 +49,19 @@ services/
   generation/                  Generation, validation, comparison, calibration
   data/                        Tasks, profiles, and defect-definition loading
   providers/                   Generation-provider adapters for later synthesis
+  legacy/                      Unused compatibility facades retained for migration
 data/                          Legacy generation fixtures retained for service tests
 tests/                         Unit, integration, and UI suites by function
 ```
 
-The current Streamlit entry point provides three top-level pages: Home,
-Generation, and Defect detection. Home is the central navigation page.
+The current Streamlit entry point provides four top-level pages: Home,
+Generation, Defect detection, and Experiments. Home is the central navigation page.
 Generation is the primary working view: its sidebar selects the T1/T2/T3 task,
 Ollama model, batch size, tolerance, and connection URL. Its main content is
 organised into Target profile, Programming task, Prompt, Results, and Analytics
-tabs before running the shared validation and detector workflow. Defect
-detection remains a complementary page for authentic-submission analysis.
+tabs before running the shared validation and detector workflow. Defect detection
+remains a complementary page for authentic-submission analysis, while
+Experiments reviews controlled experiment logs and persisted run history.
 The legacy demonstration task controls are not exposed.
 
 ## Empirical research foundation

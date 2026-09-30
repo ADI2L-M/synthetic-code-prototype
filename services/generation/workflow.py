@@ -19,6 +19,7 @@ from services.generation.prompt_builder import (
     build_baseline_specification,
     build_generation_specification,
     build_submission_specification,
+    generation_policy,
 )
 from services.generation.validator import validate_source
 from services.providers.demo import DemoProvider
@@ -35,62 +36,8 @@ GENERATION_CONDITIONS = (
     ITERATIVE_CONDITION,
 )
 
-RELIABLE_DEFECT_ORDER = {
-    "task_independent": (
-        "magic_number",
-        "one_letter_name",
-        "built_in_name",
-        "inappropriate_formatting",
-    ),
-    "task_dependent": (
-        "else_if",
-        "augmentable_assignment",
-        "redundant_comparison",
-        "redundant_not",
-    ),
-}
-
-TASK_RELIABLE_DEFECT_ORDER = {
-    "T1": {
-        "task_independent": (
-            "magic_number",
-            "one_letter_name",
-            "built_in_name",
-            "inappropriate_formatting",
-        ),
-        "task_dependent": (
-            "duplicate_if",
-            "empty_if",
-            "redundant_comparison",
-            "redundant_not",
-            "nested_if",
-            "redundant_elif",
-            "else_if",
-        ),
-    },
-    "T2": {
-        "task_independent": (
-            "one_letter_name",
-            "built_in_name",
-            "magic_number",
-            "inappropriate_formatting",
-        ),
-        "task_dependent": (
-            "duplicate_expression",
-            "misleading_iterator_name",
-            "augmentable_assignment",
-        ),
-    },
-    "T3": {
-        "task_independent": (
-            "one_letter_name",
-            "built_in_name",
-            "magic_number",
-            "inappropriate_formatting",
-        ),
-        "task_dependent": ("augmentable_assignment",),
-    },
-}
+RELIABLE_DEFECT_ORDER = generation_policy("reliable_defect_order")
+TASK_RELIABLE_DEFECT_ORDER = generation_policy("task_reliable_defect_order")
 
 
 def _detect_submission_defects(
@@ -155,7 +102,6 @@ def _repair_quality(
         -len(missing_defects),
         -len(unexpected_defects),
     )
-
 
 def _repair_specification(
     task: ProgrammingTask,

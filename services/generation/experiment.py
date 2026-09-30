@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import platform
+import subprocess
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -26,12 +29,14 @@ from services.generation.workflow import (
     run_iteration,
 )
 from services.providers.llm import GenerationProvider
+from services.providers.ollama import ollama_runtime_provenance
 
 EXPERIMENT_LOG_DIRECTORY = (
     Path(__file__).resolve().parents[2]
     / "research-notes"
     / "synthetic-generation-experiments"
 )
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def experiment_log_path(now: datetime | None = None) -> Path:
@@ -45,6 +50,44 @@ DEFAULT_EXPERIMENT_LOG = experiment_log_path()
 ProviderFactory = Callable[[], GenerationProvider]
 
 
+def runtime_provenance(
+    model: str | None = None,
+    base_url: str | None = None,
+) -> dict[str, object]:
+    """Return local runtime and repository provenance for an experiment log."""
+    provenance: dict[str, object] = {
+        "python_version": sys.version.split()[0],
+        "platform": platform.platform(),
+        "git_commit": None,
+        "git_dirty": None,
+    }
+    if model:
+        provenance["ollama"] = ollama_runtime_provenance(
+            model,
+            base_url or "http://localhost:11434",
+        )
+    try:
+        commit = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=PROJECT_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=PROJECT_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return provenance
+    provenance["git_commit"] = commit.stdout.strip() or None
+    provenance["git_dirty"] = bool(dirty.stdout.strip())
+    return provenance
+
+
 @dataclass(frozen=True)
 class ExperimentConfig:
     """Configuration shared by every prompting condition in an experiment."""
@@ -55,6 +98,7 @@ class ExperimentConfig:
     batch_size: int = 50
     tolerance: float = 0.10
     model: str | None = None
+    base_url: str | None = None
     context_length: int | None = None
     temperature: float | None = None
     repetitions: int = 1
@@ -239,14 +283,19 @@ def append_experiment_log(
     path.parent.mkdir(parents=True, exist_ok=True)
     record = {
         "record_type": "synthetic_generation_experiment",
-        "schema_version": 2,
+        "schema_version": 3,
         "experiment_id": result.experiment_id,
         "created_at_utc": result.created_at_utc,
+        "provenance": runtime_provenance(
+            result.config.model,
+            result.config.base_url,
+        ),
         "config": {
             "task_id": result.config.task_id,
             "batch_size": result.config.batch_size,
             "tolerance": result.config.tolerance,
             "model": result.config.model,
+            "base_url": result.config.base_url,
             "context_length": result.config.context_length,
             "temperature": result.config.temperature,
             "repetitions": result.config.repetitions,
@@ -418,4 +467,5 @@ __all__ = [
     "experiment_log_path",
     "load_experiment_logs",
     "run_experiment",
+    "runtime_provenance",
 ]

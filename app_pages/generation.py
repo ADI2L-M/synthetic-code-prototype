@@ -9,9 +9,11 @@ from services.generation.calibrator import (
     calibration_is_non_regressive,
     calibration_regression_message,
 )
-from services.generation.jobs import GenerationJob
+from services.generation.jobs import GenerationCancelled, GenerationJob
 from services.generation.prototype_runner import run_prototype_iteration
 from services.generation.prototype_tasks import load_prototype_task
+from services.generation.storage import update_run_status
+from services.providers.ollama import OLLAMA_CONTEXT_LENGTH
 from ui.app_data import load_dashboard_data_cached
 from ui.generation import (
     render_generation,
@@ -26,6 +28,7 @@ from ui.state import (
     consume_generation_error,
     current_iteration,
     finish_generation,
+    finish_generation_run,
     next_iteration_number,
     set_constraints,
     set_generation_error,
@@ -51,7 +54,14 @@ generate_requested = generation_controls.generate_requested or calibration_reque
 
 if generate_requested and "generation_job" not in st.session_state:
     if not calibration_requested:
-        start_new_generation_run()
+        start_new_generation_run(
+            task_id=generation_controls.task_id,
+            model=generation_controls.model,
+            batch_size=int(generation_controls.batch_size),
+            temperature=generation_controls.temperature,
+            tolerance=generation_controls.tolerance,
+            context_length=OLLAMA_CONTEXT_LENGTH,
+        )
     active_constraints = constraints_for(generation_controls.task_id)
 
     target = {
@@ -110,6 +120,10 @@ if job is not None:
     def complete_generation(result, error) -> None:
         if error is not None:
             set_generation_error(str(error))
+            finish_generation_run(
+                "cancelled" if isinstance(error, GenerationCancelled) else "failed",
+                str(error),
+            )
         else:
             previous = current_iteration(context["task_id"])
             if (
@@ -124,9 +138,16 @@ if job is not None:
             else:
                 append_iteration(result)
                 set_generation_error(None)
+            finish_generation_run("completed")
         st.session_state.pop("generation_job", None)
         st.session_state.pop("generation_job_context", None)
         finish_generation()
+
+    def request_generation_cancellation() -> None:
+        update_run_status(
+            st.session_state.generation_run_id,
+            "cancelling",
+        )
 
     render_generation_job_dialog(
         job,
@@ -136,6 +157,7 @@ if job is not None:
         batch_size=int(generation_controls.batch_size),
         iteration_number=int(context["iteration_number"]),
         on_complete=complete_generation,
+        on_cancel=request_generation_cancellation,
     )
 
 render_generation(

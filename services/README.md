@@ -1,8 +1,8 @@
 # Service-module navigation
 
-The service layer is grouped by workflow responsibility. The old top-level
-service files are compatibility facades; new code should import from the
-functional subpackages below.
+The service layer is grouped by workflow responsibility. The active service
+packages are listed below. New code should import from these functional
+subpackages.
 
 ## Authentic-data preparation
 

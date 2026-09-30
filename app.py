@@ -31,6 +31,11 @@ page = st.navigation(
             title="Defect detection",
             icon=":material/analytics:",
         ),
+        st.Page(
+            "app_pages/experiments.py",
+            title="Experiments",
+            icon=":material/science:",
+        ),
     ],
     position="top",
 )

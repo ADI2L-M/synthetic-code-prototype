@@ -9,6 +9,7 @@ from services.generation.storage import (
     latest_run_id,
     load_iterations,
     save_iteration,
+    update_run_status,
 )
 
 
@@ -46,9 +47,18 @@ def generation_in_progress() -> bool:
 def begin_generation() -> None:
     """Mark the current session as busy before a generation rerun starts."""
     st.session_state.generation_in_progress = True
+    update_run_status(st.session_state.generation_run_id, "running")
 
 
-def start_new_generation_run() -> None:
+def start_new_generation_run(
+    *,
+    task_id: str,
+    model: str,
+    batch_size: int,
+    temperature: float,
+    tolerance: float,
+    context_length: int,
+) -> None:
     """Start a fresh run for a normal Generate batch action.
 
     Persisted runs remain available in SQLite, but the active run is reset so
@@ -56,7 +66,14 @@ def start_new_generation_run() -> None:
     this function because it must continue the current run and repair the
     latest retained artefact.
     """
-    st.session_state.generation_run_id = create_run()
+    st.session_state.generation_run_id = create_run(
+        task_id=task_id,
+        model=model,
+        batch_size=batch_size,
+        temperature=temperature,
+        tolerance=tolerance,
+        context_length=context_length,
+    )
     st.session_state.iterations = []
     st.session_state.constraints_by_task = {}
 
@@ -64,6 +81,15 @@ def start_new_generation_run() -> None:
 def finish_generation() -> None:
     """Clear the busy marker after generation succeeds or fails."""
     st.session_state.generation_in_progress = False
+
+
+def finish_generation_run(status: str, error_message: str | None = None) -> None:
+    """Persist the final lifecycle state for the active generation run."""
+    update_run_status(
+        st.session_state.generation_run_id,
+        status,
+        error_message=error_message,
+    )
 
 
 def set_generation_error(message: str | None) -> None:

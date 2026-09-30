@@ -5,7 +5,7 @@ import pytest
 
 from models.types import ProgrammingTask
 from models.types import TestCase as TaskTestCase
-from services.providers.ollama import OllamaProvider
+from services.providers.ollama import OllamaProvider, ollama_runtime_provenance
 
 
 def test_ollama_prompt_includes_generation_instructions():
@@ -85,3 +85,44 @@ def test_ollama_temperature_is_forwarded_to_generation_request(monkeypatch):
     )
 
     assert captured["options"]["temperature"] == 0.35
+
+
+def test_ollama_runtime_provenance_captures_server_and_model_identity(monkeypatch):
+    requests = []
+
+    class Response:
+        def __init__(self, payload):
+            self.payload = payload
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return self.payload
+
+    def inspect(request, timeout):
+        requests.append((request.get_method(), request.full_url, timeout))
+        if request.full_url.endswith("/api/version"):
+            return Response(b'{"version":"0.12.3"}')
+        return Response(
+            b'{"models":[{"name":"qwen2.5-coder:1.5b",'
+            b'"digest":"sha256:abc123"}]}'
+        )
+
+    monkeypatch.setattr("services.providers.ollama.urlopen", inspect)
+
+    provenance = ollama_runtime_provenance(
+        "qwen2.5-coder:1.5b",
+        base_url="http://ollama.test",
+    )
+
+    assert provenance["status"] == "complete"
+    assert provenance["ollama_version"] == "0.12.3"
+    assert provenance["model_digest"] == "sha256:abc123"
+    assert requests == [
+        ("GET", "http://ollama.test/api/version", 5.0),
+        ("GET", "http://ollama.test/api/tags", 5.0),
+    ]

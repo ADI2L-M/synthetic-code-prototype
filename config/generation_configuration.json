@@ -1,0 +1,163 @@
+{
+  "configuration_version": "1.0",
+  "prototype_tasks": {
+    "T1": {
+      "name": "T1 · Temperature Classification",
+      "description": "Write classify_temperature(temp) to classify a Celsius temperature as cold, mild, or hot.",
+      "function_name": "classify_temperature",
+      "contexts": ["T1", "conditional_logic", "branching"],
+      "functional_requirements": [
+        "Accept one integer parameter named temp.",
+        "Return 'cold' when temp is below 10.",
+        "Return 'mild' when temp is from 10 through 24 inclusive.",
+        "Return 'hot' when temp is 25 or above.",
+        "Return the category as a string without printing it."
+      ],
+      "test_cases": [
+        {"args": [-1], "expected": "cold"},
+        {"args": [10], "expected": "mild"},
+        {"args": [24], "expected": "mild"},
+        {"args": [25], "expected": "hot"},
+        {"args": [100], "expected": "hot"}
+      ]
+    },
+    "T2": {
+      "name": "T2 · Total Scores",
+      "description": "Write total_scores(scores) to calculate the total of all integer values in a list without using sum().",
+      "function_name": "total_scores",
+      "contexts": ["T2", "list_processing", "iteration", "collection"],
+      "functional_requirements": [
+        "Accept a list of integers named scores.",
+        "Return the total of every value in scores.",
+        "Return 0 for an empty list.",
+        "Do not use Python's built-in sum() function.",
+        "Return the total as an integer without printing it."
+      ],
+      "test_cases": [
+        {"args": [[]], "expected": 0},
+        {"args": [[1, 2, 3]], "expected": 6},
+        {"args": [[-5, 4, 0]], "expected": -1},
+        {"args": [[10, 10, 10, 10]], "expected": 40}
+      ]
+    },
+    "T3": {
+      "name": "T3 · Sum to N",
+      "description": "Write sum_to_n(n) to calculate the sum of all integers from 1 through n using iteration.",
+      "function_name": "sum_to_n",
+      "contexts": ["T3", "numeric_iteration", "iteration", "accumulation"],
+      "functional_requirements": [
+        "Accept one positive integer parameter named n.",
+        "Calculate the sum of all integers from 1 through n.",
+        "Use iteration rather than a direct mathematical formula.",
+        "Do not use Python's built-in sum() function.",
+        "Return the total as an integer without printing it."
+      ],
+      "test_cases": [
+        {"args": [1], "expected": 1},
+        {"args": [5], "expected": 15},
+        {"args": [10], "expected": 55},
+        {"args": [25], "expected": 325}
+      ]
+    }
+  },
+  "generation": {
+    "hints": {
+      "redundant_if_else": "When the task permits Boolean results, use an if/else whose branches directly return opposite Boolean constants. Do not change a required category-string or numeric return contract.",
+      "redundant_comparison": "Make a proven Boolean expression explicitly compare with True or False using == or !=, while keeping the operand genuinely Boolean-valued.",
+      "redundant_not": "Apply not directly to one ordinary comparison, such as not (value < bound), where an inverse comparison would preserve the same behaviour.",
+      "duplicate_if": "Use adjacent if/elif branches with structurally identical, side-effect-free bodies so their conditions could be combined.",
+      "else_if": "Write an else branch containing exactly one nested if instead of using elif, without adding wrapper statements or changing branch order.",
+      "nested_if": "Place one side-effect-free if directly inside another if, with no else branches, so the conditions could safely be joined with and.",
+      "redundant_elif": "Use an elif whose condition is already guaranteed by the preceding condition, while preserving the task's complete branch coverage.",
+      "empty_if": "Make one if or else branch contain only pass and put the meaningful task behaviour in the alternative branch.",
+      "redundant_indexing": "Iterate through range(len(collection)) and use the index only to read the matching current element; do not mutate or otherwise expose it.",
+      "misleading_iterator_name": "Use an index-style name such as i or j as the direct iterator over collection elements, not as a numeric range index.",
+      "duplicate_expression": "Repeat the same pure, non-trivial expression in a small region at least twice, avoiding calls or expressions with possible side effects.",
+      "while_as_for": "Use a counter-controlled while loop with a constant update on every executable path and no break, return, or bypassing continue.",
+      "augmentable_assignment": "Write a matching update as ordinary assignment, such as total = total + value, instead of using the equivalent augmented assignment.",
+      "inappropriate_formatting": "Include one documented whitespace violation while keeping the source valid Python, such as missing operator or comma spacing.",
+      "magic_number": "Use an unnamed, meaningful numeric literal directly in decision or domain-computation logic rather than naming that value.",
+      "one_letter_name": "Use a one-letter local or binding whose role is not an allowed index, bound, mathematical variable, ignored value, or required task name.",
+      "built_in_name": "Bind a user-defined variable or function to a Python built-in name, such as list or sum, without changing the required public function."
+    },
+    "avoidance_hints": {
+      "inappropriate_formatting": "Use conventional whitespace: spaces around operators and after commas. Do not intentionally omit required spacing. Correct pattern: `if temp < 10:`.",
+      "magic_number": "Name meaningful numeric thresholds or domain values with local constants instead of embedding them directly in decision logic. Correct pattern: `COLD_LIMIT = 10` followed by `if temp < COLD_LIMIT:`."
+    },
+    "required_signatures": {
+      "inappropriate_formatting": "include a valid spacing violation such as `temp<10`",
+      "magic_number": "use an unnamed numeric literal in the task decision logic",
+      "one_letter_name": "bind a non-exempt one-letter local such as `t = temp`",
+      "built_in_name": "bind a Python built-in name such as `list = temp`",
+      "else_if": "include `else:` containing a nested `if`, not an `elif` replacement",
+      "redundant_comparison": "include a Boolean comparison such as `(temp < 10) == True`",
+      "redundant_not": "include `not` directly before a comparison such as `not temp >= 25`",
+      "duplicate_if": "include an `elif` branch with the same side-effect-free body as the preceding `if`",
+      "nested_if": "include an `if` directly inside another `if`, with both conditions side-effect-free",
+      "redundant_elif": "include an `elif` that is the direct inverse of the preceding `if` condition",
+      "empty_if": "include a branch whose only statement is `pass`"
+    },
+    "examples": {
+      "redundant_if_else": {"defective": "if value > 0:\n    return True\nelse:\n    return False", "corrected": "return value > 0"},
+      "redundant_comparison": {"defective": "if (value > 0) == True:\n    return 'positive'", "corrected": "if value > 0:\n    return 'positive'"},
+      "redundant_not": {"defective": "if not (value < limit):\n    return 'outside'", "corrected": "if value >= limit:\n    return 'outside'"},
+      "duplicate_if": {"defective": "if value < 0:\n    return 'invalid'\nelif value == 0:\n    return 'invalid'", "corrected": "if value <= 0:\n    return 'invalid'"},
+      "else_if": {"defective": "if value < 0:\n    return 'negative'\nelse:\n    if value == 0:\n        return 'zero'", "corrected": "if value < 0:\n    return 'negative'\nelif value == 0:\n    return 'zero'"},
+      "nested_if": {"defective": "if value >= 0:\n    if value <= 10:\n        return 'small'", "corrected": "if value >= 0 and value <= 10:\n    return 'small'"},
+      "redundant_elif": {"defective": "if value < 10:\n    return 'low'\nelif value >= 10:\n    return 'high'", "corrected": "if value < 10:\n    return 'low'\nelse:\n    return 'high'"},
+      "empty_if": {"defective": "if valid:\n    pass\nelse:\n    return value", "corrected": "if not valid:\n    return value"},
+      "redundant_indexing": {"defective": "for i in range(len(items)):\n    total += items[i]", "corrected": "for item in items:\n    total += item"},
+      "misleading_iterator_name": {"defective": "for i in items:\n    total += i", "corrected": "for item in items:\n    total += item"},
+      "duplicate_expression": {"defective": "if value * scale + offset > 0:\n    result = value * scale + offset", "corrected": "computed = value * scale + offset\nif computed > 0:\n    result = computed"},
+      "while_as_for": {"defective": "i = 0\nwhile i < limit:\n    process(i)\n    i += 1", "corrected": "for i in range(limit):\n    process(i)"},
+      "augmentable_assignment": {"defective": "total = total + value", "corrected": "total += value"},
+      "inappropriate_formatting": {"defective": "if value==limit:\n    result = first,second", "corrected": "if value == limit:\n    result = first, second"},
+      "magic_number": {"defective": "if score >= 50:\n    return 'pass'", "corrected": "PASS_SCORE = 50\nif score >= PASS_SCORE:\n    return 'pass'"},
+      "one_letter_name": {"defective": "x = temperature * scale", "corrected": "scaled_temperature = temperature * scale"},
+      "built_in_name": {"defective": "list = []\nlist.append(value)", "corrected": "values = []\nvalues.append(value)"}
+    },
+    "task_specific_patterns": {
+      "T1": {
+        "inappropriate_formatting": "if temp<10:\n    return 'cold'\nif temp <= 24:\n    return 'mild'\nreturn 'hot'",
+        "magic_number": "if temp < 10:\n    return 'cold'\nif temp <= 24:\n    return 'mild'\nreturn 'hot'",
+        "one_letter_name": "t = temp\nif t < 10:\n    return 'cold'\nif t <= 24:\n    return 'mild'\nreturn 'hot'",
+        "built_in_name": "list = temp\nif list < 10:\n    return 'cold'\nif list <= 24:\n    return 'mild'\nreturn 'hot'",
+        "else_if": "if temp < 10:\n    return 'cold'\nelse:\n    if temp <= 24:\n        return 'mild'\n    else:\n        return 'hot'",
+        "redundant_not": "if not temp >= 25:\n    if temp < 10:\n        return 'cold'\n    return 'mild'\nelse:\n    return 'hot'",
+        "duplicate_if": "if temp < 5:\n    return 'cold'\nelif temp < 10:\n    return 'cold'\nif temp <= 24:\n    return 'mild'\nreturn 'hot'",
+        "nested_if": "if temp < 10:\n    return 'cold'\nif temp >= 10:\n    if temp < 25:\n        return 'mild'\nreturn 'hot'",
+        "redundant_elif": "if temp < 10:\n    return 'cold'\nelif temp >= 10:\n    if temp <= 24:\n        return 'mild'\n    return 'hot'",
+        "empty_if": "if temp < 10:\n    pass\nelse:\n    if temp <= 24:\n        return 'mild'\n    return 'hot'\nreturn 'cold'",
+        "redundant_comparison": "if (temp < 10) == True:\n    return 'cold'\nif temp <= 24:\n    return 'mild'\nreturn 'hot'"
+      },
+      "T2": {
+        "duplicate_expression": "total = 0\nfor s in scores:\n    total = total + (s * 2 + 1) - (s * 2 + 1) + s\nreturn total",
+        "misleading_iterator_name": "total = 0\nfor i in scores:\n    total = total + i\nreturn total",
+        "one_letter_name": "total = 0\nfor s in scores:\n    total = total + (s * 2 + 1) - (s * 2 + 1) + s\nreturn total",
+        "augmentable_assignment": "for score in scores:\n    total = total + score"
+      },
+      "T3": {
+        "one_letter_name": "total = 0\nfor v in range(1, n + 1):\n    total = total + v\nreturn total",
+        "augmentable_assignment": "for value in range(1, n + 1):\n    total = total + value"
+      }
+    },
+    "reliable_defect_order": {
+      "task_independent": ["magic_number", "one_letter_name", "built_in_name", "inappropriate_formatting"],
+      "task_dependent": ["else_if", "augmentable_assignment", "redundant_comparison", "redundant_not"]
+    },
+    "task_reliable_defect_order": {
+      "T1": {
+        "task_independent": ["magic_number", "one_letter_name", "built_in_name", "inappropriate_formatting"],
+        "task_dependent": ["duplicate_if", "empty_if", "redundant_comparison", "redundant_not", "nested_if", "redundant_elif", "else_if"]
+      },
+      "T2": {
+        "task_independent": ["one_letter_name", "built_in_name", "magic_number", "inappropriate_formatting"],
+        "task_dependent": ["duplicate_expression", "misleading_iterator_name", "augmentable_assignment"]
+      },
+      "T3": {
+        "task_independent": ["one_letter_name", "built_in_name", "magic_number", "inappropriate_formatting"],
+        "task_dependent": ["augmentable_assignment"]
+      }
+    }
+  }
+}

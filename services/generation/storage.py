@@ -20,6 +20,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATABASE_PATH = (
     PROJECT_ROOT / "outputs" / "synthetic-generation" / "generation.sqlite3"
 )
+RUN_STATUSES = frozenset(
+    {"draft", "running", "cancelling", "cancelled", "completed", "failed"}
+)
+TERMINAL_RUN_STATUSES = frozenset({"cancelled", "completed", "failed"})
 
 
 def _utc_now() -> str:
@@ -43,7 +47,17 @@ def initialise_database(database_path: Path | None = None) -> None:
             CREATE TABLE IF NOT EXISTS generation_runs (
                 run_id TEXT PRIMARY KEY,
                 created_at TEXT NOT NULL,
-                last_used_at TEXT NOT NULL
+                last_used_at TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'draft',
+                task_id TEXT,
+                model TEXT,
+                batch_size INTEGER,
+                temperature REAL,
+                tolerance REAL,
+                context_length INTEGER,
+                metadata_json TEXT NOT NULL DEFAULT '{}',
+                completed_at TEXT,
+                error_message TEXT
             );
 
             CREATE TABLE IF NOT EXISTS iterations (
@@ -75,11 +89,40 @@ def initialise_database(database_path: Path | None = None) -> None:
             );
             """
         )
+        existing_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(generation_runs)")
+        }
+        migrations = {
+            "status": "TEXT NOT NULL DEFAULT 'draft'",
+            "task_id": "TEXT",
+            "model": "TEXT",
+            "batch_size": "INTEGER",
+            "temperature": "REAL",
+            "tolerance": "REAL",
+            "context_length": "INTEGER",
+            "metadata_json": "TEXT NOT NULL DEFAULT '{}'",
+            "completed_at": "TEXT",
+            "error_message": "TEXT",
+        }
+        for column, definition in migrations.items():
+            if column not in existing_columns:
+                connection.execute(
+                    f"ALTER TABLE generation_runs ADD COLUMN {column} {definition}"
+                )
 
 
 def create_run(
     database_path: Path | None = None,
     run_id: str | None = None,
+    *,
+    task_id: str | None = None,
+    model: str | None = None,
+    batch_size: int | None = None,
+    temperature: float | None = None,
+    tolerance: float | None = None,
+    context_length: int | None = None,
+    metadata: dict[str, object] | None = None,
 ) -> str:
     """Create and persist a generation run identifier."""
     initialise_database(database_path)
@@ -87,11 +130,81 @@ def create_run(
     now = _utc_now()
     with _connect(database_path) as connection:
         connection.execute(
-            "INSERT INTO generation_runs(run_id, created_at, last_used_at) "
-            "VALUES (?, ?, ?)",
-            (identifier, now, now),
+            "INSERT INTO generation_runs("
+            "run_id, created_at, last_used_at, status, task_id, model, "
+            "batch_size, temperature, tolerance, context_length, metadata_json"
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                identifier,
+                now,
+                now,
+                "draft",
+                task_id,
+                model,
+                batch_size,
+                temperature,
+                tolerance,
+                context_length,
+                json.dumps(metadata or {}, ensure_ascii=False),
+            ),
         )
     return identifier
+
+
+def update_run_status(
+    run_id: str,
+    status: str,
+    database_path: Path | None = None,
+    *,
+    error_message: str | None = None,
+) -> None:
+    """Update a run lifecycle status and preserve terminal timestamps."""
+    if status not in RUN_STATUSES:
+        raise ValueError(f"Unknown generation run status: {status}")
+    initialise_database(database_path)
+    now = _utc_now()
+    completed_at = now if status in TERMINAL_RUN_STATUSES else None
+    with _connect(database_path) as connection:
+        connection.execute(
+            "UPDATE generation_runs SET status = ?, last_used_at = ?, "
+            "completed_at = ?, error_message = ? WHERE run_id = ?",
+            (status, now, completed_at, error_message, run_id),
+        )
+
+
+def get_run(
+    run_id: str,
+    database_path: Path | None = None,
+) -> dict[str, object] | None:
+    """Return one persisted run as a plain dictionary."""
+    initialise_database(database_path)
+    with _connect(database_path) as connection:
+        row = connection.execute(
+            "SELECT * FROM generation_runs WHERE run_id = ?", (run_id,)
+        ).fetchone()
+    if row is None:
+        return None
+    result = dict(row)
+    result["metadata"] = json.loads(str(result.pop("metadata_json") or "{}"))
+    return result
+
+
+def list_runs(
+    database_path: Path | None = None,
+    *,
+    limit: int = 50,
+) -> list[dict[str, object]]:
+    """Return recent persisted runs for history and product-management views."""
+    if limit < 1:
+        raise ValueError("limit must be at least 1")
+    initialise_database(database_path)
+    with _connect(database_path) as connection:
+        rows = connection.execute(
+            "SELECT run_id FROM generation_runs "
+            "ORDER BY last_used_at DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+    return [run for row in rows if (run := get_run(str(row["run_id"]), database_path))]
 
 
 def latest_run_id(database_path: Path | None = None) -> str | None:

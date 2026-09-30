@@ -232,7 +232,7 @@ def _quality_iteration(
                     tests_failed=0 if valid else 1,
                 ),
                 defects={
-                    "unused_variable": submission_id <= independent_count,
+                    "magic_number": submission_id <= independent_count,
                     "augmentable_assignment": submission_id <= dependent_count,
                 },
                 category_requirements_met=(
@@ -247,7 +247,7 @@ def _quality_iteration(
         task_id="T1",
         task_name="Test task",
         target_profile={
-            "unused_variable": 0.5,
+            "magic_number": 0.5,
             "augmentable_assignment": 0.5,
         },
         tolerance=0.1,

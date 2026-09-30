@@ -18,6 +18,68 @@ OLLAMA_CONTEXT_LENGTH = 16_384
 OLLAMA_OUTPUT_TOKENS = 1_200
 OLLAMA_TEMPERATURE = 0.2
 
+
+def ollama_runtime_provenance(
+    model: str,
+    base_url: str = "http://localhost:11434",
+    timeout: float = 5.0,
+) -> dict[str, object]:
+    """Return best-effort Ollama version and model-digest provenance."""
+    model_name = model.value if isinstance(model, OllamaModel) else str(model)
+    endpoint = (base_url or "http://localhost:11434").rstrip("/")
+    result: dict[str, object] = {
+        "base_url": endpoint,
+        "model": model_name,
+        "ollama_version": None,
+        "model_digest": None,
+        "status": "unavailable",
+        "error": None,
+    }
+
+    try:
+        version_request = Request(
+            f"{endpoint}/api/version",
+            headers={"Accept": "application/json"},
+            method="GET",
+        )
+        with urlopen(version_request, timeout=timeout) as response:
+            version_payload = json.loads(response.read().decode("utf-8"))
+        result["ollama_version"] = version_payload.get("version")
+
+        tags_request = Request(
+            f"{endpoint}/api/tags",
+            headers={"Accept": "application/json"},
+            method="GET",
+        )
+        with urlopen(tags_request, timeout=timeout) as response:
+            tags_payload = json.loads(response.read().decode("utf-8"))
+        model_record = next(
+            (
+                item
+                for item in tags_payload.get("models", [])
+                if item.get("name") == model_name or item.get("model") == model_name
+            ),
+            None,
+        )
+        if model_record is None:
+            result["error"] = f"Model is not listed by Ollama: {model_name}"
+        else:
+            result["model_digest"] = model_record.get("digest")
+            if result["model_digest"] is None:
+                result["error"] = f"Model digest is unavailable: {model_name}"
+        result["status"] = (
+            "complete"
+            if result["ollama_version"] and result["model_digest"]
+            else "partial"
+        )
+    except (HTTPError, URLError, OSError, TimeoutError, ValueError) as error:
+        if result["ollama_version"]:
+            result["status"] = "partial"
+        result["error"] = str(error)
+
+    return result
+
+
 class OllamaModel(Enum):
     """List of available Ollama models"""
 

@@ -113,7 +113,9 @@ def test_baseline_condition_uses_task_only_prompt_and_no_assignments():
     assert submission.category_requirements_met is True
 
 
-def test_experiment_compares_conditions_and_appends_compact_jsonl(tmp_path):
+def test_experiment_compares_conditions_and_appends_compact_jsonl(
+    monkeypatch, tmp_path
+):
     log_path = tmp_path / "experiment-log.jsonl"
     config = ExperimentConfig(
         experiment_id="test-experiment",
@@ -121,11 +123,26 @@ def test_experiment_compares_conditions_and_appends_compact_jsonl(tmp_path):
         target_profile={"built_in_name": 0.1},
         batch_size=1,
         temperature=0.35,
+        model="qwen2.5-coder:1.5b",
+        base_url="http://ollama.test",
         conditions=(
             BASELINE_CONDITION,
             TASK_AWARE_CONDITION,
             ITERATIVE_CONDITION,
         ),
+    )
+
+    monkeypatch.setattr(
+        experiment_module,
+        "ollama_runtime_provenance",
+        lambda model, base_url: {
+            "model": model,
+            "base_url": base_url,
+            "ollama_version": "0.12.3",
+            "model_digest": "sha256:abc123",
+            "status": "complete",
+            "error": None,
+        },
     )
 
     result = run_experiment(
@@ -145,7 +162,11 @@ def test_experiment_compares_conditions_and_appends_compact_jsonl(tmp_path):
 
     record = json.loads(log_path.read_text(encoding="utf-8"))
     assert record["record_type"] == "synthetic_generation_experiment"
-    assert record["schema_version"] == 2
+    assert record["schema_version"] == 3
+    assert "python_version" in record["provenance"]
+    assert "platform" in record["provenance"]
+    assert record["provenance"]["ollama"]["model_digest"] == "sha256:abc123"
+    assert record["config"]["base_url"] == "http://ollama.test"
     assert record["config"]["temperature"] == 0.35
     assert record["config"]["max_repair_attempts"] == 2
     assert record["condition_summary"][BASELINE_CONDITION][

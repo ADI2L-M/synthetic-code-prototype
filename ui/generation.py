@@ -72,6 +72,7 @@ def render_generation_job_dialog(
     batch_size: int,
     iteration_number: int,
     on_complete: Callable[[Any, Exception | None], None],
+    on_cancel: Callable[[], None] | None = None,
 ) -> None:
     """Render a cancellable native viewport dialog for a background job."""
 
@@ -121,6 +122,8 @@ def render_generation_job_dialog(
             width="stretch",
             key="cancel_generation",
         ):
+            if on_cancel is not None:
+                on_cancel()
             job.cancel()
 
     poll_job()
@@ -193,7 +196,6 @@ def render_generation_sidebar(data: dict[str, Any]) -> GenerationControls:
             width="stretch",
             key="generate_batch",
             disabled=busy,
-            on_click=begin_generation,
         )
         if busy:
             st.info("Generation is running. Controls are temporarily disabled.")

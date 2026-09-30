@@ -18,6 +18,7 @@ HOME_TAB = ":material/home: Home"
 GENERATION_PAGE = "app_pages/generation.py"
 HOME_PAGE = "app_pages/home.py"
 DETECTION_PAGE = "app_pages/defect_detection.py"
+EXPERIMENT_PAGE = "app_pages/experiments.py"
 
 
 def _app() -> AppTest:
@@ -208,6 +209,15 @@ def test_defect_detection_is_a_separate_complementary_view():
         "T3 · Sum to N",
     ]
     assert "generate_batch" not in [button.key for button in app.button]
+
+
+def test_experiments_view_exposes_history_and_run_storage():
+    app = _open_page(_app(), EXPERIMENT_PAGE)
+
+    assert not app.exception
+    assert app.title[0].value == "Experiments"
+    assert any("Experiment history" in item.value for item in app.subheader)
+    assert any("Interactive generation runs" in item.value for item in app.subheader)
 
 
 def test_detection_view_can_switch_prototype_task():
