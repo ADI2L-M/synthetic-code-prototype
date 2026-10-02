@@ -10,3 +10,4 @@ __pycache__/
 .pytest_cache/
 outputs/
 research-notes/detector-validation/authentic-detector-review-all.jsonl
+research-notes/data-identification/
