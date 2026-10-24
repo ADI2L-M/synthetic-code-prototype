@@ -1,0 +1,52 @@
+task_id,task_theme,defect_id,defect_name,profile_type,applicability,eligible_count,detected_count,prevalence_pct,experimental_target_pct,target_origin
+T1,conditional_logic,T1_D1,redundant_if_else,Dependent,eligible,10778,104,0.964929,1.126345,Empirically derived but transformed
+T1,conditional_logic,T1_D2,redundant_comparison,Dependent,eligible,10778,48,0.445352,0.469888,Empirically derived but transformed
+T1,conditional_logic,T1_D3,redundant_not,Dependent,eligible,10778,11,0.102060,0.096254,Empirically derived but transformed
+T1,conditional_logic,T1_D4,duplicate_if,Dependent,eligible,10778,94,0.872147,0.936753,Empirically derived but transformed
+T1,conditional_logic,T1_D5,else_if,Dependent,eligible,10778,157,1.456671,1.439550,Empirically derived but transformed
+T1,conditional_logic,T1_D6,nested_if,Dependent,eligible,10778,18,0.167007,0.168178,Empirically derived but transformed
+T1,conditional_logic,T1_D7,redundant_elif,Dependent,eligible,10778,101,0.937094,0.860859,Empirically derived but transformed
+T1,conditional_logic,T1_D8,empty_if,Dependent,eligible,10778,14,0.129894,0.135749,Empirically derived but transformed
+T1,conditional_logic,T2_D1,redundant_indexing,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T1,conditional_logic,T2_D2,misleading_iterator_name,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T1,conditional_logic,T2_D3,duplicate_expression,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T1,conditional_logic,T3_D1,while_as_for,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T1,conditional_logic,TD_ASSIGN_01,augmentable_assignment,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T1,conditional_logic,TI_FORMAT_01,inappropriate_formatting,Independent,eligible,10778,5715,53.024680,55.008884,Empirically derived but transformed
+T1,conditional_logic,TI_LITERAL_01,magic_number,Independent,eligible,10778,5930,55.019484,54.067157,Empirically derived but transformed
+T1,conditional_logic,TI_NAME_01,one_letter_name,Independent,eligible,10778,1136,10.539989,10.748582,Empirically derived but transformed
+T1,conditional_logic,TI_NAME_02,built_in_name,Independent,eligible,10778,129,1.196883,1.153694,Empirically derived but transformed
+T2,list_processing,T1_D1,redundant_if_else,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,T1_D2,redundant_comparison,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,T1_D3,redundant_not,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,T1_D4,duplicate_if,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,T1_D5,else_if,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,T1_D6,nested_if,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,T1_D7,redundant_elif,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,T1_D8,empty_if,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,T2_D1,redundant_indexing,Dependent,eligible,10756,332,3.086649,3.040149,Empirically derived but transformed
+T2,list_processing,T2_D2,misleading_iterator_name,Dependent,eligible,10756,1149,10.682410,10.642568,Empirically derived but transformed
+T2,list_processing,T2_D3,duplicate_expression,Dependent,eligible,10756,1593,14.810338,14.632313,Empirically derived but transformed
+T2,list_processing,T3_D1,while_as_for,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T2,list_processing,TD_ASSIGN_01,augmentable_assignment,Dependent,eligible,10756,99,0.920417,0.922591,Empirically derived but transformed
+T2,list_processing,TI_FORMAT_01,inappropriate_formatting,Independent,eligible,10756,5678,52.789141,53.071684,Empirically derived but transformed
+T2,list_processing,TI_LITERAL_01,magic_number,Independent,eligible,10756,3006,27.947192,27.739787,Empirically derived but transformed
+T2,list_processing,TI_NAME_01,one_letter_name,Independent,eligible,10756,1739,16.167720,16.159040,Empirically derived but transformed
+T2,list_processing,TI_NAME_02,built_in_name,Independent,eligible,10756,359,3.337672,3.332850,Empirically derived but transformed
+T3,numeric_iteration,T1_D1,redundant_if_else,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T1_D2,redundant_comparison,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T1_D3,redundant_not,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T1_D4,duplicate_if,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T1_D5,else_if,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T1_D6,nested_if,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T1_D7,redundant_elif,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T1_D8,empty_if,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T2_D1,redundant_indexing,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T2_D2,misleading_iterator_name,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T2_D3,duplicate_expression,Dependent,not_applicable,N/A,N/A,N/A,N/A,N/A
+T3,numeric_iteration,T3_D1,while_as_for,Dependent,eligible,3859,195,5.053123,4.729745,Empirically derived but transformed
+T3,numeric_iteration,TD_ASSIGN_01,augmentable_assignment,Dependent,eligible,3859,78,2.021249,2.050966,Empirically derived but transformed
+T3,numeric_iteration,TI_FORMAT_01,inappropriate_formatting,Independent,eligible,3859,2251,58.331174,59.462241,Empirically derived but transformed
+T3,numeric_iteration,TI_LITERAL_01,magic_number,Independent,eligible,3859,1630,42.238922,40.927936,Empirically derived but transformed
+T3,numeric_iteration,TI_NAME_01,one_letter_name,Independent,eligible,3859,1027,26.613112,29.404680,Empirically derived but transformed
+T3,numeric_iteration,TI_NAME_02,built_in_name,Independent,eligible,3859,760,19.694221,18.237485,Empirically derived but transformed
